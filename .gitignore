@@ -1,0 +1,76 @@
+# Dependencias
+node_modules/
+.pnp/
+.pnp.js
+vendor/
+
+# Build
+dist/
+build/
+out/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.user
+*.suo
+*.sln.docstates
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.snk
+*.key
+*.pem
+*.keystore
+*.jks
+
+# Dados locais
+/data/
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Midia e uploads
+/uploads/
+/media/
+/storage/
+
+# IDE / Editor
+.idea/
+.vs/
+.vscode/
+*.sln.iml
+
+# Testes
+[Tt]est[Rr]esults/
+coverage*.json
+coverage*.xml
+*.coverage
+*.trx
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+*.lnk
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Go
+*.exe
+*.test
+*.out
