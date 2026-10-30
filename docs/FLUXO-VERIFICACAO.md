@@ -82,6 +82,29 @@ usando ferramentas gratuitas e processamento **no dispositivo** do usuário.
   fallback (CNH com QR ou revisão manual).
 - Verificação caseira é **medida razoável**, não garantia absoluta.
 
+## Implementacao atual (B1.2)
+- Captura de **frente**, **verso (QR)** e **selfie** (camera no Android; upload no web).
+- QR da CIN decodificado no app (`zxing2`) e validado na **Edge Function `verify-cin`**
+  (JWT **ES512**, chave publica do MJSP).
+- Imagens enviadas ao bucket **privado** `verification-docs` (RLS por usuario).
+- Revisao **manual** pelo dashboard do Supabase.
+- Retencao: apagar imagens apos a revisao (maximo 7 dias).
+
+### Revisao manual (admin)
+1. Abra **Storage → verification-docs → `<user_id>/`** e confira documento x selfie.
+2. Aprovar:
+```sql
+update public.verification_attempts
+set status = 'approved', reviewed_at = now()
+where id = '<attempt_id>';
+
+update public.profiles
+set verification_status = 'verified'
+where id = '<user_id>';
+```
+3. Rejeitar: use `status = 'rejected'` e `verification_status = 'rejected'`.
+4. Apague a pasta do usuario no Storage apos a revisao.
+
 ## Privacidade
 - Processar biometria **no dispositivo** sempre que possível.
 - Não armazenar templates biométricos nem imagens de documento.

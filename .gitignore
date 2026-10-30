@@ -4,6 +4,9 @@ node_modules/
 .pnp.js
 vendor/
 
+# Supabase CLI (cache local)
+supabase/.temp/
+
 # Build
 dist/
 build/

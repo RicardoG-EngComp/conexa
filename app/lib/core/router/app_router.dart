@@ -13,10 +13,10 @@ import '../../features/matches/presentation/matches_screen.dart';
 import '../../features/onboarding/presentation/consent_screen.dart';
 import '../../features/onboarding/presentation/preferences_screen.dart';
 import '../../features/onboarding/presentation/profile_setup_screen.dart';
-import '../../features/onboarding/presentation/verification_screen.dart';
 import '../../features/onboarding/presentation/welcome_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/subscription/presentation/subscription_screen.dart';
+import '../../features/verification/presentation/verification_screen.dart';
 import 'go_router_refresh.dart';
 import 'main_shell.dart';
 
