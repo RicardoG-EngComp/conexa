@@ -1,0 +1,366 @@
+# Mapa de Telas
+
+## Estrutura de navegação
+```
+App
+├── Onboarding (sem login)
+│   ├── Boas-vindas / 18+
+│   ├── Criar conta
+│   ├── Consentimentos
+│   ├── Verificação de identidade
+│   ├── Montar perfil
+│   ├── Preferências
+│   └── Localização (opcional)
+└── Principal (logado)
+    ├── Descobrir
+    ├── Curtidas / Matches
+    ├── Conversas
+    │   └── Chat
+    ├── AI Coach (assinante)
+    ├── Mapa / Perto de você
+    ├── Assinatura
+    └── Configurações
+```
+```
+Admin (web)
+├── Fila de moderação
+├── Gestão de usuários
+└── Denúncias
+```
+
+## Fluxo principal (onboarding)
+```
+[18+] -> [Conta] -> [Consentimentos] -> [Documento] -> [Selfie] -> [Resultado]
+   |                                                                  |
+   +------------------------- (falha) -> [Revisão] <------------------+
+                                                                      |
+[Perfil] <- [Estilo de relação] <- [Interesses] <- [Prompts] <- [Fotos]
+   |
+[Preferências] -> [Localização] -> [Descobrir]
+```
+
+---
+
+## Wireframes (baixa fidelidade)
+
+### 1. Boas-vindas / 18+
+```
++----------------------------------+
+|                                  |
+|         [ marca / nome ]         |
+|                                  |
+|   Um espaço para conexões reais  |
+|                                  |
+|   Este app é para maiores de 18  |
+|                                  |
+|   [ Tenho 18 anos ou mais ]      |
+|   [ Sair ]                       |
++----------------------------------+
+```
+
+### 2. Criar conta
+```
++----------------------------------+
+|  <                               |
+|  Criar conta                     |
+|                                  |
+|  E-mail                          |
+|  [__________________________]    |
+|                                  |
+|  Senha                           |
+|  [__________________________]    |
+|                                  |
+|  [ Continuar ]                   |
++----------------------------------+
+```
+
+### 3. Consentimentos
+```
++----------------------------------+
+|  <  Privacidade e consentimento  |
+|                                  |
+|  [x] Termos de Uso               |
+|  [x] Política de Privacidade     |
+|  [ ] Uso de biometria (selfie)   |
+|      (obrigatório p/ verificar)  |
+|  [ ] Localização aproximada      |
+|                                  |
+|  [ Aceitar e continuar ]         |
++----------------------------------+
+```
+
+### 4. Verificação — documento
+```
++----------------------------------+
+|  <  Verificação (1/3)            |
+|                                  |
+|  Frente da CIN/CNH               |
+|  +----------------------------+  |
+|  |      [ câmera ]            |  |
+|  |   enquadre o documento     |  |
+|  +----------------------------+  |
+|                                  |
+|  Verso com QR Code               |
+|  +----------------------------+  |
+|  |      [ câmera ]            |  |
+|  +----------------------------+  |
+|                                  |
+|  [ Continuar ]                   |
++----------------------------------+
+```
+
+### 5. Verificação — selfie/liveness
+```
++----------------------------------+
+|  <  Verificação (2/3)            |
+|                                  |
+|        +------------+            |
+|        |   ( rosto )|            |
+|        |            |            |
+|        +------------+            |
+|                                  |
+|  Olhe para a câmera e pisque     |
+|                                  |
+|  [ Iniciar prova de vida ]       |
++----------------------------------+
+```
+
+### 6. Resultado
+```
++----------------------------------+
+|  Verificação (3/3)               |
+|                                  |
+|            ( ok )                |
+|                                  |
+|  Identidade confirmada           |
+|  Você tem 18 anos ou mais        |
+|                                  |
+|  [ Continuar ]                   |
++----------------------------------+
+```
+
+### 7. Perfil — fotos
+```
++----------------------------------+
+|  <  Seu perfil (1/4)             |
+|                                  |
+|  Adicione fotos                  |
+|  +--------+ +--------+           |
+|  | foto 1 | | foto 2 |           |
+|  +--------+ +--------+           |
+|  +--------+ +--------+           |
+|  | +      | | +      |           |
+|  +--------+ +--------+           |
+|                                  |
+|  Dica: luz natural e rosto       |
+|  visível funcionam melhor        |
+|                                  |
+|  [ Continuar ]                   |
++----------------------------------+
+```
+
+### 8. Perfil — prompts
+```
++----------------------------------+
+|  <  Seu perfil (2/4)             |
+|                                  |
+|  Responda 3 prompts              |
+|                                  |
+|  "Um domingo perfeito é..."      |
+|  [__________________________]    |
+|                                  |
+|  "Procuro alguém que..."         |
+|  [__________________________]    |
+|                                  |
+|  "Meu maior talento é..."        |
+|  [__________________________]    |
+|                                  |
+|  [ Continuar ]                   |
++----------------------------------+
+```
+
+### 9. Perfil — estilo de relação
+```
++----------------------------------+
+|  <  Seu perfil (3/4)             |
+|                                  |
+|  Como você se relaciona?         |
+|  ( ) Monogamia                   |
+|  ( ) Não-monogamia               |
+|  ( ) Casal / trisal              |
+|  ( ) Prefiro não dizer           |
+|                                  |
+|  [ ] Estou em um relacionamento  |
+|      -> Vincular parceiro        |
+|                                  |
+|  [ Continuar ]                   |
++----------------------------------+
+```
+
+### 10. Preferências
+```
++----------------------------------+
+|  <  Preferências                 |
+|                                  |
+|  Quero ver                       |
+|  [ Gênero v ] [ Idade v ]        |
+|  [ Distância v ] [ Intenção v ]  |
+|                                  |
+|  [ Começar a usar ]              |
++----------------------------------+
+```
+
+### 11. Descobrir (feed)
+```
++----------------------------------+
+|  Descobrir              [filtros]|
+|                                  |
+|  +----------------------------+  |
+|  |        [ foto ]            |  |
+|  |                            |  |
+|  |  Ana, 24                  |  |
+|  |  "Um domingo perfeito é..."|  |
+|  +----------------------------+  |
+|                                  |
+|  [ X ]        [ ♥ ]     [ -> ]   |
+|                                  |
+|  (próximo perfil...)             |
++----------------------------------+
+```
+
+### 12. Detalhe do perfil
+```
++----------------------------------+
+|  <                        [ ... ]|
+|  +----------------------------+  |
+|  |        [ foto ]            |  |
+|  +----------------------------+  |
+|  Ana, 24                         |
+|  Relaciona-se com @bia          |
+|                                  |
+|  Prompt 1 ...                    |
+|  Prompt 2 ...                    |
+|                                  |
+|  [ ♥ Curtir ]   [ Enviar msg ]  |
++----------------------------------+
+```
+
+### 13. Curtidas / Matches
+```
++----------------------------------+
+|  Curtidas                        |
+|  [ Quem curtiu você ]            |
+|  +------+ +------+ +------+      |
+|  | foto | | foto | | foto |      |
+|  +------+ +------+ +------+      |
+|                                  |
+|  Matches                         |
+|  +------+ +------+               |
+|  | foto | | foto |               |
+|  +------+ +------+               |
++----------------------------------+
+```
+
+### 14. Lista de conversas
+```
++----------------------------------+
+|  Conversas                       |
+|  +------+ Ana           12:40   |
+|  | foto | última msg...         |
+|  +------+                        |
+|  +------+ Bia           10:12   |
+|  | foto | última msg...         |
+|  +------+                        |
++----------------------------------+
+```
+
+### 15. Chat
+```
++----------------------------------+
+|  <  Ana                   [ ... ]|
+|                                  |
+|         [ oi! tudo bem? ]        |
+|  [ e aí, o que você curte? ]     |
+|                                  |
+|  +----------------------------+  |
+|  | [ aviso de segurança ]     |  |
+|  | "Mensagem pode ser invasiva"| |
+|  +----------------------------+  |
+|                                  |
+|  [ Coach ] [___________] [ -> ]  |
++----------------------------------+
+```
+
+### 16. AI Coach (assinante)
+```
++----------------------------------+
+|  <  Coach                        |
+|                                  |
+|  [ Dicas de foto ]               |
+|  [ Sugerir abertura ]            |
+|  [ Analisar meu perfil ]         |
+|                                  |
+|  Sugestão para Ana:              |
+|  "Você também curte trilhas?    |
+|   Qual foi a última que fez?"    |
+|                                  |
+|  [ Copiar ]  [ Usar ]            |
++----------------------------------+
+```
+
+### 17. Assinatura
+```
++----------------------------------+
+|  <  Assinatura                   |
+|                                  |
+|  Grátis: filtros básicos         |
+|  Assinante: filtros + Coach      |
+|                                  |
+|  ( ) R$ 10/mês                   |
+|  ( ) R$ 5/mês (indicação)        |
+|  ( ) Anual (desconto)            |
+|                                  |
+|  [ Assinar com Pix ]             |
++----------------------------------+
+```
+
+### 18. Configurações
+```
++----------------------------------+
+|  <  Configurações                |
+|  Privacidade e consentimentos    |
+|  Localização                     |
+|  Segurança                       |
+|  Bloquear usuários               |
+|  Excluir conta                   |
++----------------------------------+
+```
+
+### 19. Denúncia / Bloqueio
+```
++----------------------------------+
+|  <  Denunciar                    |
+|                                  |
+|  Motivo:                         |
+|  ( ) Assédio                     |
+|  ( ) Perfil falso                |
+|  ( ) Imagem sem consentimento    |
+|  ( ) Menor de idade              |
+|  ( ) Outro                       |
+|                                  |
+|  [ Enviar denúncia ]             |
+|  [ Bloquear usuário ]            |
++----------------------------------+
+```
+
+---
+
+## Ordem de construção das telas
+1. **B1:** 1–6 (18+, conta, consentimento, verificação).
+2. **B2:** 7–10 + 18 (perfil, estilo de relação, preferências, configurações).
+3. **B3:** 11–13 (descobrir, detalhe, curtidas).
+4. **B4:** 14–15 + 19 (conversas, chat, denúncia).
+5. **B5:** 16 (Coach).
+6. **B6:** mapa/perto de você.
+7. **B7:** 17 (assinatura).
+8. **B8/B9:** admin web.

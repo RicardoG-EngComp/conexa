@@ -51,6 +51,8 @@ parte do escopo, não um extra.
 ## Documentos
 | Documento | Descrição |
 |---|---|
+| [ROADMAP-BLOCOS](docs/ROADMAP-BLOCOS.md) | Construção organizada em blocos |
+| [MAPA-DE-TELAS](docs/MAPA-DE-TELAS.md) | Telas e wireframes |
 | [ESCOPO-MVP](docs/ESCOPO-MVP.md) | Escopo funcional e técnico do MVP |
 | [FLUXO-VERIFICACAO](docs/FLUXO-VERIFICACAO.md) | Verificação de idade e identidade |
 | [CONFORMIDADE-LGPD](docs/CONFORMIDADE-LGPD.md) | Checklist de conformidade |
