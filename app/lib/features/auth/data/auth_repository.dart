@@ -9,7 +9,7 @@ class AuthRepository {
   static const String consentVersion = '2026-10';
 
   String get redirectTo => kIsWeb
-      ? 'http://localhost:8080'
+      ? 'http://localhost:8081'
       : 'com.ricardogengcomp.match://login-callback';
 
   Future<AuthResponse> signUp({
