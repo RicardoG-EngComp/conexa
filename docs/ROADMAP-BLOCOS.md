@@ -26,6 +26,7 @@ Content" na licença e manter a atribuição.
 **Entrega:** projeto Flutter, navegação, design tokens, tema, estrutura de pastas,
 CI básico, documentos de conformidade.
 **Pronto quando:** app abre vazio com tema e rotas funcionando.
+**Status:** ✅ concluído (Flutter 3.47.9, Riverpod, go_router, tema e rotas).
 
 ### B1 — Identidade 18+
 **Entrega:** cadastro, consentimentos, verificação de documento + liveness.

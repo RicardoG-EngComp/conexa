@@ -59,5 +59,18 @@ parte do escopo, não um extra.
 | [POLITICA-PRIVACIDADE](docs/POLITICA-PRIVACIDADE.md) | Rascunho de política de privacidade |
 | [TERMOS-DE-USO](docs/TERMOS-DE-USO.md) | Rascunho de termos de uso |
 
+## Desenvolvimento (app Flutter)
+O código fica em `app/`. Requisitos: Flutter 3.47.9+.
+
+```powershell
+cd app
+flutter pub get
+flutter run -d chrome    # preview no navegador
+flutter run -d android   # emulador/dispositivo Android
+flutter analyze
+flutter test
+```
+
 ## Status
 Ideia em validação. Objetivo: converter em produto.
+B0 (fundação) concluído: projeto Flutter, tema/tokens, rotas e telas vazias.
