@@ -33,6 +33,8 @@ CI básico, documentos de conformidade.
 **Depende de:** B0.
 **Pronto quando:** só entra quem passa no 18+ e o fluxo registra auditoria.
 **Detalhe:** ver `FLUXO-VERIFICACAO.md`.
+**Status:** B1.1 (autenticação real com Supabase) ✅ concluído.
+B1.2 (verificação CIN/CNH + revisão manual) pendente.
 
 ### B2 — Perfil & Onboarding
 **Entrega:** fotos, prompts, interesses, estilo de relação

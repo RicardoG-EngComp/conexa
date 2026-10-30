@@ -71,6 +71,15 @@ flutter analyze
 flutter test
 ```
 
+## Autenticacao (Supabase)
+O app usa **Supabase** (Auth + Postgres + RLS).
+
+1. Copie `app/.env.example` para `app/.env`.
+2. Preencha `SUPABASE_URL` e `SUPABASE_ANON_KEY` (publishable key).
+3. As migrations ficam em `supabase/migrations/`.
+
+> `.env` nunca vai para o Git. A `service_role` nunca vai no app.
+
 ## Status
 Ideia em validação. Objetivo: converter em produto.
 B0 (fundação) concluído: projeto Flutter, tema/tokens, rotas e telas vazias.
