@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../auth/application/auth_providers.dart';
 import '../../reports/application/report_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -61,6 +62,34 @@ class SettingsScreen extends ConsumerWidget {
                 onTap: () => context.push('/admin'),
               ),
             ],
+            const Divider(height: AppSpacing.xl),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.logout, color: AppColors.danger),
+              title: const Text('Sair da conta'),
+              onTap: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Sair da conta?'),
+                    content: const Text('Voce precisara entrar novamente.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancelar'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Sair'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm != true) return;
+                await ref.read(authRepositoryProvider).signOut();
+                if (context.mounted) context.go('/welcome');
+              },
+            ),
           ],
         ),
       ),
