@@ -35,7 +35,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
         'biometric',
       ]);
       if (!mounted) return;
-      context.go('/verification');
+      context.go('/profile-setup');
     } catch (e) {
       setState(() => _error = 'Nao foi possivel salvar. Tente novamente.');
     } finally {

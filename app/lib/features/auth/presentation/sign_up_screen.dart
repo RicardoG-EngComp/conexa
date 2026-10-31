@@ -20,6 +20,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  DateTime? _birthDate;
   bool _loading = false;
   String? _error;
 
@@ -31,8 +32,35 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     super.dispose();
   }
 
+  Future<void> _pickBirthDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(now.year - 18, now.month, now.day),
+      firstDate: DateTime(1900),
+      lastDate: now,
+      helpText: 'Data de nascimento',
+    );
+    if (picked != null) setState(() => _birthDate = picked);
+  }
+
+  String _formatDate(DateTime d) {
+    final dd = d.day.toString().padLeft(2, '0');
+    final mm = d.month.toString().padLeft(2, '0');
+    return '$dd/$mm/${d.year}';
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_birthDate == null) {
+      setState(() => _error = 'Informe sua data de nascimento.');
+      return;
+    }
+    if (ageFromDate(_birthDate!) < 18) {
+      setState(() => _error = 'O app e exclusivo para maiores de 18 anos.');
+      return;
+    }
+
     setState(() {
       _loading = true;
       _error = null;
@@ -41,7 +69,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     try {
       final response = await ref
           .read(authRepositoryProvider)
-          .signUp(email: _email.text.trim(), password: _password.text);
+          .signUp(
+            email: _email.text.trim(),
+            password: _password.text,
+            birthDate: _birthDate!,
+          );
 
       if (!mounted) return;
       if (response.session == null) {
@@ -64,7 +96,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Criar conta')),
+      appBar: AppBar(title: const Text('Criar conta UFV')),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -72,13 +104,23 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
               Text('Seus dados de acesso', style: theme.textTheme.titleLarge),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'Use seu e-mail institucional @alunos.ufv.br.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: AppColors.muted,
+                ),
+              ),
               const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
-                validator: validateEmail,
-                decoration: const InputDecoration(labelText: 'E-mail'),
+                validator: validateUfvEmail,
+                decoration: const InputDecoration(
+                  labelText: 'E-mail institucional',
+                  hintText: 'nome@alunos.ufv.br',
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
               TextFormField(
@@ -94,6 +136,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 validator: (v) =>
                     validatePasswordConfirmation(v, _password.text),
                 decoration: const InputDecoration(labelText: 'Confirmar senha'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              InkWell(
+                onTap: _loading ? null : _pickBirthDate,
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Data de nascimento',
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _birthDate == null
+                            ? 'Selecionar data'
+                            : _formatDate(_birthDate!),
+                      ),
+                      const Icon(Icons.calendar_today_outlined, size: 18),
+                    ],
+                  ),
+                ),
               ),
               if (_error != null) ...[
                 const SizedBox(height: AppSpacing.md),

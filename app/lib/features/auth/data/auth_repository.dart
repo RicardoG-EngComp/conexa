@@ -15,11 +15,13 @@ class AuthRepository {
   Future<AuthResponse> signUp({
     required String email,
     required String password,
+    required DateTime birthDate,
   }) {
     return _client.auth.signUp(
       email: email,
       password: password,
       emailRedirectTo: redirectTo,
+      data: {'birth_date': birthDate.toIso8601String().split('T').first},
     );
   }
 

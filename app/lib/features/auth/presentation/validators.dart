@@ -19,3 +19,23 @@ String? validatePasswordConfirmation(String? value, String password) {
   if (value != password) return 'As senhas nao coincidem';
   return null;
 }
+
+String? validateUfvEmail(String? value) {
+  final base = validateEmail(value);
+  if (base != null) return base;
+  final v = value!.trim().toLowerCase();
+  if (!v.endsWith('@alunos.ufv.br')) {
+    return 'Use seu e-mail institucional @alunos.ufv.br';
+  }
+  return null;
+}
+
+int ageFromDate(DateTime date) {
+  final now = DateTime.now();
+  var age = now.year - date.year;
+  if (now.month < date.month ||
+      (now.month == date.month && now.day < date.day)) {
+    age--;
+  }
+  return age;
+}

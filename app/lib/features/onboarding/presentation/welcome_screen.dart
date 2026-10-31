@@ -26,8 +26,8 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Um espaco para conhecer pessoas com afinidade, '
-                'de forma amigavel ou intima.',
+                'A rede social dos estudantes da UFV. Conheca pessoas com '
+                'afinidade, de forma amigavel ou intima.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: AppColors.muted,
                 ),
@@ -39,7 +39,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Exclusivo para maiores de 18 anos.',
+                'Exclusivo para estudantes da UFV, maiores de 18 anos.',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: AppColors.muted,
                 ),
