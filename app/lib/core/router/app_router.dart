@@ -6,6 +6,7 @@ import '../../features/auth/presentation/check_email_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/auth/presentation/sign_up_screen.dart';
+import '../../features/chat/data/chat_models.dart';
 import '../../features/chat/presentation/chat_list_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
 import '../../features/coach/presentation/coach_screen.dart';
@@ -87,7 +88,12 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/chats/:id',
-      builder: (_, state) => ChatScreen(id: state.pathParameters['id'] ?? ''),
+      builder: (_, state) => ChatScreen(
+        id: state.pathParameters['id'] ?? '',
+        summary: state.extra is ConversationSummary
+            ? state.extra as ConversationSummary
+            : null,
+      ),
     ),
     GoRoute(
       path: '/subscription',

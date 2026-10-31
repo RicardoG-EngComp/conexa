@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/time_ago.dart';
 import '../application/feed_providers.dart';
 import '../data/feed_models.dart';
-import 'feed_screen.dart' show timeAgo;
 
 class PostDetailScreen extends ConsumerStatefulWidget {
   const PostDetailScreen({super.key, required this.postId, this.post});
