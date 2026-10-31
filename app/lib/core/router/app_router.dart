@@ -9,6 +9,9 @@ import '../../features/chat/presentation/chat_list_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
 import '../../features/coach/presentation/coach_screen.dart';
 import '../../features/discover/presentation/discover_screen.dart';
+import '../../features/feed/data/feed_models.dart';
+import '../../features/feed/presentation/feed_screen.dart';
+import '../../features/feed/presentation/post_detail_screen.dart';
 import '../../features/matches/presentation/matches_screen.dart';
 import '../../features/onboarding/presentation/consent_screen.dart';
 import '../../features/onboarding/presentation/preferences_screen.dart';
@@ -40,7 +43,7 @@ final GoRouter appRouter = GoRouter(
 
     if (!loggedIn && !isPublic) return '/welcome';
     if (loggedIn && (path == '/welcome' || path == '/sign-up')) {
-      return '/discover';
+      return '/feed';
     }
     return null;
   },
@@ -66,12 +69,20 @@ final GoRouter appRouter = GoRouter(
     ShellRoute(
       builder: (_, _, child) => MainShell(child: child),
       routes: [
+        GoRoute(path: '/feed', builder: (_, _) => const FeedScreen()),
         GoRoute(path: '/discover', builder: (_, _) => const DiscoverScreen()),
         GoRoute(path: '/matches', builder: (_, _) => const MatchesScreen()),
         GoRoute(path: '/chats', builder: (_, _) => const ChatListScreen()),
         GoRoute(path: '/coach', builder: (_, _) => const CoachScreen()),
         GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       ],
+    ),
+    GoRoute(
+      path: '/feed/:id',
+      builder: (_, state) => PostDetailScreen(
+        postId: state.pathParameters['id'] ?? '',
+        post: state.extra is FeedPost ? state.extra as FeedPost : null,
+      ),
     ),
     GoRoute(
       path: '/chats/:id',

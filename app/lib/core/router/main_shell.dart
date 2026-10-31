@@ -9,13 +9,7 @@ class MainShell extends ConsumerWidget {
 
   final Widget child;
 
-  static const _paths = [
-    '/discover',
-    '/matches',
-    '/chats',
-    '/coach',
-    '/settings',
-  ];
+  static const _paths = ['/feed', '/discover', '/chats', '/coach', '/settings'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,7 +23,10 @@ class MainShell extends ConsumerWidget {
       data: (profile) {
         final status =
             (profile?['verification_status'] as String?) ?? 'unverified';
-        if (status != 'verified') {
+        final ufvEmail = (profile?['ufv_email'] as String? ?? '').toLowerCase();
+        final verified =
+            status == 'verified' || ufvEmail.endsWith('@alunos.ufv.br');
+        if (!verified) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (context.mounted) context.go('/verification');
           });
@@ -49,14 +46,14 @@ class MainShell extends ConsumerWidget {
             onDestinationSelected: (i) => context.go(_paths[i]),
             destinations: const [
               NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home),
+                label: 'Feed',
+              ),
+              NavigationDestination(
                 icon: Icon(Icons.explore_outlined),
                 selectedIcon: Icon(Icons.explore),
                 label: 'Descobrir',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.favorite_outline),
-                selectedIcon: Icon(Icons.favorite),
-                label: 'Curtidas',
               ),
               NavigationDestination(
                 icon: Icon(Icons.chat_bubble_outline),
