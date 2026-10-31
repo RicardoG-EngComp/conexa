@@ -29,12 +29,11 @@ CI básico, documentos de conformidade.
 **Status:** ✅ concluído (Flutter 3.47.9, Riverpod, go_router, tema e rotas).
 
 ### B1 — Identidade 18+
-**Entrega:** cadastro, consentimentos, verificação de documento + liveness.
+**Entrega:** cadastro, consentimentos, verificação de vínculo UFV por e-mail institucional.
 **Depende de:** B0.
-**Pronto quando:** só entra quem passa no 18+ e o fluxo registra auditoria.
-**Detalhe:** ver `FLUXO-VERIFICACAO.md`.
-**Status:** B1.1 (autenticação real com Supabase) ✅ concluído.
-B1.2 (verificação CIN/CNH + revisão manual) ✅ concluído (QR da CIN via Edge Function, bucket privado e revisão manual).
+**Pronto quando:** só entra quem tem e-mail `@alunos.ufv.br` confirmado.
+**Status:** B1.1 (auth Supabase) ✅; B1.2 (identidade UFV por e-mail) ✅.
+Prova de idade real pendente (fase futura).
 
 ### B2 — Perfil & Onboarding
 **Entrega:** fotos, prompts, interesses, estilo de relação
@@ -43,9 +42,10 @@ B1.2 (verificação CIN/CNH + revisão manual) ✅ concluído (QR da CIN via Edg
 **Pronto quando:** perfil completo, editável e com parceiro vinculado.
 
 ### B3 — Descoberta & Match
-**Entrega:** feed de perfis, curtir/comentar, match mútuo.
+**Entrega:** feed social (posts, comentários, curtidas) e, depois, descoberta/match.
 **Depende de:** B2.
-**Pronto quando:** match acontece ponta a ponta.
+**Pronto quando:** feed funciona e o match acontece ponta a ponta.
+**Status:** feed social ✅ (posts, comentários e curtidas). Descoberta/match pendente.
 
 ### B4 — Chat & Segurança
 **Entrega:** mensagens, filtro antissedilidade, denúncia e bloqueio.

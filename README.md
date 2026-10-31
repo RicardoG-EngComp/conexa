@@ -82,4 +82,8 @@ O app usa **Supabase** (Auth + Postgres + RLS).
 
 ## Status
 Ideia em validação. Objetivo: converter em produto.
-B0 (fundação) concluído: projeto Flutter, tema/tokens, rotas e telas vazias.
+- B0 (fundação) ✅
+- B1.1 (auth Supabase) ✅
+- B1.2 (identidade UFV por e-mail) ✅
+- B3 (feed social) ✅
+- Próximo: painel admin (B9) + denúncias.
