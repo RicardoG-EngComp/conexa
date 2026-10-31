@@ -21,6 +21,39 @@ class MainShell extends ConsumerWidget {
       error: (_, _) =>
           const Scaffold(body: Center(child: Text('Erro ao carregar perfil.'))),
       data: (profile) {
+        final accountStatus =
+            (profile?['account_status'] as String?) ?? 'active';
+        if (accountStatus != 'active') {
+          return Scaffold(
+            body: SafeArea(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.block, size: 48),
+                      const SizedBox(height: 16),
+                      Text(
+                        accountStatus == 'banned'
+                            ? 'Sua conta foi banida.'
+                            : 'Sua conta esta suspensa.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Entre em contato com a administracao.',
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
         final status =
             (profile?['verification_status'] as String?) ?? 'unverified';
         final ufvEmail = (profile?['ufv_email'] as String? ?? '').toLowerCase();

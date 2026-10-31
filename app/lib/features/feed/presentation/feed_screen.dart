@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../reports/presentation/report_dialog.dart';
 import '../application/feed_providers.dart';
 import '../data/feed_models.dart';
 
@@ -80,6 +82,14 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 post: post,
                 onLike: () => _toggleLike(post),
                 onComment: () => context.push('/feed/${post.id}', extra: post),
+                onReport: () => showReportDialog(
+                  context,
+                  ref,
+                  reportedUserId: post.userId,
+                  targetType: 'post',
+                  targetId: post.id,
+                  contentSnapshot: post.content,
+                ),
               ),
             )
             .toList();
@@ -159,11 +169,13 @@ class _PostCard extends StatelessWidget {
     required this.post,
     required this.onLike,
     required this.onComment,
+    required this.onReport,
   });
 
   final FeedPost post;
   final VoidCallback onLike;
   final VoidCallback onComment;
+  final VoidCallback onReport;
 
   @override
   Widget build(BuildContext context) {
@@ -196,6 +208,14 @@ class _PostCard extends StatelessWidget {
                   color: AppColors.muted,
                 ),
               ),
+              if (Supabase.instance.client.auth.currentUser?.id != post.userId)
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, size: 20),
+                  onSelected: (_) => onReport(),
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(value: 'report', child: Text('Denunciar')),
+                  ],
+                ),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
