@@ -20,12 +20,34 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _controller = TextEditingController();
+  final _scrollController = ScrollController();
   bool _sending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(chatRepositoryProvider).markAsRead(widget.id);
+      ref.invalidate(conversationsProvider);
+    });
+  }
 
   @override
   void dispose() {
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   Future<void> _send() async {
@@ -106,13 +128,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ),
                     );
                   }
-                  final reversed = messages.reversed.toList();
+                  _scrollToBottom();
                   return ListView.builder(
-                    reverse: true,
+                    controller: _scrollController,
                     padding: const EdgeInsets.all(AppSpacing.md),
-                    itemCount: reversed.length,
+                    itemCount: messages.length,
                     itemBuilder: (context, index) {
-                      final message = reversed[index];
+                      final message = messages[index];
                       final mine = message.senderId == myId;
                       return _Bubble(
                         message: message,

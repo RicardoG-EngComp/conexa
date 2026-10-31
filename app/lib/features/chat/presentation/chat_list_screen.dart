@@ -59,14 +59,38 @@ class ChatListScreen extends ConsumerWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          trailing: c.lastAt == null
-                              ? null
-                              : Text(
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (c.unreadCount > 0)
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                    right: AppSpacing.sm,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.teal,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    '${c.unreadCount}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              if (c.lastAt != null)
+                                Text(
                                   timeAgo(c.lastAt!),
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: AppColors.muted,
                                   ),
                                 ),
+                            ],
+                          ),
                           onTap: () => context.push('/chats/${c.id}', extra: c),
                         ),
                       )

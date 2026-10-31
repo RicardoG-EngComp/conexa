@@ -5,6 +5,7 @@ class ConversationSummary {
     required this.otherName,
     this.lastMessage,
     this.lastAt,
+    this.unreadCount = 0,
   });
 
   final String id;
@@ -12,6 +13,7 @@ class ConversationSummary {
   final String otherName;
   final String? lastMessage;
   final DateTime? lastAt;
+  final int unreadCount;
 }
 
 class ChatMessage {

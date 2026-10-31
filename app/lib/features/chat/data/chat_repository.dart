@@ -21,12 +21,19 @@ class ChatRepository {
 
     final myRows = await _client
         .from('conversation_participants')
-        .select('conversation_id')
+        .select('conversation_id, last_read_at')
         .eq('user_id', user.id);
     final convIds = (myRows as List)
         .map((r) => r['conversation_id'] as String)
         .toList();
     if (convIds.isEmpty) return [];
+
+    final lastReadMap = <String, DateTime>{
+      for (final r in (myRows as List))
+        r['conversation_id'] as String: DateTime.parse(
+          r['last_read_at'] as String,
+        ).toUtc(),
+    };
 
     final otherRows = await _client
         .from('conversation_participants')
@@ -50,13 +57,25 @@ class ChatRepository {
 
     final messages = await _client
         .from('messages')
-        .select('conversation_id, content, created_at')
+        .select('conversation_id, sender_id, content, created_at')
         .inFilter('conversation_id', convIds)
         .order('created_at', ascending: false);
     final last = <String, Map<String, dynamic>>{};
+    final unread = <String, int>{};
     for (final m in (messages as List)) {
       final map = m as Map<String, dynamic>;
-      last.putIfAbsent(map['conversation_id'] as String, () => map);
+      final cid = map['conversation_id'] as String;
+      last.putIfAbsent(cid, () => map);
+
+      if (map['sender_id'] != user.id) {
+        final created = DateTime.parse(map['created_at'] as String).toUtc();
+        final lastRead =
+            lastReadMap[cid] ??
+            DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+        if (created.isAfter(lastRead)) {
+          unread[cid] = (unread[cid] ?? 0) + 1;
+        }
+      }
     }
 
     final summaries = convIds.map((cid) {
@@ -70,6 +89,7 @@ class ChatRepository {
         lastAt: lastMessage == null
             ? null
             : DateTime.parse(lastMessage['created_at'] as String),
+        unreadCount: unread[cid] ?? 0,
       );
     }).toList();
 
@@ -103,5 +123,15 @@ class ChatRepository {
       'content': content.trim(),
       'flagged': flagged,
     });
+  }
+
+  Future<void> markAsRead(String conversationId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    await _client
+        .from('conversation_participants')
+        .update({'last_read_at': DateTime.now().toUtc().toIso8601String()})
+        .eq('conversation_id', conversationId)
+        .eq('user_id', user.id);
   }
 }

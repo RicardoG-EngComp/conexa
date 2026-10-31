@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,9 +16,35 @@ final moderationServiceProvider = Provider<ModerationService>(
 );
 
 final conversationsProvider =
-    FutureProvider.autoDispose<List<ConversationSummary>>(
-      (ref) => ref.read(chatRepositoryProvider).fetchConversations(),
-    );
+    StreamProvider.autoDispose<List<ConversationSummary>>((ref) {
+      final repository = ref.read(chatRepositoryProvider);
+      final client = Supabase.instance.client;
+      final controller = StreamController<List<ConversationSummary>>();
+      var disposed = false;
+
+      Future<void> refresh() async {
+        try {
+          final data = await repository.fetchConversations();
+          if (!disposed) controller.add(data);
+        } catch (error, stack) {
+          if (!disposed) controller.addError(error, stack);
+        }
+      }
+
+      refresh();
+      final subscription = client
+          .from('messages')
+          .stream(primaryKey: ['id'])
+          .listen((_) => refresh());
+
+      ref.onDispose(() {
+        disposed = true;
+        subscription.cancel();
+        controller.close();
+      });
+
+      return controller.stream;
+    });
 
 final messagesStreamProvider = StreamProvider.autoDispose
     .family<List<ChatMessage>, String>(
