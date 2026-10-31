@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../reports/presentation/report_dialog.dart';
 import '../application/chat_providers.dart';
 import '../data/chat_models.dart';
 
@@ -112,9 +113,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     itemCount: reversed.length,
                     itemBuilder: (context, index) {
                       final message = reversed[index];
+                      final mine = message.senderId == myId;
                       return _Bubble(
                         message: message,
-                        mine: message.senderId == myId,
+                        mine: mine,
+                        onReport: mine
+                            ? null
+                            : () => showReportDialog(
+                                context,
+                                ref,
+                                reportedUserId: message.senderId,
+                                targetType: 'message',
+                                targetId: message.id,
+                                contentSnapshot: message.content,
+                              ),
                       );
                     },
                   );
@@ -151,56 +163,73 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 }
 
 class _Bubble extends StatelessWidget {
-  const _Bubble({required this.message, required this.mine});
+  const _Bubble({required this.message, required this.mine, this.onReport});
 
   final ChatMessage message;
   final bool mine;
+  final VoidCallback? onReport;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints: const BoxConstraints(maxWidth: 280),
-        decoration: BoxDecoration(
-          color: mine ? AppColors.teal : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message.content,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: mine ? Colors.white : AppColors.ink,
-              ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!mine)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_horiz, size: 18),
+              onSelected: (_) => onReport?.call(),
+              itemBuilder: (_) => const [
+                PopupMenuItem(value: 'report', child: Text('Denunciar')),
+              ],
             ),
-            if (message.flagged) ...[
-              const SizedBox(height: 4),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+          Flexible(
+            child: Container(
+              margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              constraints: const BoxConstraints(maxWidth: 280),
+              decoration: BoxDecoration(
+                color: mine ? AppColors.teal : AppColors.surface,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    size: 12,
-                    color: mine ? Colors.white70 : AppColors.muted,
-                  ),
-                  const SizedBox(width: 4),
                   Text(
-                    'sinalizada',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: mine ? Colors.white70 : AppColors.muted,
+                    message.content,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: mine ? Colors.white : AppColors.ink,
                     ),
                   ),
+                  if (message.flagged) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          size: 12,
+                          color: mine ? Colors.white70 : AppColors.muted,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'sinalizada',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: mine ? Colors.white70 : AppColors.muted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
-            ],
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
