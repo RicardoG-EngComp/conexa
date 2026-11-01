@@ -3,6 +3,9 @@ class ConversationSummary {
     required this.id,
     required this.otherUserId,
     required this.otherName,
+    required this.status,
+    this.initiatorId,
+    this.requestMessage,
     this.lastMessage,
     this.lastAt,
     this.unreadCount = 0,
@@ -11,6 +14,9 @@ class ConversationSummary {
   final String id;
   final String otherUserId;
   final String otherName;
+  final String status;
+  final String? initiatorId;
+  final String? requestMessage;
   final String? lastMessage;
   final DateTime? lastAt;
   final int unreadCount;

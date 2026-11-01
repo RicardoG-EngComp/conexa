@@ -54,6 +54,7 @@ class ProfileScreen extends ConsumerWidget {
                 .toList();
             final prompts = (profile['prompts'] as List?) ?? [];
             final avatar = profile['avatar_url'] as String?;
+            final isPrivate = profile['profile_private'] == true;
 
             return ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
@@ -105,16 +106,9 @@ class ProfileScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FilledButton.icon(
-                        onPressed: () async {
-                          final convId = await ref
-                              .read(chatRepositoryProvider)
-                              .startConversation(id);
-                          if (context.mounted) {
-                            context.push('/chats/$convId');
-                          }
-                        },
+                        onPressed: () => _sendRequest(context, ref, id),
                         icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                        label: const Text('Mensagem'),
+                        label: const Text('Pedido de mensagem'),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       OutlinedButton(
@@ -130,134 +124,166 @@ class ProfileScreen extends ConsumerWidget {
                     ],
                   ),
                 ],
-                if ((profile['bio'] as String?)?.isNotEmpty == true) ...[
+                if (isPrivate && !isOwn) ...[
                   const SizedBox(height: AppSpacing.lg),
-                  Text('Sobre', style: theme.textTheme.titleSmall),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    profile['bio'] as String,
-                    style: theme.textTheme.bodyLarge,
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.lock_outline),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            'Perfil privado. Os detalhes ficam visiveis apenas para conexoes.',
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
-                if (prompts.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.lg),
-                  Text('Prompts', style: theme.textTheme.titleSmall),
-                  for (final p in prompts)
-                    if (p is Map)
-                      Container(
-                        margin: const EdgeInsets.only(top: AppSpacing.sm),
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppRadius.md),
-                          border: Border.all(color: AppColors.border),
+                if (!isPrivate || isOwn) ...[
+                  if ((profile['bio'] as String?)?.isNotEmpty == true) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    Text('Sobre', style: theme.textTheme.titleSmall),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      profile['bio'] as String,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                  ],
+                  if (prompts.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    Text('Prompts', style: theme.textTheme.titleSmall),
+                    for (final p in prompts)
+                      if (p is Map)
+                        Container(
+                          margin: const EdgeInsets.only(top: AppSpacing.sm),
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                (p['question'] as String?) ?? '',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: AppColors.muted,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                (p['answer'] as String?) ?? '',
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              (p['question'] as String?) ?? '',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: AppColors.muted,
+                  ],
+                  if (photos.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    Text('Fotos', style: theme.textTheme.titleSmall),
+                    const SizedBox(height: AppSpacing.sm),
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      children: photos
+                          .map(
+                            (path) => ClipRRect(
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                              child: _SignedImage(
+                                path: path,
+                                width: 104,
+                                height: 104,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              (p['answer'] as String?) ?? '',
-                              style: theme.textTheme.bodyLarge,
-                            ),
-                          ],
-                        ),
-                      ),
-                ],
-                if (photos.isNotEmpty) ...[
+                          )
+                          .toList(),
+                    ),
+                  ],
                   const SizedBox(height: AppSpacing.lg),
-                  Text('Fotos', style: theme.textTheme.titleSmall),
-                  const SizedBox(height: AppSpacing.sm),
-                  Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.sm,
-                    children: photos
-                        .map(
-                          (path) => ClipRRect(
-                            borderRadius: BorderRadius.circular(AppRadius.sm),
-                            child: _SignedImage(
-                              path: path,
-                              width: 104,
-                              height: 104,
-                            ),
-                          ),
-                        )
-                        .toList(),
+                  favoritesAsync.when(
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
+                    data: (favoriteIds) {
+                      return catalogAsync.when(
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, _) => const SizedBox.shrink(),
+                        data: (catalog) {
+                          final names = {
+                            for (final item in catalog)
+                              item['id'] as String: item['name'] as String,
+                          };
+                          final categories = {
+                            for (final item in catalog)
+                              item['id'] as String: item['category'] as String,
+                          };
+                          final byCategory = <String, List<String>>{};
+                          for (final favId in favoriteIds) {
+                            final cat = categories[favId];
+                            if (cat == null) continue;
+                            byCategory.putIfAbsent(cat, () => []).add(favId);
+                          }
+                          if (byCategory.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Favoritos',
+                                style: theme.textTheme.titleSmall,
+                              ),
+                              for (final entry
+                                  in favoriteCategoryLabels.entries)
+                                if (byCategory[entry.key]?.isNotEmpty == true)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: AppSpacing.sm,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          entry.value,
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                                color: AppColors.muted,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Wrap(
+                                          spacing: 6,
+                                          runSpacing: 6,
+                                          children: byCategory[entry.key]!
+                                              .map(
+                                                (favId) => Chip(
+                                                  label: Text(
+                                                    names[favId] ?? '',
+                                                  ),
+                                                ),
+                                              )
+                                              .toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
-                const SizedBox(height: AppSpacing.lg),
-                favoritesAsync.when(
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, _) => const SizedBox.shrink(),
-                  data: (favoriteIds) {
-                    return catalogAsync.when(
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, _) => const SizedBox.shrink(),
-                      data: (catalog) {
-                        final names = {
-                          for (final item in catalog)
-                            item['id'] as String: item['name'] as String,
-                        };
-                        final categories = {
-                          for (final item in catalog)
-                            item['id'] as String: item['category'] as String,
-                        };
-                        final byCategory = <String, List<String>>{};
-                        for (final favId in favoriteIds) {
-                          final cat = categories[favId];
-                          if (cat == null) continue;
-                          byCategory.putIfAbsent(cat, () => []).add(favId);
-                        }
-                        if (byCategory.isEmpty) return const SizedBox.shrink();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Favoritos',
-                              style: theme.textTheme.titleSmall,
-                            ),
-                            for (final entry in favoriteCategoryLabels.entries)
-                              if (byCategory[entry.key]?.isNotEmpty == true)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: AppSpacing.sm,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        entry.value,
-                                        style: theme.textTheme.bodySmall
-                                            ?.copyWith(color: AppColors.muted),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Wrap(
-                                        spacing: 6,
-                                        runSpacing: 6,
-                                        children: byCategory[entry.key]!
-                                            .map(
-                                              (favId) => Chip(
-                                                label: Text(names[favId] ?? ''),
-                                              ),
-                                            )
-                                            .toList(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
                 const SizedBox(height: AppSpacing.xl),
               ],
             );
@@ -265,6 +291,62 @@ class ProfileScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _sendRequest(
+    BuildContext context,
+    WidgetRef ref,
+    String targetId,
+  ) async {
+    final controller = TextEditingController();
+    final message = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Pedido de mensagem'),
+        content: TextField(
+          controller: controller,
+          maxLength: 150,
+          maxLines: 3,
+          decoration: const InputDecoration(
+            hintText: 'Escreva uma breve apresentacao...',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('Enviar pedido'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (message == null || message.isEmpty) return;
+
+    try {
+      final result = await ref
+          .read(chatRepositoryProvider)
+          .sendMessageRequest(otherUserId: targetId, message: message);
+      final status = result['status'] as String?;
+      final convId = result['id'] as String?;
+      if (!context.mounted) return;
+      if (status == 'accepted' && convId != null) {
+        context.push('/chats/$convId');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Pedido enviado. Aguarde a aprovacao.')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel enviar o pedido.')),
+        );
+      }
+    }
   }
 }
 

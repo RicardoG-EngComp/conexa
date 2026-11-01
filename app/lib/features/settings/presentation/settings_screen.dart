@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../auth/application/auth_providers.dart';
+import '../../profile/application/profile_providers.dart';
 import '../../reports/application/report_providers.dart';
+import '../../verification/application/verification_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -14,6 +16,8 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isAdminAsync = ref.watch(isAdminProvider);
+    final profileAsync = ref.watch(profileProvider);
+    final isPrivate = profileAsync.asData?.value?['profile_private'] == true;
 
     return Scaffold(
       body: SafeArea(
@@ -27,6 +31,21 @@ class SettingsScreen extends ConsumerWidget {
               leading: const Icon(Icons.person_outline),
               title: const Text('Meu perfil'),
               onTap: () => context.push('/profile'),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.lock_outline),
+              title: const Text('Perfil privado'),
+              subtitle: const Text(
+                'Oculta os detalhes do perfil para quem nao e conexao.',
+              ),
+              value: isPrivate,
+              onChanged: (value) async {
+                await ref.read(profileRepositoryProvider).updateProfile({
+                  'profile_private': value,
+                });
+                ref.invalidate(profileProvider);
+              },
             ),
             const ListTile(
               contentPadding: EdgeInsets.zero,

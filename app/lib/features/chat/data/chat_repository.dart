@@ -35,6 +35,15 @@ class ChatRepository {
         ).toUtc(),
     };
 
+    final convRows = await _client
+        .from('conversations')
+        .select('id, status, initiator_id, request_message')
+        .inFilter('id', convIds);
+    final convInfo = <String, Map<String, dynamic>>{
+      for (final r in (convRows as List))
+        r['id'] as String: r as Map<String, dynamic>,
+    };
+
     final otherRows = await _client
         .from('conversation_participants')
         .select('conversation_id, user_id')
@@ -81,10 +90,14 @@ class ChatRepository {
     final summaries = convIds.map((cid) {
       final lastMessage = last[cid];
       final otherId = otherUsers[cid] ?? '';
+      final info = convInfo[cid];
       return ConversationSummary(
         id: cid,
         otherUserId: otherId,
         otherName: names[otherId] ?? 'Estudante UFV',
+        status: (info?['status'] as String?) ?? 'accepted',
+        initiatorId: info?['initiator_id'] as String?,
+        requestMessage: info?['request_message'] as String?,
         lastMessage: lastMessage?['content'] as String?,
         lastAt: lastMessage == null
             ? null
@@ -133,5 +146,33 @@ class ChatRepository {
         .update({'last_read_at': DateTime.now().toUtc().toIso8601String()})
         .eq('conversation_id', conversationId)
         .eq('user_id', user.id);
+  }
+
+  Future<Map<String, dynamic>> sendMessageRequest({
+    required String otherUserId,
+    required String message,
+  }) async {
+    final result = await _client.rpc(
+      'send_message_request',
+      params: {'other_user': otherUserId, 'message': message},
+    );
+    return (result as Map).cast<String, dynamic>();
+  }
+
+  Future<void> acceptRequest(String conversationId) async {
+    await _client
+        .from('conversations')
+        .update({'status': 'accepted'})
+        .eq('id', conversationId);
+  }
+
+  Future<void> declineRequest(String conversationId) async {
+    await _client
+        .from('conversations')
+        .update({
+          'status': 'declined',
+          'declined_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', conversationId);
   }
 }

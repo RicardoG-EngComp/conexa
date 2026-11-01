@@ -6,7 +6,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
-import '../../chat/application/chat_providers.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../reports/presentation/report_dialog.dart';
 import '../application/feed_providers.dart';
@@ -85,12 +84,6 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 post: post,
                 onLike: () => _toggleLike(post),
                 onComment: () => context.push('/feed/${post.id}', extra: post),
-                onMessage: () async {
-                  final id = await ref
-                      .read(chatRepositoryProvider)
-                      .startConversation(post.userId);
-                  if (context.mounted) context.push('/chats/$id');
-                },
                 onReport: () => showReportDialog(
                   context,
                   ref,
@@ -178,14 +171,12 @@ class _PostCard extends StatelessWidget {
     required this.post,
     required this.onLike,
     required this.onComment,
-    required this.onMessage,
     required this.onReport,
   });
 
   final FeedPost post;
   final VoidCallback onLike;
   final VoidCallback onComment;
-  final VoidCallback onMessage;
   final VoidCallback onReport;
 
   @override
@@ -225,12 +216,8 @@ class _PostCard extends StatelessWidget {
               if (Supabase.instance.client.auth.currentUser?.id != post.userId)
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, size: 20),
-                  onSelected: (value) {
-                    if (value == 'report') onReport();
-                    if (value == 'message') onMessage();
-                  },
+                  onSelected: (_) => onReport(),
                   itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'message', child: Text('Mensagem')),
                     PopupMenuItem(value: 'report', child: Text('Denunciar')),
                   ],
                 ),

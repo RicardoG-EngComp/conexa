@@ -32,14 +32,19 @@ final conversationsProvider =
       }
 
       refresh();
-      final subscription = client
+      final messagesSubscription = client
           .from('messages')
+          .stream(primaryKey: ['id'])
+          .listen((_) => refresh());
+      final conversationsSubscription = client
+          .from('conversations')
           .stream(primaryKey: ['id'])
           .listen((_) => refresh());
 
       ref.onDispose(() {
         disposed = true;
-        subscription.cancel();
+        messagesSubscription.cancel();
+        conversationsSubscription.cancel();
         controller.close();
       });
 
