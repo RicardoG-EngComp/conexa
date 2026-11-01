@@ -157,6 +157,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       if (avatar) {
         final old = _avatarPath;
         setState(() => _avatarPath = path);
+        await ref.read(profileRepositoryProvider).updateProfile({
+          'avatar_url': path,
+        });
+        ref.invalidate(profileProvider);
         if (old != null && old != path) {
           await ref.read(profileRepositoryProvider).deleteImage(old);
         }
@@ -249,16 +253,44 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
   Future<void> _save() async {
     final name = _name.text.trim();
-    if (name.isEmpty) {
-      setState(() => _error = 'Informe seu nome.');
-      return;
-    }
-    if (_course == null || _campus == null) {
-      setState(() => _error = 'Selecione curso e campus.');
-      return;
-    }
-    if (_avatarPath == null && _photos.isEmpty) {
-      setState(() => _error = 'Adicione pelo menos uma foto.');
+    final missing = <String>[];
+    if (_avatarPath == null) missing.add('Foto de perfil');
+    if (name.isEmpty) missing.add('Nome');
+    if (_course == null) missing.add('Curso');
+    if (_campus == null) missing.add('Campus');
+
+    if (missing.isNotEmpty) {
+      setState(() => _error = 'Falta completar: ${missing.join(', ')}.');
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Falta completar seu perfil'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: missing
+                .map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_box_outline_blank, size: 20),
+                        const SizedBox(width: 8),
+                        Text(item),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Entendi'),
+            ),
+          ],
+        ),
+      );
       return;
     }
 
@@ -315,158 +347,232 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Seu perfil')),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Stack(
           children: [
-            Center(
-              child: Column(
+            AbsorbPointer(
+              absorbing: _avatarPath == null,
+              child: ListView(
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 children: [
-                  ClipOval(
-                    child: SizedBox(
-                      width: 96,
-                      height: 96,
-                      child: _avatarPath == null
-                          ? Container(
-                              color: AppColors.border,
-                              child: const Icon(Icons.person, size: 48),
-                            )
-                          : _SignedImage(
-                              path: _avatarPath!,
-                              width: 96,
-                              height: 96,
-                            ),
+                  Center(
+                    child: Column(
+                      children: [
+                        ClipOval(
+                          child: SizedBox(
+                            width: 96,
+                            height: 96,
+                            child: _avatarPath == null
+                                ? Container(
+                                    color: AppColors.border,
+                                    child: const Icon(Icons.person, size: 48),
+                                  )
+                                : _SignedImage(
+                                    path: _avatarPath!,
+                                    width: 96,
+                                    height: 96,
+                                  ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _saving
+                              ? null
+                              : () => _pickAndUpload(avatar: true),
+                          child: const Text('Trocar foto de perfil'),
+                        ),
+                      ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: _saving
-                        ? null
-                        : () => _pickAndUpload(avatar: true),
-                    child: const Text('Trocar foto de perfil'),
+                  Text(
+                    'Fotos do perfil (até 6)',
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      for (final path in _photos)
+                        Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                              child: _SignedImage(
+                                path: path,
+                                width: 96,
+                                height: 96,
+                              ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: IconButton(
+                                icon: const Icon(Icons.close, size: 16),
+                                onPressed: _saving
+                                    ? null
+                                    : () => _removePhoto(path),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (_photos.length < 6)
+                        InkWell(
+                          onTap: (_saving || _avatarPath == null)
+                              ? null
+                              : () => _pickAndUpload(avatar: false),
+                          child: Container(
+                            width: 96,
+                            height: 96,
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: const Icon(Icons.add_a_photo_outlined),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  TextFormField(
+                    controller: _name,
+                    decoration: const InputDecoration(labelText: 'Nome'),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  DropdownButtonFormField<String>(
+                    initialValue: _course,
+                    decoration: const InputDecoration(labelText: 'Curso'),
+                    items: ufvCourses
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                        .toList(),
+                    onChanged: (v) => setState(() => _course = v),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  DropdownButtonFormField<String>(
+                    initialValue: _campus,
+                    decoration: const InputDecoration(labelText: 'Campus'),
+                    items: ufvCampuses
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                        .toList(),
+                    onChanged: (v) => setState(() => _campus = v),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  TextFormField(
+                    controller: _bio,
+                    maxLines: 3,
+                    maxLength: 300,
+                    decoration: const InputDecoration(labelText: 'Bio'),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text('Prompts', style: theme.textTheme.titleSmall),
+                  for (var i = 0; i < 3; i++) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    DropdownButtonFormField<String>(
+                      initialValue: _promptQuestions[i],
+                      decoration: InputDecoration(
+                        labelText: 'Pergunta ${i + 1}',
+                      ),
+                      items: profilePromptQuestions
+                          .map(
+                            (q) => DropdownMenuItem(value: q, child: Text(q)),
+                          )
+                          .toList(),
+                      onChanged: (v) => setState(() => _promptQuestions[i] = v),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    TextField(
+                      controller: _promptAnswers[i],
+                      maxLength: 200,
+                      decoration: const InputDecoration(
+                        labelText: 'Sua resposta',
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.lg),
+                  Text('Favoritos', style: theme.textTheme.titleSmall),
+                  const SizedBox(height: AppSpacing.sm),
+                  for (final entry in _favoriteCategories.entries)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(entry.value),
+                      subtitle: Text(
+                        '${_selectedFavoriteIds.where((id) => _isInCategory(id, entry.key)).length}/5 selecionados',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: _saving ? null : () => _openFavorites(entry.key),
+                    ),
+                  if (_error != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      _error!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.danger,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.xl),
+                  FilledButton(
+                    onPressed: _saving ? null : _save,
+                    child: _saving
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Salvar perfil'),
                   ),
                 ],
               ),
             ),
-            Text('Fotos do perfil (até 6)', style: theme.textTheme.titleSmall),
-            const SizedBox(height: AppSpacing.sm),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [
-                for (final path in _photos)
-                  Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                        child: _SignedImage(path: path, width: 96, height: 96),
+            if (_avatarPath == null)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.72),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Primeiro, escolha sua foto de perfil',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            'Ela será a primeira foto do seu perfil. Depois você libera as demais.',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.white70,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          FilledButton.icon(
+                            onPressed: _saving
+                                ? null
+                                : () => _pickAndUpload(avatar: true),
+                            icon: const Icon(Icons.add_a_photo),
+                            label: const Text('Adicionar foto de perfil'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: AppColors.teal,
+                              minimumSize: const Size(280, 56),
+                            ),
+                          ),
+                          if (_saving) ...[
+                            const SizedBox(height: AppSpacing.md),
+                            const CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          ],
+                        ],
                       ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: IconButton(
-                          icon: const Icon(Icons.close, size: 16),
-                          onPressed: _saving ? null : () => _removePhoto(path),
-                        ),
-                      ),
-                    ],
-                  ),
-                if (_photos.length < 6)
-                  InkWell(
-                    onTap: _saving ? null : () => _pickAndUpload(avatar: false),
-                    child: Container(
-                      width: 96,
-                      height: 96,
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: const Icon(Icons.add_a_photo_outlined),
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            TextFormField(
-              controller: _name,
-              decoration: const InputDecoration(labelText: 'Nome'),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            DropdownButtonFormField<String>(
-              initialValue: _course,
-              decoration: const InputDecoration(labelText: 'Curso'),
-              items: ufvCourses
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                  .toList(),
-              onChanged: (v) => setState(() => _course = v),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            DropdownButtonFormField<String>(
-              initialValue: _campus,
-              decoration: const InputDecoration(labelText: 'Campus'),
-              items: ufvCampuses
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                  .toList(),
-              onChanged: (v) => setState(() => _campus = v),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _bio,
-              maxLines: 3,
-              maxLength: 300,
-              decoration: const InputDecoration(labelText: 'Bio'),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text('Prompts', style: theme.textTheme.titleSmall),
-            for (var i = 0; i < 3; i++) ...[
-              const SizedBox(height: AppSpacing.sm),
-              DropdownButtonFormField<String>(
-                initialValue: _promptQuestions[i],
-                decoration: InputDecoration(labelText: 'Pergunta ${i + 1}'),
-                items: profilePromptQuestions
-                    .map((q) => DropdownMenuItem(value: q, child: Text(q)))
-                    .toList(),
-                onChanged: (v) => setState(() => _promptQuestions[i] = v),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              TextField(
-                controller: _promptAnswers[i],
-                maxLength: 200,
-                decoration: const InputDecoration(labelText: 'Sua resposta'),
-              ),
-            ],
-            const SizedBox(height: AppSpacing.lg),
-            Text('Favoritos', style: theme.textTheme.titleSmall),
-            const SizedBox(height: AppSpacing.sm),
-            for (final entry in _favoriteCategories.entries)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(entry.value),
-                subtitle: Text(
-                  '${_selectedFavoriteIds.where((id) => _isInCategory(id, entry.key)).length}/5 selecionados',
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _saving ? null : () => _openFavorites(entry.key),
-              ),
-            if (_error != null) ...[
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                _error!,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.danger,
                 ),
               ),
-            ],
-            const SizedBox(height: AppSpacing.xl),
-            FilledButton(
-              onPressed: _saving ? null : _save,
-              child: _saving
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Salvar perfil'),
-            ),
           ],
         ),
       ),

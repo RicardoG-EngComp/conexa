@@ -58,6 +58,7 @@ class MainShell extends ConsumerWidget {
             ((profile?['display_name'] as String?)?.trim().isNotEmpty ??
                 false) &&
             ((profile?['course'] as String?)?.trim().isNotEmpty ?? false) &&
+            ((profile?['campus'] as String?)?.trim().isNotEmpty ?? false) &&
             ((profile?['avatar_url'] as String?)?.trim().isNotEmpty ?? false);
         if (!profileComplete) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
