@@ -17,8 +17,9 @@ import '../../features/feed/presentation/post_detail_screen.dart';
 import '../../features/matches/presentation/matches_screen.dart';
 import '../../features/onboarding/presentation/consent_screen.dart';
 import '../../features/onboarding/presentation/preferences_screen.dart';
-import '../../features/onboarding/presentation/profile_setup_screen.dart';
 import '../../features/onboarding/presentation/welcome_screen.dart';
+import '../../features/profile/presentation/profile_edit_screen.dart';
+import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/subscription/presentation/subscription_screen.dart';
 import '../../features/verification/presentation/verification_screen.dart';
@@ -65,7 +66,12 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/profile-setup',
-      builder: (_, _) => const ProfileSetupScreen(),
+      builder: (_, _) => const ProfileEditScreen(),
+    ),
+    GoRoute(path: '/profile', builder: (_, _) => const ProfileScreen()),
+    GoRoute(
+      path: '/profile/:id',
+      builder: (_, state) => ProfileScreen(userId: state.pathParameters['id']),
     ),
     GoRoute(path: '/preferences', builder: (_, _) => const PreferencesScreen()),
     ShellRoute(

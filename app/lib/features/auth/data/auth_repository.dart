@@ -49,6 +49,21 @@ class AuthRepository {
     return (rows as List).isNotEmpty;
   }
 
+  Future<bool> isProfileComplete() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+    final data = await _client
+        .from('profiles')
+        .select('display_name, course, avatar_url')
+        .eq('id', user.id)
+        .maybeSingle();
+    if (data == null) return false;
+    final name = (data['display_name'] as String?)?.trim() ?? '';
+    final course = (data['course'] as String?)?.trim() ?? '';
+    final avatar = (data['avatar_url'] as String?)?.trim() ?? '';
+    return name.isNotEmpty && course.isNotEmpty && avatar.isNotEmpty;
+  }
+
   Future<void> saveConsents(List<String> types) async {
     final user = _client.auth.currentUser;
     if (user == null) return;

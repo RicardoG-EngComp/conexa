@@ -8,6 +8,7 @@ class FeedPost {
     required this.likeCount,
     required this.commentCount,
     required this.likedByMe,
+    this.avatarPath,
   });
 
   final String id;
@@ -18,6 +19,7 @@ class FeedPost {
   final int likeCount;
   final int commentCount;
   final bool likedByMe;
+  final String? avatarPath;
 }
 
 class FeedComment {

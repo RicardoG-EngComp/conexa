@@ -23,11 +23,15 @@ class FeedRepository {
 
     final profileRows = await _client
         .from('profiles_public')
-        .select('id, display_name')
+        .select('id, display_name, avatar_url')
         .inFilter('id', userIds);
     final names = <String, String>{
       for (final p in (profileRows as List))
         p['id'] as String: (p['display_name'] as String?) ?? 'Estudante UFV',
+    };
+    final avatars = <String, String?>{
+      for (final p in (profileRows as List))
+        p['id'] as String: p['avatar_url'] as String?,
     };
 
     final likeRows = await _client
@@ -60,6 +64,7 @@ class FeedRepository {
         content: p['content'] as String,
         createdAt: DateTime.parse(p['created_at'] as String),
         authorName: names[p['user_id'] as String] ?? 'Estudante UFV',
+        avatarPath: avatars[p['user_id'] as String],
         likeCount: likeCount[id] ?? 0,
         commentCount: commentCount[id] ?? 0,
         likedByMe: likedByMe[id] ?? false,

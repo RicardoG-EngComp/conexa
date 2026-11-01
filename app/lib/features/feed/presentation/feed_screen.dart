@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
 import '../../chat/application/chat_providers.dart';
+import '../../profile/application/profile_providers.dart';
 import '../../reports/presentation/report_dialog.dart';
 import '../application/feed_providers.dart';
 import '../data/feed_models.dart';
@@ -203,15 +204,18 @@ class _PostCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                radius: 16,
-                backgroundColor: AppColors.teal,
-                child: Icon(Icons.person, size: 18, color: Colors.white),
+              InkWell(
+                onTap: () => context.push('/profile/${post.userId}'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _AuthorAvatar(path: post.avatarPath),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(post.authorName, style: theme.textTheme.titleSmall),
+                  ],
+                ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(post.authorName, style: theme.textTheme.titleSmall),
-              ),
+              const Spacer(),
               Text(
                 timeAgo(post.createdAt),
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -260,5 +264,25 @@ class _PostCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _AuthorAvatar extends ConsumerWidget {
+  const _AuthorAvatar({required this.path});
+
+  final String? path;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    const fallback = CircleAvatar(
+      radius: 16,
+      backgroundColor: AppColors.teal,
+      child: Icon(Icons.person, size: 18, color: Colors.white),
+    );
+    if (path == null || path!.isEmpty) return fallback;
+    final url = ref.watch(signedUrlProvider(path!));
+    final value = url.asData?.value;
+    if (value == null) return fallback;
+    return CircleAvatar(radius: 16, backgroundImage: NetworkImage(value));
   }
 }

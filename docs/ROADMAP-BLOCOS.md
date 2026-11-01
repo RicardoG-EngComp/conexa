@@ -36,10 +36,12 @@ CI básico, documentos de conformidade.
 Prova de idade real pendente (fase futura).
 
 ### B2 — Perfil & Onboarding
-**Entrega:** fotos, prompts, interesses, estilo de relação
-(monogamia/não-monogamia/casal), preferências, **vinculação de contas de casal**.
+**Entrega:** perfil obrigatório com nome, curso, campus, bio, 3 prompts,
+avatar + até 6 fotos e favoritos (música/séries/filmes/animes).
 **Depende de:** B1.
-**Pronto quando:** perfil completo, editável e com parceiro vinculado.
+**Pronto quando:** perfil completo, editável e exibido no feed/chat.
+**Status:** ✅ concluído (bucket privado `profile-media`, URLs assinadas,
+catálogo curado e perfil público). Vinculação de casal fica para depois.
 
 ### B3 — Descoberta & Match
 **Entrega:** feed social (posts, comentários, curtidas) e, depois, descoberta/match.

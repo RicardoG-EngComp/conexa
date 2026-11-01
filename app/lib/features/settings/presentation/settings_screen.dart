@@ -22,6 +22,12 @@ class SettingsScreen extends ConsumerWidget {
           children: [
             Text('Ajustes', style: theme.textTheme.displayMedium),
             const SizedBox(height: AppSpacing.lg),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Meu perfil'),
+              onTap: () => context.push('/profile'),
+            ),
             const ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.privacy_tip_outlined),

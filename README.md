@@ -85,5 +85,8 @@ Ideia em validação. Objetivo: converter em produto.
 - B0 (fundação) ✅
 - B1.1 (auth Supabase) ✅
 - B1.2 (identidade UFV por e-mail) ✅
+- B2 (perfil + onboarding) ✅
 - B3 (feed social) ✅
-- Próximo: painel admin (B9) + denúncias.
+- B4 (chat + moderação) ✅
+- B9 (admin + denúncias) ✅
+- Próximo: matchmaking (Descobrir), AI Coach/assinatura e polimento visual.

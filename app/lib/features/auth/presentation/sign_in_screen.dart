@@ -42,7 +42,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       final hasConsents = await repo.hasConsents();
 
       if (!mounted) return;
-      context.go(hasConsents ? '/discover' : '/consent');
+      if (!hasConsents) {
+        context.go('/consent');
+        return;
+      }
+
+      final profileComplete = await repo.isProfileComplete();
+      if (!mounted) return;
+      context.go(profileComplete ? '/feed' : '/profile-setup');
     } on AuthException catch (e) {
       setState(() => _error = e.message);
     } catch (e) {
