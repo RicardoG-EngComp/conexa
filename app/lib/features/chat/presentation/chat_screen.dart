@@ -219,6 +219,7 @@ class _Bubble extends StatelessWidget {
                 border: Border.all(color: AppColors.border),
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -230,6 +231,7 @@ class _Bubble extends StatelessWidget {
                   const SizedBox(height: 2),
                   Align(
                     alignment: Alignment.centerRight,
+                    widthFactor: 1,
                     child: Text(
                       _formatTime(message.createdAt),
                       style: theme.textTheme.bodySmall?.copyWith(
