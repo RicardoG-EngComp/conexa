@@ -18,7 +18,18 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Rede social dos estudantes da UFV.">
+
+  <script>
+    // Remove service workers antigos para nao servir versoes em cache.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (const registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+  </script>
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
