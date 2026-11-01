@@ -227,6 +227,17 @@ class _Bubble extends StatelessWidget {
                       color: mine ? Colors.white : AppColors.ink,
                     ),
                   ),
+                  const SizedBox(height: 2),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      _formatTime(message.createdAt),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 10,
+                        color: mine ? Colors.white70 : AppColors.muted,
+                      ),
+                    ),
+                  ),
                   if (message.flagged) ...[
                     const SizedBox(height: 4),
                     Row(
@@ -255,4 +266,11 @@ class _Bubble extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatTime(DateTime date) {
+  final local = date.toLocal();
+  final hh = local.hour.toString().padLeft(2, '0');
+  final mm = local.minute.toString().padLeft(2, '0');
+  return '$hh:$mm';
 }
