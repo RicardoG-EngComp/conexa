@@ -32,6 +32,12 @@ class SettingsScreen extends ConsumerWidget {
               title: const Text('Meu perfil'),
               onTap: () => context.push('/profile'),
             ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.password_outlined),
+              title: const Text('Alterar senha'),
+              onTap: () => context.push('/change-password'),
+            ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               secondary: const Icon(Icons.lock_outline),

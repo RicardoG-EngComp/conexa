@@ -2,8 +2,10 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/admin/presentation/admin_screen.dart';
+import '../../features/auth/presentation/change_password_screen.dart';
 import '../../features/auth/presentation/check_email_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
+import '../../features/auth/presentation/reset_password_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/auth/presentation/sign_up_screen.dart';
 import '../../features/chat/data/chat_models.dart';
@@ -32,6 +34,7 @@ const _publicPaths = {
   '/sign-in',
   '/check-email',
   '/forgot-password',
+  '/reset-password',
 };
 
 final GoRouter appRouter = GoRouter(
@@ -58,6 +61,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/forgot-password',
       builder: (_, _) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/change-password',
+      builder: (_, _) => const ChangePasswordScreen(),
+    ),
+    GoRoute(
+      path: '/reset-password',
+      builder: (_, _) => const ResetPasswordScreen(),
     ),
     GoRoute(path: '/consent', builder: (_, _) => const ConsentScreen()),
     GoRoute(

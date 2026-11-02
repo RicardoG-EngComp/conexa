@@ -38,6 +38,23 @@ class AuthRepository {
     return _client.auth.resetPasswordForEmail(email, redirectTo: redirectTo);
   }
 
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final email = _client.auth.currentUser?.email;
+    if (email == null) throw Exception('sem sessao');
+    await _client.auth.signInWithPassword(
+      email: email,
+      password: currentPassword,
+    );
+    await _client.auth.updateUser(UserAttributes(password: newPassword));
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    await _client.auth.updateUser(UserAttributes(password: newPassword));
+  }
+
   Future<bool> hasConsents() async {
     final user = _client.auth.currentUser;
     if (user == null) return false;
