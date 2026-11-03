@@ -1,8 +1,8 @@
 {
-  "version": "1.0.1",
-  "build": 2,
-  "apk_url": "https://github.com/RicardoG-EngComp/tinder-de-republicas/releases/download/v1.0.1-2/app-release.apk",
-  "sha256": "bca4f7bd44239acf8e43718648214caeffdaf5b3b8e02938138212c4e39f69de",
-  "notes": "Correcao de acesso a rede (INTERNET)",
+  "version": "1.0.2",
+  "build": 3,
+  "apk_url": "https://github.com/RicardoG-EngComp/tinder-de-republicas/releases/download/v1.0.2-3/app-release.apk",
+  "sha256": "b805d4489cf63c0593e8fea64a8eb6237bee30f9b38ec561fb0e1c89bb7d0c47",
+  "notes": "Aceitar @ufv.br, selo UFV e bloqueio 18+ no servidor",
   "mandatory": true
 }
