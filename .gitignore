@@ -33,6 +33,10 @@ x86/
 *.keystore
 *.jks
 
+# Android signing (nunca commitar)
+app/android/key.properties
+app/android/keystore/
+
 # Dados locais
 /data/
 *.log
