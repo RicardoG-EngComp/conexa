@@ -106,7 +106,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               Text('Seus dados de acesso', style: theme.textTheme.titleLarge),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Use seu e-mail institucional @alunos.ufv.br.',
+                'Use seu e-mail institucional @ufv.br ou @alunos.ufv.br.',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: AppColors.muted,
                 ),

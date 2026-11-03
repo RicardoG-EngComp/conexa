@@ -24,8 +24,8 @@ String? validateUfvEmail(String? value) {
   final base = validateEmail(value);
   if (base != null) return base;
   final v = value!.trim().toLowerCase();
-  if (!v.endsWith('@alunos.ufv.br')) {
-    return 'Use seu e-mail institucional @alunos.ufv.br';
+  if (!v.endsWith('@ufv.br') && !v.endsWith('@alunos.ufv.br')) {
+    return 'Use seu e-mail institucional @ufv.br ou @alunos.ufv.br';
   }
   return null;
 }

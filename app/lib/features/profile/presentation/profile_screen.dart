@@ -21,7 +21,7 @@ class ProfileScreen extends ConsumerWidget {
     final myId = Supabase.instance.client.auth.currentUser?.id;
     final id = userId ?? myId;
     if (id == null) {
-      return const Scaffold(body: Center(child: Text('Perfil indisponível.')));
+      return const Scaffold(body: Center(child: Text('Perfil indisponÃ­vel.')));
     }
     final isOwn = id == myId;
     final profileAsync = ref.watch(publicProfileProvider(id));
@@ -47,7 +47,7 @@ class ProfileScreen extends ConsumerWidget {
               const Center(child: Text('Erro ao carregar perfil.')),
           data: (profile) {
             if (profile == null) {
-              return const Center(child: Text('Perfil não encontrado.'));
+              return const Center(child: Text('Perfil nÃ£o encontrado.'));
             }
             final photos = ((profile['photos'] as List?) ?? [])
                 .map((e) => e as String)
@@ -86,7 +86,7 @@ class ProfileScreen extends ConsumerWidget {
                   child: Text(
                     [profile['course'], profile['campus']]
                         .where((e) => e != null && e.toString().isNotEmpty)
-                        .join(' • '),
+                        .join(' â€¢ '),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: AppColors.muted,
                     ),
@@ -97,7 +97,7 @@ class ProfileScreen extends ConsumerWidget {
                 Center(
                   child: Chip(
                     avatar: const Icon(Icons.verified, size: 16),
-                    label: const Text('Estudante UFV'),
+                    label: const Text('UFV'),
                   ),
                 ),
                 if (!isOwn) ...[

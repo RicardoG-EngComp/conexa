@@ -27,7 +27,10 @@ set search_path = public
 as $$
 begin
   if new.email_confirmed_at is not null
-     and lower(coalesce(new.email, '')) like '%@alunos.ufv.br' then
+     and (
+       lower(coalesce(new.email, '')) like '%@ufv.br'
+       or lower(coalesce(new.email, '')) like '%@alunos.ufv.br'
+     ) then
     update public.profiles
       set verification_status = 'verified',
           ufv_email = new.email
