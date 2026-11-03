@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "build": 1,
+  "apk_url": "https://github.com/RicardoG-EngComp/tinder-de-republicas/releases/download/v1.0.0-1/app-release.apk",
+  "sha256": "537a6f5a97ce915225db9cce5d4df61fbcafa5cd7f0c8e275ab8a30901ec787f",
+  "notes": "Primeira versao release",
+  "mandatory": true
+}
