@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
 import '../../profile/application/profile_providers.dart';
+import '../../profile/presentation/incomplete_profile_banner.dart';
 import '../../reports/presentation/report_dialog.dart';
 import '../application/feed_providers.dart';
 import '../data/feed_models.dart';
@@ -21,6 +22,7 @@ class FeedScreen extends ConsumerStatefulWidget {
 class _FeedScreenState extends ConsumerState<FeedScreen> {
   final _controller = TextEditingController();
   bool _posting = false;
+  String _visibility = 'public';
 
   @override
   void dispose() {
@@ -33,7 +35,9 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     if (text.isEmpty) return;
     setState(() => _posting = true);
     try {
-      await ref.read(feedRepositoryProvider).createPost(text);
+      await ref
+          .read(feedRepositoryProvider)
+          .createPost(text, visibility: _visibility);
       _controller.clear();
       ref.invalidate(feedProvider);
     } catch (_) {
@@ -122,6 +126,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             children: [
               Text('Feed UFV', style: theme.textTheme.displayMedium),
               const SizedBox(height: AppSpacing.md),
+              const IncompleteProfileBanner(),
               Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
@@ -143,15 +148,42 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                         counterText: '',
                       ),
                     ),
-                    FilledButton(
-                      onPressed: _posting ? null : _publish,
-                      child: _posting
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Publicar'),
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      alignment: WrapAlignment.end,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        SegmentedButton<String>(
+                          segments: const [
+                            ButtonSegment(
+                              value: 'public',
+                              label: Text('Público'),
+                              icon: Icon(Icons.public, size: 16),
+                            ),
+                            ButtonSegment(
+                              value: 'friends',
+                              label: Text('Só amigos'),
+                              icon: Icon(Icons.lock_outline, size: 16),
+                            ),
+                          ],
+                          selected: {_visibility},
+                          onSelectionChanged: (values) =>
+                              setState(() => _visibility = values.first),
+                        ),
+                        FilledButton(
+                          onPressed: _posting ? null : _publish,
+                          child: _posting
+                              ? const SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text('Publicar'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -207,6 +239,15 @@ class _PostCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              if (post.visibility == 'friends')
+                const Padding(
+                  padding: EdgeInsets.only(right: 4),
+                  child: Icon(
+                    Icons.lock_outline,
+                    size: 14,
+                    color: AppColors.muted,
+                  ),
+                ),
               Text(
                 timeAgo(post.createdAt),
                 style: theme.textTheme.bodySmall?.copyWith(

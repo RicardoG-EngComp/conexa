@@ -43,7 +43,7 @@ class SettingsScreen extends ConsumerWidget {
               secondary: const Icon(Icons.lock_outline),
               title: const Text('Perfil privado'),
               subtitle: const Text(
-                'Oculta os detalhes do perfil para quem nao e conexao.',
+                'Seu feed fica visivel apenas para conexoes aceitas.',
               ),
               value: isPrivate,
               onChanged: (value) async {
@@ -68,10 +68,11 @@ class SettingsScreen extends ConsumerWidget {
               leading: Icon(Icons.security_outlined),
               title: Text('Seguranca'),
             ),
-            const ListTile(
+            ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.block_outlined),
-              title: Text('Usuarios bloqueados'),
+              leading: const Icon(Icons.block_outlined),
+              title: const Text('Usuarios bloqueados'),
+              onTap: () => context.push('/blocked-users'),
             ),
             const ListTile(
               contentPadding: EdgeInsets.zero,

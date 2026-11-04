@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
+import '../../connections/presentation/connections_list.dart';
 import '../application/chat_providers.dart';
 import '../data/chat_models.dart';
 
@@ -19,7 +20,7 @@ class ChatListScreen extends ConsumerWidget {
     final myId = Supabase.instance.client.auth.currentUser?.id;
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         body: SafeArea(
           child: Column(
@@ -43,6 +44,7 @@ class ChatListScreen extends ConsumerWidget {
                 tabs: [
                   Tab(text: 'Mensagens'),
                   Tab(text: 'Pedidos'),
+                  Tab(text: 'Conexões'),
                 ],
               ),
               Expanded(
@@ -62,6 +64,7 @@ class ChatListScreen extends ConsumerWidget {
                       children: [
                         _AcceptedList(conversations: accepted),
                         _PendingList(conversations: pending, myId: myId),
+                        const ConnectionsList(),
                       ],
                     );
                   },

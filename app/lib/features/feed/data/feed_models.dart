@@ -8,6 +8,7 @@ class FeedPost {
     required this.likeCount,
     required this.commentCount,
     required this.likedByMe,
+    this.visibility = 'public',
     this.avatarPath,
   });
 
@@ -19,6 +20,7 @@ class FeedPost {
   final int likeCount;
   final int commentCount;
   final bool likedByMe;
+  final String visibility;
   final String? avatarPath;
 }
 

@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/admin/presentation/admin_screen.dart';
 import '../../features/auth/presentation/change_password_screen.dart';
+import '../../features/blocks/presentation/blocked_users_screen.dart';
 import '../../features/auth/presentation/check_email_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/reset_password_screen.dart';
@@ -117,5 +118,9 @@ final GoRouter appRouter = GoRouter(
       builder: (_, _) => const SubscriptionScreen(),
     ),
     GoRoute(path: '/admin', builder: (_, _) => const AdminScreen()),
+    GoRoute(
+      path: '/blocked-users',
+      builder: (_, _) => const BlockedUsersScreen(),
+    ),
   ],
 );

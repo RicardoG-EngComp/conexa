@@ -54,21 +54,6 @@ class MainShell extends ConsumerWidget {
           );
         }
 
-        final profileComplete =
-            ((profile?['display_name'] as String?)?.trim().isNotEmpty ??
-                false) &&
-            ((profile?['course'] as String?)?.trim().isNotEmpty ?? false) &&
-            ((profile?['campus'] as String?)?.trim().isNotEmpty ?? false) &&
-            ((profile?['avatar_url'] as String?)?.trim().isNotEmpty ?? false);
-        if (!profileComplete) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) context.go('/profile-setup');
-          });
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
         final status =
             (profile?['verification_status'] as String?) ?? 'unverified';
         final ufvEmail = (profile?['ufv_email'] as String? ?? '').toLowerCase();

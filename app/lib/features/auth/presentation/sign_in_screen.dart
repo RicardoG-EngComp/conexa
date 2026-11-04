@@ -47,9 +47,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         return;
       }
 
-      final profileComplete = await repo.isProfileComplete();
       if (!mounted) return;
-      context.go(profileComplete ? '/feed' : '/profile-setup');
+      context.go('/feed');
     } on AuthException catch (e) {
       setState(() => _error = e.message);
     } catch (e) {

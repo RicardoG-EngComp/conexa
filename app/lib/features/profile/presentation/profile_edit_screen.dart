@@ -261,37 +261,28 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
     if (missing.isNotEmpty) {
       setState(() => _error = 'Falta completar: ${missing.join(', ')}.');
-      await showDialog<void>(
+      final proceed = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Falta completar seu perfil'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: missing
-                .map(
-                  (item) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.check_box_outline_blank, size: 20),
-                        const SizedBox(width: 8),
-                        Text(item),
-                      ],
-                    ),
-                  ),
-                )
-                .toList(),
+          title: const Text('Perfil incompleto'),
+          content: Text(
+            'Seu perfil não aparecerá na descoberta e você não poderá publicar '
+            'nem enviar pedidos até completar:\n\n${missing.join(', ')}.\n\n'
+            'Deseja salvar mesmo assim?',
           ),
           actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Continuar editando'),
+            ),
             FilledButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Entendi'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Salvar incompleto'),
             ),
           ],
         ),
       );
-      return;
+      if (proceed != true) return;
     }
 
     setState(() {
@@ -519,6 +510,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text('Salvar perfil'),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  TextButton(
+                    onPressed: _saving ? null : () => context.go('/feed'),
+                    child: const Text(
+                      'Continuar depois (completar em Ajustes)',
+                    ),
                   ),
                 ],
               ),

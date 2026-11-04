@@ -11,7 +11,7 @@ class FeedRepository {
     final currentUser = _client.auth.currentUser;
     final rows = await _client
         .from('posts')
-        .select('id, user_id, content, created_at')
+        .select('id, user_id, content, created_at, visibility')
         .order('created_at', ascending: false)
         .limit(50);
 
@@ -62,6 +62,7 @@ class FeedRepository {
         id: id,
         userId: p['user_id'] as String,
         content: p['content'] as String,
+        visibility: (p['visibility'] as String?) ?? 'public',
         createdAt: DateTime.parse(p['created_at'] as String),
         authorName: names[p['user_id'] as String] ?? 'Estudante UFV',
         avatarPath: avatars[p['user_id'] as String],
@@ -72,12 +73,16 @@ class FeedRepository {
     }).toList();
   }
 
-  Future<void> createPost(String content) async {
+  Future<void> createPost(
+    String content, {
+    String visibility = 'public',
+  }) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
     await _client.from('posts').insert({
       'user_id': user.id,
       'content': content.trim(),
+      'visibility': visibility,
     });
   }
 
