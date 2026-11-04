@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../reports/presentation/report_dialog.dart';
+import '../../stickers/presentation/sticker_picker_sheet.dart';
 import '../application/chat_providers.dart';
 import '../data/chat_models.dart';
 
@@ -101,6 +102,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
+  Future<void> _openStickerPicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => StickerPickerSheet(conversationId: widget.id),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -147,7 +156,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 reportedUserId: message.senderId,
                                 targetType: 'message',
                                 targetId: message.id,
-                                contentSnapshot: message.content,
+                                contentSnapshot: message.kind == 'text'
+                                    ? message.content
+                                    : message.kind == 'sticker'
+                                        ? '[figurinha]'
+                                        : '[GIF]',
                               ),
                       );
                     },
@@ -170,6 +183,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
+                  IconButton(
+                    onPressed: _sending ? null : _openStickerPicker,
+                    icon: const Icon(Icons.emoji_emotions_outlined),
+                  ),
                   IconButton.filled(
                     onPressed: _sending ? null : _send,
                     icon: const Icon(Icons.send),
@@ -191,9 +208,47 @@ class _Bubble extends StatelessWidget {
   final bool mine;
   final VoidCallback? onReport;
 
+  Widget _content(ThemeData theme) {
+    if (message.kind == 'sticker' && message.stickerPath != null) {
+      return Image.network(
+        Supabase.instance.client.storage
+            .from('stickers')
+            .getPublicUrl(message.stickerPath!),
+        width: 140,
+        height: 140,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) => const Icon(
+          Icons.broken_image_outlined,
+          color: AppColors.muted,
+        ),
+      );
+    }
+    if (message.kind == 'gif' && message.gifUrl != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Image.network(
+          message.gifUrl!,
+          width: 200,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => const Icon(
+            Icons.broken_image_outlined,
+            color: AppColors.muted,
+          ),
+        ),
+      );
+    }
+    return Text(
+      message.content,
+      style: theme.textTheme.bodyLarge?.copyWith(
+        color: mine ? Colors.white : AppColors.ink,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final media = message.kind != 'text';
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Row(
@@ -211,23 +266,22 @@ class _Bubble extends StatelessWidget {
           Flexible(
             child: Container(
               margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: media
+                  ? EdgeInsets.zero
+                  : const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               constraints: const BoxConstraints(maxWidth: 280),
-              decoration: BoxDecoration(
-                color: mine ? AppColors.teal : AppColors.surface,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                border: Border.all(color: AppColors.border),
-              ),
+              decoration: media
+                  ? null
+                  : BoxDecoration(
+                      color: mine ? AppColors.teal : AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(color: AppColors.border),
+                    ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    message.content,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: mine ? Colors.white : AppColors.ink,
-                    ),
-                  ),
+                  _content(theme),
                   const SizedBox(height: 2),
                   Align(
                     alignment: Alignment.centerRight,
@@ -236,7 +290,11 @@ class _Bubble extends StatelessWidget {
                       _formatTime(message.createdAt),
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontSize: 10,
-                        color: mine ? Colors.white70 : AppColors.muted,
+                        color: media
+                            ? AppColors.muted
+                            : mine
+                                ? Colors.white70
+                                : AppColors.muted,
                       ),
                     ),
                   ),
@@ -248,13 +306,21 @@ class _Bubble extends StatelessWidget {
                         Icon(
                           Icons.warning_amber_rounded,
                           size: 12,
-                          color: mine ? Colors.white70 : AppColors.muted,
+                          color: media
+                              ? AppColors.muted
+                              : mine
+                                  ? Colors.white70
+                                  : AppColors.muted,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'sinalizada',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: mine ? Colors.white70 : AppColors.muted,
+                            color: media
+                                ? AppColors.muted
+                                : mine
+                                    ? Colors.white70
+                                    : AppColors.muted,
                           ),
                         ),
                       ],

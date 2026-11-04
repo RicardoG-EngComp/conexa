@@ -8,6 +8,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../blocks/application/block_providers.dart';
 import '../../chat/application/chat_providers.dart';
 import '../../connections/presentation/connection_actions.dart';
+import '../../connections/presentation/profile_message_button.dart';
 import '../../reports/presentation/report_dialog.dart';
 import '../application/profile_providers.dart';
 import '../data/ufv_courses.dart';
@@ -138,10 +139,9 @@ class ProfileScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      FilledButton.icon(
-                        onPressed: () => _sendRequest(context, ref, id),
-                        icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                        label: const Text('Pedido de mensagem'),
+                      ProfileMessageButton(
+                        targetId: id,
+                        onRequestMessage: () => _sendRequest(context, ref, id),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       OutlinedButton(

@@ -30,6 +30,9 @@ class ChatMessage {
     required this.content,
     required this.flagged,
     required this.createdAt,
+    this.kind = 'text',
+    this.stickerPath,
+    this.gifUrl,
   });
 
   final String id;
@@ -38,15 +41,21 @@ class ChatMessage {
   final String content;
   final bool flagged;
   final DateTime createdAt;
+  final String kind;
+  final String? stickerPath;
+  final String? gifUrl;
 
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
     return ChatMessage(
       id: map['id'] as String,
       conversationId: map['conversation_id'] as String,
       senderId: map['sender_id'] as String,
-      content: map['content'] as String,
+      content: (map['content'] as String?) ?? '',
       flagged: (map['flagged'] as bool?) ?? false,
       createdAt: DateTime.parse(map['created_at'] as String),
+      kind: (map['kind'] as String?) ?? 'text',
+      stickerPath: map['sticker_path'] as String?,
+      gifUrl: map['gif_url'] as String?,
     );
   }
 }

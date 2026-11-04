@@ -12,6 +12,21 @@ import '../data/connection_models.dart';
 class ConnectionsList extends ConsumerWidget {
   const ConnectionsList({super.key});
 
+  Future<void> _run(
+    BuildContext context,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel concluir a acao.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(connectionsProvider);
@@ -19,68 +34,87 @@ class ConnectionsList extends ConsumerWidget {
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, _) => const Center(child: Text('Erro ao carregar conexoes.')),
+      error: (_, _) =>
+          const Center(child: Text('Erro ao carregar conexoes.')),
       data: (data) {
-        if (data.incoming.isEmpty &&
-            data.outgoing.isEmpty &&
-            data.accepted.isEmpty) {
-          return Center(
-            child: Text(
-              'Nenhuma conexao ainda.',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: AppColors.muted,
-              ),
-            ),
-          );
-        }
-
-        return ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          children: [
-            if (data.incoming.isNotEmpty) ...[
-              Text('Solicitacoes recebidas', style: theme.textTheme.titleSmall),
-              const SizedBox(height: AppSpacing.sm),
-              ...data.incoming.map((c) => _incomingCard(context, ref, c)),
-            ],
-            if (data.outgoing.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.lg),
-              Text('Enviadas', style: theme.textTheme.titleSmall),
-              ...data.outgoing.map(
-                (c) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: _ConnectionAvatar(path: c.avatarPath),
-                  title: Text(c.displayName),
-                  subtitle: const Text('Aguardando aprovacao'),
-                ),
-              ),
-            ],
-            if (data.accepted.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.lg),
-              Text('Conectados', style: theme.textTheme.titleSmall),
-              ...data.accepted.map(
-                (c) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: _ConnectionAvatar(path: c.avatarPath),
-                  title: Text(c.displayName),
-                  trailing: TextButton(
-                    onPressed: () async {
-                      final convId = await ref
-                          .read(chatRepositoryProvider)
-                          .startConversation(c.userId);
-                      if (context.mounted) context.push('/chats/$convId');
-                    },
-                    child: const Text('Mensagem'),
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(connectionsProvider);
+            await ref.read(connectionsProvider.future);
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            children: [
+              if (data.incoming.isEmpty &&
+                  data.outgoing.isEmpty &&
+                  data.accepted.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.xl,
+                  ),
+                  child: Text(
+                    'Nenhuma conexao ainda.',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: AppColors.muted,
+                    ),
                   ),
                 ),
-              ),
+              if (data.incoming.isNotEmpty) ...[
+                Text(
+                  'Solicitacoes recebidas',
+                  style: theme.textTheme.titleSmall,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                ...data.incoming.map(
+                  (c) => _incomingCard(context, ref, c),
+                ),
+              ],
+              if (data.outgoing.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Text('Enviadas', style: theme.textTheme.titleSmall),
+                ...data.outgoing.map(
+                  (c) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: _ConnectionAvatar(path: c.avatarPath),
+                    title: Text(c.displayName),
+                    subtitle: const Text('Aguardando aprovacao'),
+                  ),
+                ),
+              ],
+              if (data.accepted.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Text('Conectados', style: theme.textTheme.titleSmall),
+                ...data.accepted.map(
+                  (c) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: _ConnectionAvatar(path: c.avatarPath),
+                    title: Text(c.displayName),
+                    trailing: TextButton(
+                      onPressed: () => _run(context, () async {
+                        final convId = await ref
+                            .read(chatRepositoryProvider)
+                            .startConversation(c.userId);
+                        if (context.mounted) {
+                          context.push('/chats/$convId');
+                        }
+                      }),
+                      child: const Text('Mensagem'),
+                    ),
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         );
       },
     );
   }
 
-  Widget _incomingCard(BuildContext context, WidgetRef ref, ConnectionEntry c) {
+  Widget _incomingCard(
+    BuildContext context,
+    WidgetRef ref,
+    ConnectionEntry c,
+  ) {
     return Container(
       margin: const EdgeInsets.only(top: AppSpacing.sm),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -95,22 +129,22 @@ class ConnectionsList extends ConsumerWidget {
           const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(c.displayName)),
           TextButton(
-            onPressed: () async {
+            onPressed: () => _run(context, () async {
               await ref
                   .read(connectionRepositoryProvider)
                   .respond(c.requesterId, false);
               ref.invalidate(connectionsProvider);
-            },
+            }),
             child: const Text('Recusar'),
           ),
           FilledButton(
-            onPressed: () async {
+            onPressed: () => _run(context, () async {
               await ref
                   .read(connectionRepositoryProvider)
                   .respond(c.requesterId, true);
               ref.invalidate(connectionsProvider);
               ref.invalidate(conversationsProvider);
-            },
+            }),
             child: const Text('Aceitar'),
           ),
         ],

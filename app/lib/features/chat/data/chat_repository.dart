@@ -66,7 +66,7 @@ class ChatRepository {
 
     final messages = await _client
         .from('messages')
-        .select('conversation_id, sender_id, content, created_at')
+        .select('conversation_id, sender_id, content, kind, created_at')
         .inFilter('conversation_id', convIds)
         .order('created_at', ascending: false);
     final last = <String, Map<String, dynamic>>{};
@@ -91,6 +91,14 @@ class ChatRepository {
       final lastMessage = last[cid];
       final otherId = otherUsers[cid] ?? '';
       final info = convInfo[cid];
+      final lastKind = (lastMessage?['kind'] as String?) ?? 'text';
+      final lastPreview = lastMessage == null
+          ? null
+          : lastKind == 'sticker'
+              ? 'Figurinha'
+              : lastKind == 'gif'
+                  ? 'GIF'
+                  : lastMessage['content'] as String?;
       return ConversationSummary(
         id: cid,
         otherUserId: otherId,
@@ -98,7 +106,7 @@ class ChatRepository {
         status: (info?['status'] as String?) ?? 'accepted',
         initiatorId: info?['initiator_id'] as String?,
         requestMessage: info?['request_message'] as String?,
-        lastMessage: lastMessage?['content'] as String?,
+        lastMessage: lastPreview,
         lastAt: lastMessage == null
             ? null
             : DateTime.parse(lastMessage['created_at'] as String),
