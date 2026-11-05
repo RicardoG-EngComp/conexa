@@ -54,11 +54,30 @@ class ReportRepository {
     required String reportId,
     required String reportedUserId,
     required String action,
+    String? targetType,
+    String? targetId,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
 
-    final status = action == 'dismiss' ? 'dismissed' : 'resolved';
+    if (action == 'hide' || action == 'restore' || action == 'delete') {
+      final type = targetType ?? 'profile';
+      final id = targetId ??
+          (type == 'profile' ? reportedUserId : null);
+      if (id == null) throw Exception('conteudo sem id');
+      await _client.rpc(
+        'admin_moderate_content',
+        params: {
+          'p_target_type': type,
+          'p_target_id': id,
+          'p_action': action,
+        },
+      );
+    }
+
+    final status = (action == 'dismiss' || action == 'restore')
+        ? 'dismissed'
+        : 'resolved';
     await _client
         .from('reports')
         .update({

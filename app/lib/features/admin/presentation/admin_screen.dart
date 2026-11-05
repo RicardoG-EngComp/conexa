@@ -60,6 +60,11 @@ class AdminScreen extends ConsumerWidget {
                                 reportId: report.id,
                                 reportedUserId: report.reportedUserId,
                                 action: action,
+                                targetType: report.targetType,
+                                targetId: report.targetId ??
+                                    (report.targetType == 'profile'
+                                        ? report.reportedUserId
+                                        : null),
                               );
                           ref.invalidate(openReportsProvider);
                         },
@@ -141,6 +146,18 @@ class _ReportCard extends StatelessWidget {
           Wrap(
             spacing: AppSpacing.sm,
             children: [
+              OutlinedButton(
+                onPressed: () => onAction('hide'),
+                child: const Text('Ocultar'),
+              ),
+              OutlinedButton(
+                onPressed: () => onAction('restore'),
+                child: const Text('Restaurar'),
+              ),
+              OutlinedButton(
+                onPressed: () => onAction('delete'),
+                child: const Text('Remover'),
+              ),
               OutlinedButton(
                 onPressed: () => onAction('dismiss'),
                 child: const Text('Ignorar'),

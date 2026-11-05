@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/errors/moderation_errors.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../reports/presentation/report_dialog.dart';
@@ -91,10 +92,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             flagged: result.flagged,
           );
       _controller.clear();
-    } catch (_) {
+    } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nao foi possivel enviar.')),
+          SnackBar(
+            content: Text(
+              friendlyModerationError(
+                error,
+                fallback: 'Nao foi possivel enviar.',
+              ),
+            ),
+          ),
         );
       }
     } finally {

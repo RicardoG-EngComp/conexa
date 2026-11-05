@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/errors/moderation_errors.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../blocks/application/block_providers.dart';
@@ -366,10 +367,17 @@ class ProfileScreen extends ConsumerWidget {
           const SnackBar(content: Text('Pedido enviado. Aguarde a aprovacao.')),
         );
       }
-    } catch (_) {
+    } catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nao foi possivel enviar o pedido.')),
+          SnackBar(
+            content: Text(
+              friendlyModerationError(
+                error,
+                fallback: 'Nao foi possivel enviar o pedido.',
+              ),
+            ),
+          ),
         );
       }
     }

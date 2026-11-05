@@ -6,11 +6,14 @@ import '../../../core/theme/app_spacing.dart';
 import '../application/report_providers.dart';
 
 const Map<String, String> reportCategories = {
+  'intolerancia_discriminacao': 'Intolerancia ou discriminacao',
+  'violencia_ameaca': 'Violencia ou ameaca',
+  'conteudo_sexual_explicito': 'Conteudo sexual explicito',
   'assedio': 'Assedio',
-  'discurso_odio': 'Discurso de odio',
-  'spam': 'Spam',
-  'conteudo_sexual': 'Conteudo sexual nao consentido',
-  'fraude': 'Fraude ou golpe',
+  'imagem_nao_consentida': 'Imagem intima sem consentimento',
+  'menor_de_idade': 'Envolvendo menor de idade',
+  'spam_golpe': 'Spam ou golpe',
+  'perfil_falso': 'Perfil falso',
   'outro': 'Outro',
 };
 

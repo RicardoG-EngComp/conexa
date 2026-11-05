@@ -1,8 +1,0 @@
-{
-  "version": "1.0.4",
-  "build": 5,
-  "apk_url": "https://github.com/RicardoG-EngComp/tinder-de-republicas/releases/download/v1.0.4-5/app-release.apk",
-  "sha256": "cdb272c6d412ccc65e03d8ae6edfc31169a33b295ee95cf91ef5b08477e8fa5f",
-  "notes": "Chat entre conexoes corrigido; figurinhas, pacotes proprios e GIFs (GIPHY); pacotes globais importados do Telegram.",
-  "mandatory": true
-}

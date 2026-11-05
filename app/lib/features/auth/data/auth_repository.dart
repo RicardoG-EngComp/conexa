@@ -6,7 +6,12 @@ class AuthRepository {
 
   final SupabaseClient _client;
 
-  static const String consentVersion = '2026-10';
+  static const String consentVersion = '2026-11';
+  static const List<String> requiredConsents = [
+    'terms',
+    'privacy',
+    'community_guidelines',
+  ];
 
   String get redirectTo => kIsWeb
       ? 'http://localhost:8081'
@@ -60,10 +65,13 @@ class AuthRepository {
     if (user == null) return false;
     final rows = await _client
         .from('consents')
-        .select('id')
+        .select('type, version')
         .eq('user_id', user.id)
-        .limit(1);
-    return (rows as List).isNotEmpty;
+        .eq('version', consentVersion);
+    final types = (rows as List)
+        .map((r) => r['type'] as String)
+        .toSet();
+    return requiredConsents.every(types.contains);
   }
 
   Future<bool> isProfileComplete() async {

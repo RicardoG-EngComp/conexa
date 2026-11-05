@@ -1,63 +1,73 @@
-# Termos de Uso (RASCUNHO)
+# Termos de Uso (beta)
 
-> ⚠️ **Rascunho.** Não publicar sem revisão jurídica. Campos entre `[colchetes]`
-> precisam ser preenchidos.
+> Versao publica: [`terms.html`](terms.html). Revisao juridica pendente antes da
+> producao.
 
-**Última atualização:** [DATA]
+**Ultima atualizacao:** 4 de novembro de 2026.
 
-## 1. Aceitação
-Ao criar uma conta no [NOME DO APP], você concorda com estes Termos e com a
-Política de Privacidade.
+## 1. Aceitacao
 
-## 2. Elegibilidade (18+)
-O app é **exclusivo para maiores de 18 anos**. É obrigatório passar pela
-verificação de idade. Contas de menores serão encerradas.
+Ao criar uma conta no Conexa, voce concorda com estes Termos, com a Politica de
+Privacidade e com as Diretrizes da Comunidade.
 
-## 3. Sua conta
-- Você é responsável por manter a senha em segredo.
-- **É proibido compartilhar, emprestar ou transferir a conta.**
-- Informações falsas podem levar ao encerramento.
+## 2. Elegibilidade
+
+O Conexa Universitario e exclusivo para maiores de 18 anos com vinculo
+universatario verificavel. Contas de menores ou com informacoes falsas podem ser
+encerradas.
+
+## 3. Conta
+
+- Voce e responsavel pela seguranca da senha.
+- Nao compartilhe, empreste ou transfira a conta.
+- Informacoes falsas podem levar ao encerramento.
 
 ## 4. Conduta proibida
-É proibido:
-- Assediar, ameaçar, discriminar ou constranger outros usuários.
-- Publicar conteúdo ilegal, não consentido ou de menores.
-- Oferecer ou intermediar **serviços sexuais pagos**.
-- Divulgar imagens íntimas sem consentimento.
-- Usar o app para golpes, spam ou atividades criminosas.
 
-## 5. Conteúdo do usuário
-Você mantém os direitos sobre seu conteúdo e concede ao app licença limitada
-para exibi-lo dentro da plataforma. Você declara ter direito sobre o conteúdo
-que publica.
+E estritamente proibido:
 
-## 6. Moderação e denúncias
-Podemos remover conteúdo e suspender contas que violem estes Termos. Denúncias
-são analisadas e, quando cabível, o usuário é orientado a registrar Boletim de
-Ocorrência.
+- Intolerancia e discriminacao por raca, etnia, religiao, genero, orientacao
+  sexual, identidade de genero, deficiencia, origem ou condicao social.
+- Violencia, ameaca, incitacao, perseguicao ou conteudo grafico.
+- Conteudo explicito pornografico.
+- Assedio, bullying, doxxing e exposicao de dados pessoais.
+- Imagens intimas sem consentimento.
+- Qualquer conteudo envolvendo menores de idade.
+- Conteudo ilegal, golpes, spam e perfis falsos.
+- Provas vazadas, gabaritos durante avaliacao e trabalhos feitos por outra pessoa.
 
-## 7. Assinatura e pagamento
-- Plano gratuito disponível.
-- Assinatura opcional: R$ 10/mês (ou valor promocional de R$ 5/mês no programa
-  de indicação).
-- Cobrança via Pix, mensal ou anual.
-- Cancelamento a qualquer momento.
-- **Direito de arrependimento em até 7 dias** (CDC), quando aplicável.
+## 5. Conteudo do usuario
 
-## 8. Programa de indicação
-Regras: [DESCREVER REGRAS, ANTIFRAUDE E CONDIÇÕES].
+Voce mantem os direitos sobre o seu conteudo e concede ao Conexa licenca limitada
+para exibi-lo na plataforma. Voce declara ter direito sobre o que publica.
 
-## 9. Localização
-Recurso opcional. Ao ativar, você consente com o uso de localização aproximada
-para descoberta de pessoas próximas.
+## 6. Moderacao e denuncias
 
-## 10. Isenções e responsabilidade
-O app é uma plataforma de conexão e não garante resultados. [DEFINIR LIMITES
-CONFORME A LEI].
+Podemos remover conteudo e suspender ou banir contas que violem estes Termos.
+Denuncias graves podem ocultar o conteudo ate revisao. O usuario pode bloquear e
+denunciar. Casos de risco podem ser encaminhados as autoridades.
 
-## 11. Encerramento
-Você pode excluir sua conta a qualquer momento. Podemos encerrar contas que
-violem estes Termos.
+## 7. Integridade academica
 
-## 12. Contato
-[E-MAIL]
+Materiais devem respeitar direitos autorais e as regras da universidade. E
+proibido publicar provas vazadas, gabaritos durante avaliacoes ou conteudo que
+facilite fraude academica.
+
+## 8. Assinatura e pagamento
+
+O beta e gratuito. Planos pagos, quando existirem, terao preco e condicoes claras,
+com cancelamento facil. Compras digitais no app seguem as regras da Google Play.
+
+## 9. Encerramento
+
+Voce pode excluir a conta pelo app ou pela
+[`pagina de exclusao`](account-deletion.html).
+
+## 10. Limitacoes
+
+O Conexa e uma plataforma de conexao e comunidade; nao garante resultados,
+matches ou aprovacoes. Voce e responsavel pelas interacoes e pelo conteudo.
+
+## 11. Contato
+
+panfyllus@alunos.ufv.br

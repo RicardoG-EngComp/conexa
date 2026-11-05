@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/errors/moderation_errors.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
@@ -40,10 +41,17 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           .createPost(text, visibility: _visibility);
       _controller.clear();
       ref.invalidate(feedProvider);
-    } catch (_) {
+    } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nao foi possivel publicar.')),
+          SnackBar(
+            content: Text(
+              friendlyModerationError(
+                error,
+                fallback: 'Nao foi possivel publicar.',
+              ),
+            ),
+          ),
         );
       }
     } finally {

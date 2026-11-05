@@ -1,105 +1,102 @@
 # Roadmap em Blocos
 
 ## Decisões técnicas
+
 | Tema | Decisão |
 |---|---|
-| Plataforma | **Android primeiro**; arquitetura já preparada para iOS |
-| Framework | **Flutter** (código único Android/iOS, UI própria consistente) |
-| Backend | Supabase (free tier) para auth, Postgres, storage |
-| IA | **On-device** (LiteRT-LM + Gemma 3 1B / Gemma-3n E2B) |
-| Mapa | **OpenFreeMap + MapLibre** (sem chave/limite); geocoding via Nominatim |
-| Contas de casal | **Duas contas vinculadas** (estilo Instagram) |
-| AI Coach | **Exclusivo para assinantes** |
-| Conteúdo adulto explícito | **Fora do escopo** |
-| Receita | Assinatura Pix (R$ 10/mês; R$ 5 no programa de indicação) |
-
-## Revisão sobre o mapa
-A licença do Maptoolkit proíbe "Adult Content". Como o app **não terá conteúdo
-adulto explícito**, essa restrição **não é bloqueio automático**. Ainda assim,
-mantemos **OpenFreeMap** como escolha principal por não ter limite de requisições
-e não exigir chave. Se o Maptoolkit for usado, confirmar a definição de "Adult
-Content" na licença e manter a atribuição.
+| Plataforma | **Android primeiro**; arquitetura preparada para iOS |
+| Framework | **Flutter** |
+| Backend | Supabase (auth, Postgres, storage, Edge Functions) |
+| Mapa | Sem localização de usuários no MVP; lugares/eventos no futuro |
+| Estudos | Conteúdo misto com curadoria; sem prova vazada |
+| Romance | Congelado; volta como modo 18+ opcional no futuro |
+| Contas de casal | Duas contas vinculadas (fase futura) |
+| IA | On-device/Edge com citação; sem treinar em dados do usuário |
+| Assinatura | Duo R$ 10/mês (2 vagas); Play Billing 15% |
+| Receita | Sem anúncios e sem venda de dados |
+| Transparência | Políticas e roadmap públicos; métricas internas |
 
 ## Blocos
 
 ### B0 — Fundação
-**Entrega:** projeto Flutter, navegação, design tokens, tema, estrutura de pastas,
-CI básico, documentos de conformidade.
-**Pronto quando:** app abre vazio com tema e rotas funcionando.
-**Status:** ✅ concluído (Flutter 3.47.9, Riverpod, go_router, tema e rotas).
+**Status:** ✅ Flutter, Riverpod, go_router, tema e rotas.
 
 ### B1 — Identidade 18+
-**Entrega:** cadastro, consentimentos, verificação de vínculo UFV por e-mail institucional.
-**Depende de:** B0.
-**Pronto quando:** só entra quem tem e-mail `@alunos.ufv.br` confirmado.
-**Status:** B1.1 (auth Supabase) ✅; B1.2 (identidade UFV por e-mail) ✅.
-Prova de idade real pendente (fase futura).
+**Status:** ✅ Auth Supabase; emails `@alunos.ufv.br` e `@ufv.br`; 18+ no servidor.
 
 ### B2 — Perfil & Onboarding
-**Entrega:** perfil obrigatório com nome, curso, campus, bio, 3 prompts,
-avatar + até 6 fotos e favoritos (música/séries/filmes/animes).
-**Depende de:** B1.
-**Pronto quando:** perfil completo, editável e exibido no feed/chat.
-**Status:** ✅ concluído (bucket privado `profile-media`, URLs assinadas,
-catálogo curado e perfil público). Vinculação de casal fica para depois.
+**Status:** ✅ Perfil, fotos, prompts, favoritos, perfil público.
 
 ### B3 — Descoberta & Match
-**Entrega:** feed social (posts, comentários, curtidas) e, depois, descoberta/match.
-**Depende de:** B2.
-**Pronto quando:** feed funciona e o match acontece ponta a ponta.
-**Status:** feed social ✅ (posts, comentários e curtidas). Descoberta/match pendente.
+**Status:** ✅ Feed social, descobrir, conexões e bloqueios. Romance pendente.
 
 ### B4 — Chat & Segurança
-**Entrega:** mensagens, filtro antissedilidade, denúncia e bloqueio.
-**Depende de:** B3.
-**Pronto quando:** chat funciona com alertas e denúncia.
+**Status:** ✅ Mensagens, pedidos, moderação e denúncias.
 
-### B5 — AI Coach (assinante)
-**Entrega:** dicas de foto, sugestões de conversa, análise de perfil.
-**Depende de:** B4.
-**Pronto quando:** assinante recebe dicas no dispositivo.
+### B5 — AI Coach
+**Status:** ⏳ Futuro; depende de assinatura.
 
 ### B6 — Localização & Mapa
-**Entrega:** opt-in, área aproximada, mapa, "perto de você".
-**Depende de:** B2/B3.
-**Pronto quando:** descoberta por proximidade funciona.
+**Status:** ⏸️ Adiado. Sem localização de usuários. Mapa de lugares/eventos no futuro.
 
-### B7 — Assinatura Pix
-**Entrega:** planos R$10/R$5, programa de indicação, cancelamento.
-**Depende de:** B3.
-**Pronto quando:** cobrança e liberação de acesso funcionam.
+### B7 — Assinatura
+**Status:** ⏳ Duo R$ 10; Play Billing quando cobrar; UCB 11% só com CNPJ.
 
 ### B8 — Confiança & Denúncia
-**Entrega:** fila de denúncias, SLA, orientação policial, denúncia de uso de
-imagem sem consentimento.
-**Depende de:** B4.
-**Pronto quando:** denúncia é tratada e registrada.
+**Status:** ✅ Denúncias, bloqueios e auditoria. Expandir categorias e ocultação automática.
 
 ### B9 — Admin/Moderação
-**Entrega:** painel web de moderação, gestão de usuários e denúncias.
-**Depende de:** B4/B8.
-**Pronto quando:** time consegue moderar sem acesso direto ao banco.
+**Status:** ✅ Painel de denúncias. Adicionar remoção/restauração de conteúdo.
 
 ### B10 — Beta & Lançamento
-**Entrega:** teste fechado, telemetria mínima, ajustes.
-**Depende de:** todos.
-**Pronto quando:** beta roda com monitoramento.
+**Status:** 🚧 Play Store: conta pessoal, teste interno → fechado; 12/14 para produção.
 
-## Contas de casal (duas contas vinculadas)
-- Cada pessoa tem **sua própria conta e verificação**.
-- A vinculação exige **consentimento dos dois** (registro de aceite).
-- O perfil pode exibir **"relaciona-se com @parceiro"** e **anexar o perfil do
-  parceiro** (com autorização).
-- Denúncia: "perfil usando imagem de alguém sem consentimento" → revisão humana.
+### B11 — Play readiness + moderação
+**Entrega:** remover auto-update, exclusão de conta, termos/diretrizes, permissões
+mínimas, AAB, moderação server-side.
+**Pronto quando:** AAB aprovado no teste interno e política de UGC completa.
 
-## Direção visual (aprovada)
+### B12 — Estudos MVP
+**Entrega:** 10–20 disciplinas da UFV; materiais, Q&A e grupos; conteúdo misto;
+curadoria; integridade acadêmica.
+**Depende de:** B11.
+**Pronto quando:** alunos usam semanalmente e o Q&A tem resposta.
+
+### B13 — Professores/servidores
+**Entrega:** perfis oficiais, materiais, avisos e Q&A; sem DM com alunos.
+**Depende de:** B12.
+
+### B14 — Alumni
+**Entrega:** mentoria, vagas e eventos; verificação manual; DM opt-in.
+**Depende de:** B13.
+
+### B15 — Multiuniversidade
+**Entrega:** `universities`, domínios, catálogos, embaixadores; 3–5 federais.
+**Depende de:** B14.
+
+### B16 — Conexa Escola
+**Entrega:** produto separado para menores; estudo + Q&A moderado; sem DM/feed/
+fotos/romance; parceiro escolar; revisão jurídica.
+**Depende de:** B15 e validação do universitário.
+
+### B17 — Escala
+**Entrega:** serviços, marketplace, relatórios, auditorias, time e empregos.
+
+## Contas de casal
+
+- Fase futura; cada pessoa com sua conta e verificação.
+- Consentimento dos dois; vínculo exibido no perfil.
+
+## Direção visual
+
 - Papel `#F6F2EA`, tinta `#14130F`, acento verde-petróleo `#0F5C5C`.
-- Tipografia: **Newsreader** (títulos/prompts) + **IBM Plex Sans** (corpo).
-- Muito espaço em branco, cards de prompt grandes, grade assimétrica.
-- Referência de **clima** do Hinge, **sem copiar** layouts/assets.
+- Newsreader + IBM Plex Sans.
+- Muito espaço em branco, cards de prompt grandes.
 
 ## Riscos
-- Verificação caseira é medida razoável, não garantia absoluta.
-- IA de 1–2B tem limites; revisão humana continua necessária.
+
+- Moderação e suporte custam; receita precisa acompanhar.
+- Conteúdo de estudos: qualidade, copyright e provas vazadas.
+- Menores: produto separado, com proteção e revisão jurídica.
+- Universidade: marca, parcerias e política interna.
 - Free tiers servem para MVP; escala tem custo.
-- Sem CNPJ, a monetização e a responsabilidade ficam limitadas/pessoais.

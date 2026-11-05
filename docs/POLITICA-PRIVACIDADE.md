@@ -1,66 +1,60 @@
-# Política de Privacidade (RASCUNHO)
+# Politica de Privacidade (beta)
 
-> ⚠️ **Rascunho.** Não publicar sem revisão jurídica. Campos entre `[colchetes]`
-> precisam ser preenchidos.
+> Versao publica: [`privacy.html`](privacy.html). Revisao juridica pendente antes
+> da producao.
 
-**Última atualização:** [DATA]
-**Controlador:** [RAZÃO SOCIAL / NOME], CNPJ [NÚMERO]
-**Encarregado (DPO):** [NOME] — contato: [E-MAIL]
+**Ultima atualizacao:** 4 de novembro de 2026.
+**Contato do responsavel:** panfyllus@alunos.ufv.br.
 
 ## 1. Quem somos
-O [NOME DO APP] é um aplicativo exclusivo para maiores de 18 anos que conecta
-pessoas para interação amigável ou sexual.
+
+O Conexa e um aplicativo para a comunidade universitaria, destinado a maiores de
+18 anos.
 
 ## 2. Dados que tratamos
-| Categoria | Exemplos | Finalidade |
-|---|---|---|
-| Cadastro | e-mail, telefone, senha | Criar e proteger a conta |
-| Identificação | documento (CIN/CNH), data de nascimento | Verificar 18+ |
-| Biometria | selfie, prova de vida | Confirmar que você é o titular |
-| Perfil | fotos, bio, preferências | Apresentação e match |
-| Localização | área aproximada | Descoberta de pessoas próximas |
-| Mensagens | conteúdo do chat | Prestar o serviço |
-| Pagamento | dados da assinatura | Cobrança |
-| Uso/segurança | logs, dispositivo | Segurança e antifraude |
 
-## 3. Bases legais
-- Execução de contrato: prestação do serviço.
-- Consentimento: localização, biometria e dados sensíveis.
-- Obrigação legal: guarda de registros e fiscais.
-- Legítimo interesse: segurança e antifraude (com avaliação documentada).
+- Cadastro: email, data de nascimento e senha (armazenada pelo provedor de auth).
+- Perfil: nome, curso, campus, bio, prompts, fotos e interesses.
+- Uso: posts, comentarios, curtidas, conexoes, mensagens, denuncias.
+- Tecnicos: registros de acesso, dispositivo e falhas.
 
-## 4. Dados sensíveis
-Tratamos dados de **vida sexual** e **biometria** somente com **consentimento
-específico e destacado**, e apenas para as finalidades informadas.
+No beta, **nao coletamos localizacao, biometria nem dados financeiros**. Nao
+vendemos dados e nao usamos publicidade comportamental.
 
-## 5. Compartilhamento
-**Não vendemos nem compartilhamos seus dados para publicidade.** Utilizamos
-apenas operadores essenciais (hospedagem, pagamento, envio de e-mail/SMS,
-moderação), sob contrato e finalidade limitada.
+## 3. Finalidades e bases legais
 
-## 6. Retenção
-- Documento e selfie: **excluídos após a verificação**.
-- Localização: retenção curta; registros de encontro por até [PRAZO].
-- Conta: enquanto ativa; exclusão conforme solicitado.
-- Registros fiscais: conforme a lei.
+- Prestar o servico e manter a conta (execucao de contrato).
+- Verificar vinculo universatario e idade (consentimento/obrigacao legal).
+- Seguranca, moderacao e prevencao de fraude (legitimo interesse/obrigacao legal).
+- Suporte e melhoria (legitimo interesse).
 
-## 7. Seus direitos
-Você pode solicitar acesso, correção, exclusão, portabilidade e revogação de
-consentimento pelo próprio app ou pelo e-mail [CONTATO DPO].
+## 4. Compartilhamento
 
-## 8. Segurança
-Adotamos criptografia, pseudonimização, controle de acesso e registros de
-auditoria.
+Operadores essenciais: Supabase (auth, banco e storage) e GIPHY (busca de GIFs).
+Nao vendemos nem compartilhamos dados para publicidade. Divulgamos dados quando
+exigido por lei ou para proteger direitos e seguranca.
 
-## 9. Incidentes
-Em caso de incidente relevante, comunicaremos a ANPD e os titulares afetados.
+## 5. Retencao
 
-## 10. Menores
-O app é destinado **exclusivamente a maiores de 18 anos**. Contas suspeitas de
-pertencer a menores serão suspensas e reavaliadas.
+Dados mantidos enquanto a conta estiver ativa. Na exclusao, apagamos os dados
+associados, salvo registros de seguranca, moderacao ou obrigacao legal. Backups
+podem levar ate 30 dias para expirar.
 
-## 11. Alterações
-Podemos atualizar esta política. Alterações relevantes serão comunicadas.
+## 6. Direitos
 
-## 12. Contato
-[E-MAIL] — Encarregado: [NOME]
+Acesso, correcao, exclusao, portabilidade e revogacao de consentimento pelo app
+ou pelo email de contato. Exclusao: [`account-deletion.html`](account-deletion.html).
+
+## 7. Seguranca
+
+Criptografia em transito, controle de acesso, RLS e auditoria. Nenhum sistema e
+100% imune; incidentes relevantes serao comunicados.
+
+## 8. Menores
+
+O Conexa Universitario e 18+. Um produto separado para menores podera existir no
+futuro, com regras e protecoes proprias.
+
+## 9. Alteracoes
+
+Alteracoes relevantes serao comunicadas no app.

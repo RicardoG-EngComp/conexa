@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/config/legal_urls.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../auth/application/auth_providers.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../reports/application/report_providers.dart';
 import '../../verification/application/verification_providers.dart';
+import '../data/account_repository.dart';
+
+Future<void> _openLegal(BuildContext context, String url) async {
+  final opened = await launchUrl(
+    Uri.parse(url),
+    mode: LaunchMode.externalApplication,
+  );
+  if (!opened && context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Nao foi possivel abrir o link.')),
+    );
+  }
+}
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -53,20 +68,23 @@ class SettingsScreen extends ConsumerWidget {
                 ref.invalidate(profileProvider);
               },
             ),
-            const ListTile(
+            ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.privacy_tip_outlined),
-              title: Text('Privacidade e consentimentos'),
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: const Text('Politica de Privacidade'),
+              onTap: () => _openLegal(context, LegalUrls.privacy),
             ),
-            const ListTile(
+            ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.location_on_outlined),
-              title: Text('Localizacao'),
+              leading: const Icon(Icons.description_outlined),
+              title: const Text('Termos de Uso'),
+              onTap: () => _openLegal(context, LegalUrls.terms),
             ),
-            const ListTile(
+            ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.security_outlined),
-              title: Text('Seguranca'),
+              leading: const Icon(Icons.groups_outlined),
+              title: const Text('Diretrizes da Comunidade'),
+              onTap: () => _openLegal(context, LegalUrls.guidelines),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -74,10 +92,51 @@ class SettingsScreen extends ConsumerWidget {
               title: const Text('Usuarios bloqueados'),
               onTap: () => context.push('/blocked-users'),
             ),
-            const ListTile(
+            ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.delete_outline),
-              title: Text('Excluir conta'),
+              leading: const Icon(Icons.delete_outline),
+              title: const Text('Excluir conta'),
+              onTap: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Excluir conta?'),
+                    content: const Text(
+                      'Todos os dados da conta, fotos, posts e mensagens '
+                      'serao apagados. Esta acao nao pode ser desfeita.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancelar'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Excluir'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm != true || !context.mounted) return;
+
+                try {
+                  await ref.read(accountRepositoryProvider).deleteAccount();
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Nao foi possivel excluir a conta.'),
+                      ),
+                    );
+                  }
+                  return;
+                }
+
+                try {
+                  await ref.read(authRepositoryProvider).signOut();
+                } catch (_) {}
+                if (context.mounted) context.go('/welcome');
+              },
             ),
             if (isAdminAsync.asData?.value ?? false) ...[
               const Divider(height: AppSpacing.xl),

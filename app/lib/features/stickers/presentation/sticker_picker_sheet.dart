@@ -55,7 +55,7 @@ class StickerPickerSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: SizedBox(
         height: MediaQuery.sizeOf(context).height * 0.7,
         child: Column(
@@ -63,7 +63,6 @@ class StickerPickerSheet extends ConsumerWidget {
             const TabBar(
               tabs: [
                 Tab(text: 'Globais'),
-                Tab(text: 'Meus pacotes'),
                 Tab(text: 'GIPHY'),
               ],
             ),
@@ -72,10 +71,6 @@ class StickerPickerSheet extends ConsumerWidget {
                 children: [
                   _PackBrowser(
                     isPublic: true,
-                    onSticker: (item) => _sendSticker(context, ref, item),
-                  ),
-                  _PackBrowser(
-                    isPublic: false,
                     onSticker: (item) => _sendSticker(context, ref, item),
                   ),
                   _GiphyTab(

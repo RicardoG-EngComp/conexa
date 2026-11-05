@@ -1,0 +1,76 @@
+name: Build Play AAB
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Versao (ex: 1.0.5)'
+        required: true
+        default: '1.0.5'
+      version_build:
+        description: 'Build number (ex: 6)'
+        required: true
+        default: '6'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.9'
+          channel: stable
+          cache: true
+
+      - name: Ensure Android SDK packages
+        run: |
+          yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" > /dev/null 2>&1 || true
+
+      - name: Create .env
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "Missing Supabase secrets"
+            exit 1
+          fi
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+
+      - name: Configure signing
+        run: |
+          mkdir -p android/keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/keystore/release.jks
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=keystore/release.jks
+          EOF
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release AAB
+        run: flutter build appbundle --release --build-name=${{ inputs.version_name }} --build-number=${{ inputs.version_build }}
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: conexa-${{ inputs.version_name }}-${{ inputs.version_build }}.aab
+          path: app/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
