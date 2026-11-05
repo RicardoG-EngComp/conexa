@@ -24,6 +24,10 @@ import '../../features/onboarding/presentation/welcome_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/studies/presentation/admin_studies_screen.dart';
+import '../../features/studies/presentation/study_discipline_screen.dart';
+import '../../features/studies/presentation/study_material_detail_screen.dart';
+import '../../features/studies/presentation/study_upload_screen.dart';
 import '../../features/subscription/presentation/subscription_screen.dart';
 import '../../features/verification/presentation/verification_screen.dart';
 import 'go_router_refresh.dart';
@@ -118,6 +122,28 @@ final GoRouter appRouter = GoRouter(
       builder: (_, _) => const SubscriptionScreen(),
     ),
     GoRoute(path: '/admin', builder: (_, _) => const AdminScreen()),
+    GoRoute(
+      path: '/admin/studies',
+      builder: (_, _) => const AdminStudiesScreen(),
+    ),
+    GoRoute(
+      path: '/studies/discipline/:id',
+      builder: (_, state) => StudyDisciplineScreen(
+        disciplineId: state.pathParameters['id'] ?? '',
+      ),
+    ),
+    GoRoute(
+      path: '/studies/material/:id',
+      builder: (_, state) => StudyMaterialDetailScreen(
+        materialId: state.pathParameters['id'] ?? '',
+      ),
+    ),
+    GoRoute(
+      path: '/studies/upload',
+      builder: (_, state) => StudyUploadScreen(
+        initialDisciplineId: state.uri.queryParameters['discipline'],
+      ),
+    ),
     GoRoute(
       path: '/blocked-users',
       builder: (_, _) => const BlockedUsersScreen(),

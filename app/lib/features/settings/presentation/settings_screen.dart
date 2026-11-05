@@ -88,6 +88,12 @@ class SettingsScreen extends ConsumerWidget {
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.copyright_outlined),
+              title: const Text('Direitos autorais e remocao'),
+              onTap: () => _openLegal(context, LegalUrls.copyright),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.block_outlined),
               title: const Text('Usuarios bloqueados'),
               onTap: () => context.push('/blocked-users'),

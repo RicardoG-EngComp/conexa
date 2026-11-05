@@ -28,7 +28,7 @@ O teste interno nao conta para producao. O beta pode ter centenas de pessoas;
 - Gratuito; sem anuncios.
 - Publico-alvo 18+; **Restrict Minor Access** ativado.
 - Assinatura: Play App Signing.
-- `versionCode`: 6 (`1.0.5+6`).
+- `versionCode`: 7 (`1.0.6+7`).
 
 ## Bloqueios antes do upload
 
@@ -118,7 +118,7 @@ depois. Nunca commite as senhas.
 ## AAB
 
 ```powershell
-flutter build appbundle --release --build-name=1.0.5 --build-number=6
+flutter build appbundle --release --build-name=1.0.6 --build-number=7
 ```
 
 Saida: `app/build/app/outputs/bundle/release/app-release.aab`.

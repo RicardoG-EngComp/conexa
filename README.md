@@ -30,7 +30,8 @@ universidades federais.
 - B4 (chat + moderação) ✅
 - B9 (admin + denúncias) ✅
 - Play Store / beta fechado: em preparação.
-- Próximo: MVP de Estudos (10–20 disciplinas da UFV).
+- MVP de Estudos (fase 1): ✅ catálogo, materiais, upload com aprovação e moderação.
+- Próximo: Q&A e grupos de estudo (fase 2).
 
 ## Documentos
 
@@ -53,6 +54,7 @@ universidades federais.
 - [Política de Privacidade pública](docs/privacy.html)
 - [Termos de Uso públicos](docs/terms.html)
 - [Diretrizes da Comunidade](docs/community-guidelines.html)
+- [Direitos autorais e remoção](docs/copyright.html)
 - [Excluir conta](docs/account-deletion.html)
 
 Ativar GitHub Pages em **Settings > Pages**, pasta `/docs`, antes de submeter à

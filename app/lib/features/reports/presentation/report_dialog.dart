@@ -12,6 +12,8 @@ const Map<String, String> reportCategories = {
   'assedio': 'Assedio',
   'imagem_nao_consentida': 'Imagem intima sem consentimento',
   'menor_de_idade': 'Envolvendo menor de idade',
+  'direitos_autorais': 'Direitos autorais',
+  'material_ilegal': 'Material ilegal',
   'spam_golpe': 'Spam ou golpe',
   'perfil_falso': 'Perfil falso',
   'outro': 'Outro',

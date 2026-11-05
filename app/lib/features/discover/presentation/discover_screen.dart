@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../profile/data/ufv_courses.dart';
+import '../../studies/presentation/studies_home.dart';
 import '../application/discover_controller.dart';
 import '../data/discover_models.dart';
 
@@ -21,6 +22,7 @@ class DiscoverScreen extends ConsumerStatefulWidget {
 class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   final _search = TextEditingController();
   Timer? _debounce;
+  String _section = 'people';
 
   @override
   void initState() {
@@ -53,73 +55,72 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 children: [
                   Text('Descobrir', style: theme.textTheme.displayMedium),
                   const SizedBox(height: AppSpacing.md),
-                  TextField(
-                    controller: _search,
-                    decoration: const InputDecoration(
-                      hintText: 'Buscar por nome ou curso...',
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                    onChanged: (value) {
-                      _debounce?.cancel();
-                      _debounce = Timer(
-                        const Duration(milliseconds: 400),
-                        () => ref
-                            .read(discoverControllerProvider.notifier)
-                            .applySearch(value),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  DropdownButtonFormField<String>(
-                    initialValue: state.course,
-                    decoration: const InputDecoration(labelText: 'Curso'),
-                    items: [
-                      const DropdownMenuItem<String>(
-                        value: null,
-                        child: Text('Todos os cursos'),
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(
+                        value: 'people',
+                        label: Text('Pessoas'),
+                        icon: Icon(Icons.people_outline),
                       ),
-                      ...ufvCourses.map(
-                        (c) =>
-                            DropdownMenuItem<String>(value: c, child: Text(c)),
+                      ButtonSegment(
+                        value: 'studies',
+                        label: Text('Estudos'),
+                        icon: Icon(Icons.menu_book_outlined),
                       ),
                     ],
-                    onChanged: (value) => ref
-                        .read(discoverControllerProvider.notifier)
-                        .setCourse(value),
+                    selected: {_section},
+                    showSelectedIcon: false,
+                    onSelectionChanged: (value) =>
+                        setState(() => _section = value.first),
                   ),
+                  if (_section == 'people') ...[
+                    const SizedBox(height: AppSpacing.md),
+                    TextField(
+                      controller: _search,
+                      decoration: const InputDecoration(
+                        hintText: 'Buscar por nome ou curso...',
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                      onChanged: (value) {
+                        _debounce?.cancel();
+                        _debounce = Timer(
+                          const Duration(milliseconds: 400),
+                          () => ref
+                              .read(discoverControllerProvider.notifier)
+                              .applySearch(value),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    DropdownButtonFormField<String>(
+                      initialValue: state.course,
+                      decoration: const InputDecoration(labelText: 'Curso'),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text('Todos os cursos'),
+                        ),
+                        ...ufvCourses.map(
+                          (c) => DropdownMenuItem<String>(
+                            value: c,
+                            child: Text(c),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) => ref
+                          .read(discoverControllerProvider.notifier)
+                          .setCourse(value),
+                    ),
+                  ],
                 ],
               ),
             ),
             Expanded(
-              child: state.items.isEmpty && state.loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : state.items.isEmpty
-                  ? Center(
-                      child: Text(
-                        state.error ?? 'Nenhum perfil encontrado.',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: AppColors.muted,
-                        ),
-                      ),
-                    )
-                  : GridView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.lg,
-                      ),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: AppSpacing.md,
-                            crossAxisSpacing: AppSpacing.md,
-                            childAspectRatio: 0.72,
-                          ),
-                      itemCount: state.items.length,
-                      itemBuilder: (context, index) {
-                        return _DiscoverCard(profile: state.items[index]);
-                      },
-                    ),
+              child: _section == 'people'
+                  ? _PeopleList(state: state, theme: theme)
+                  : const StudiesHome(),
             ),
-            if (state.hasMore)
+            if (_section == 'people' && state.hasMore)
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: OutlinedButton(
@@ -140,6 +141,41 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PeopleList extends StatelessWidget {
+  const _PeopleList({required this.state, required this.theme});
+
+  final DiscoverState state;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    if (state.items.isEmpty && state.loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state.items.isEmpty) {
+      return Center(
+        child: Text(
+          state.error ?? 'Nenhum perfil encontrado.',
+          style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.muted),
+        ),
+      );
+    }
+    return GridView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: AppSpacing.md,
+        crossAxisSpacing: AppSpacing.md,
+        childAspectRatio: 0.72,
+      ),
+      itemCount: state.items.length,
+      itemBuilder: (context, index) {
+        return _DiscoverCard(profile: state.items[index]);
+      },
     );
   }
 }

@@ -8,12 +8,17 @@ Direto; competir por contexto, confianca e comunidade.
 
 ## Escopo
 
-- 10 a 20 disciplinas de maior matricula/reprovacao, mix de areas.
+- **Top 10 disciplinas:** Cálculo I, Física I, Química Geral, Estatística,
+  Algoritmos e Programação, Anatomia Humana, Bioquímica, Direito Civil I,
+  Administração Geral e Solos e Fertilidade.
 - Materiais: PDF, imagem e link; busca; tags; votos de utilidade.
 - Q&A por disciplina; resposta aceita; selos de professor/monitor.
 - Grupos de estudo por disciplina; posts/comentarios; encontros.
 - Conteudo misto: professores/monitores + alunos, com curadoria.
 - Moderacao de texto e arquivos; denuncias; DMCA.
+- Upload restrito a convidados do piloto, com aprovacao previa.
+- Armazenamento: bucket privado `study-media` no Supabase no piloto; R2 quando
+  o bucket/token forem configurados.
 
 ## Fora do escopo (fase 1)
 
@@ -47,6 +52,10 @@ Direto; competir por contexto, confianca e comunidade.
 - Modo prova e restricao de conteudo em periodos de avaliacao.
 - DMCA e remocao rapida.
 - Criadores verificados e historico de qualidade.
+- Termo do uploader + consentimento versionado.
+- Politica de reincidentes: 3 strikes → suspensao/banimento.
+- Upload inicial apenas para convidados (admin/revisores/alunos piloto);
+  aprovacao previa antes de aparecer para a comunidade.
 
 ## Metricas
 

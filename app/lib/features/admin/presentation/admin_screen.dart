@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -16,7 +17,16 @@ class AdminScreen extends ConsumerWidget {
     final isAdminAsync = ref.watch(isAdminProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Administracao')),
+      appBar: AppBar(
+        title: const Text('Administracao'),
+        actions: [
+          IconButton(
+            tooltip: 'Materiais pendentes',
+            icon: const Icon(Icons.menu_book_outlined),
+            onPressed: () => context.push('/admin/studies'),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: isAdminAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
