@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/config/legal_urls.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/update/firebase_update_service.dart';
 import '../../auth/application/auth_providers.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../reports/application/report_providers.dart';
@@ -52,6 +53,18 @@ class SettingsScreen extends ConsumerWidget {
               leading: const Icon(Icons.password_outlined),
               title: const Text('Alterar senha'),
               onTap: () => context.push('/change-password'),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.system_update_alt),
+              title: const Text('Verificar atualizacao'),
+              subtitle: const Text('Baixar a versao mais recente do beta.'),
+              onTap: () async {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Verificando atualizacao...')),
+                );
+                await FirebaseUpdateService().check(force: true);
+              },
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,

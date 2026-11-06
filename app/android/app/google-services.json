@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "4747139353",
+    "project_id": "conexa-20a9b",
+    "storage_bucket": "conexa-20a9b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:4747139353:android:fdd0d000d5a7803aafcd88",
+        "android_client_info": {
+          "package_name": "com.ricardogengcomp.conexa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-ZtDnSpKFMSp0vWoceXqIC7MufmzebS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

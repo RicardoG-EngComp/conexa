@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../profile/data/ufv_courses.dart';
+import '../../profile/presentation/incomplete_profile_banner.dart';
 import '../../studies/presentation/studies_home.dart';
 import '../application/discover_controller.dart';
 import '../data/discover_models.dart';
@@ -73,6 +74,7 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     onSelectionChanged: (value) =>
                         setState(() => _section = value.first),
                   ),
+                  const IncompleteProfileBanner(),
                   if (_section == 'people') ...[
                     const SizedBox(height: AppSpacing.md),
                     TextField(

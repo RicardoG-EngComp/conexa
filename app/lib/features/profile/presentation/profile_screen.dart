@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../badges/application/badge_providers.dart';
 import '../../badges/data/badge_models.dart';
+import 'incomplete_profile_banner.dart';
 import '../../blocks/application/block_providers.dart';
 import '../../chat/application/chat_providers.dart';
 import '../../connections/presentation/connection_actions.dart';
@@ -95,6 +96,7 @@ class ProfileScreen extends ConsumerWidget {
             return ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
+                if (isOwn) const IncompleteProfileBanner(),
                 Center(
                   child: ClipOval(
                     child: SizedBox(

@@ -28,7 +28,7 @@ O teste interno nao conta para producao. O beta pode ter centenas de pessoas;
 - Gratuito; sem anuncios.
 - Publico-alvo 18+; **Restrict Minor Access** ativado.
 - Assinatura: Play App Signing.
-- `versionCode`: 9 (`1.0.8+9`).
+- `versionCode`: 10 (`1.0.9+10`).
 
 ## Bloqueios antes do upload
 
@@ -64,6 +64,12 @@ Beta fechado para estudantes da UFV.
 **Exclusao de conta:** `https://ricardog-engcomp.github.io/conexa/account-deletion.html`
 
 > Ativar GitHub Pages em Settings > Pages, pasta `/docs`, antes de submeter.
+
+> **Build Play:** a build 1.0.9 inclui o SDK do Firebase App Distribution, que é
+> exclusivo do beta. Antes de publicar na Play, remover o plugin
+> `firebase_app_distribution`, o `google-services.json` e o serviço de update
+> do beta; a Play usa In-App Updates. O SDK não adicionou permissões extras ao
+> APK atual (somente INTERNET).
 
 ## Data safety (rascunho)
 
@@ -116,7 +122,7 @@ depois. Nunca commite as senhas.
 ## AAB
 
 ```powershell
-flutter build appbundle --release --build-name=1.0.8 --build-number=9
+flutter build appbundle --release --build-name=1.0.9 --build-number=10
 ```
 
 Saida: `app/build/app/outputs/bundle/release/app-release.aab`.

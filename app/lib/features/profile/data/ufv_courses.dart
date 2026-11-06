@@ -56,6 +56,18 @@ const List<String> ufvCourses = [
   'Licenciatura em História',
   'Licenciatura em Matemática',
   'Licenciatura em Química',
+  'Bacharelado em Educação Física',
+  'Licenciatura em Educação Física',
+  'Pedagogia',
+  'Secretariado Executivo Trilíngue',
+  'Serviço Social',
+  'Ciências de Dados',
+  'Ciências de Dados e Inteligência Artificial',
+  'Matemática Aplicada e Computacional',
+  'Engenharia Ambiental e Sanitária',
+  'Tecnologia em Gestão Ambiental',
+  'Ciência e Tecnologia de Alimentos',
+  'Ciências Biológicas – Ênfase em Conservação da Biodiversidade',
 ];
 
 const List<String> profilePromptQuestions = [

@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/update/firebase_update_service.dart';
 
 class ConexaApp extends StatefulWidget {
   const ConexaApp({super.key});
@@ -25,6 +26,9 @@ class _ConexaAppState extends State<ConexaApp> {
       if (state.event == AuthChangeEvent.passwordRecovery) {
         appRouter.go('/reset-password');
       }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FirebaseUpdateService().check();
     });
   }
 
