@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/errors/moderation_errors.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../badges/application/badge_providers.dart';
+import '../../badges/data/badge_models.dart';
 import '../../blocks/application/block_providers.dart';
 import '../../chat/application/chat_providers.dart';
 import '../../connections/presentation/connection_actions.dart';
@@ -31,6 +33,7 @@ class ProfileScreen extends ConsumerWidget {
     final profileAsync = ref.watch(publicProfileProvider(id));
     final favoritesAsync = ref.watch(favoriteIdsProvider(id));
     final catalogAsync = ref.watch(catalogProvider);
+    final badgesAsync = ref.watch(userBadgesProvider(id));
 
     return Scaffold(
       appBar: AppBar(
@@ -133,18 +136,31 @@ class ProfileScreen extends ConsumerWidget {
                     label: const Text('UFV'),
                   ),
                 ),
+                if ((badgesAsync.asData?.value ?? const <ProfileBadge>[])
+                    .isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: badgesAsync.asData!.value
+                        .map((badge) => _BadgeChip(badge: badge))
+                        .toList(),
+                  ),
+                ],
                 if (!isOwn) ...[
                   const SizedBox(height: AppSpacing.md),
                   ConnectionActions(targetId: id),
                   const SizedBox(height: AppSpacing.sm),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
                     children: [
                       ProfileMessageButton(
                         targetId: id,
                         onRequestMessage: () => _sendRequest(context, ref, id),
                       ),
-                      const SizedBox(width: AppSpacing.sm),
                       OutlinedButton(
                         onPressed: () => showReportDialog(
                           context,
@@ -381,6 +397,41 @@ class ProfileScreen extends ConsumerWidget {
         );
       }
     }
+  }
+}
+
+class _BadgeChip extends StatelessWidget {
+  const _BadgeChip({required this.badge});
+
+  final ProfileBadge badge;
+
+  IconData get _icon {
+    switch (badge.icon) {
+      case 'science':
+        return Icons.science_outlined;
+      case 'verified':
+        return Icons.verified_outlined;
+      case 'school':
+        return Icons.school_outlined;
+      default:
+        return Icons.military_tech_outlined;
+    }
+  }
+
+  Color get _color {
+    final cleaned = badge.color.replaceAll('#', '');
+    final value = int.tryParse('FF$cleaned', radix: 16);
+    return value == null ? AppColors.teal : Color(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      avatar: Icon(_icon, size: 16, color: _color),
+      label: Text(badge.name),
+      backgroundColor: _color.withValues(alpha: 0.12),
+      side: BorderSide(color: _color.withValues(alpha: 0.35)),
+    );
   }
 }
 

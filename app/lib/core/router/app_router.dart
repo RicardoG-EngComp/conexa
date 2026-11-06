@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/admin/presentation/admin_screen.dart';
+import '../../features/badges/presentation/admin_badges_screen.dart';
 import '../../features/auth/presentation/change_password_screen.dart';
 import '../../features/blocks/presentation/blocked_users_screen.dart';
 import '../../features/auth/presentation/check_email_screen.dart';
@@ -122,6 +123,10 @@ final GoRouter appRouter = GoRouter(
       builder: (_, _) => const SubscriptionScreen(),
     ),
     GoRoute(path: '/admin', builder: (_, _) => const AdminScreen()),
+    GoRoute(
+      path: '/admin/badges',
+      builder: (_, _) => const AdminBadgesScreen(),
+    ),
     GoRoute(
       path: '/admin/studies',
       builder: (_, _) => const AdminStudiesScreen(),

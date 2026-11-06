@@ -167,9 +167,17 @@ class _PendingList extends ConsumerWidget {
     WidgetRef ref,
     ConversationSummary c,
   ) async {
-    await ref.read(chatRepositoryProvider).acceptRequest(c.id);
-    ref.invalidate(conversationsProvider);
-    if (context.mounted) context.push('/chats/${c.id}', extra: c);
+    try {
+      await ref.read(chatRepositoryProvider).acceptRequest(c.id);
+      ref.invalidate(conversationsProvider);
+      if (context.mounted) context.push('/chats/${c.id}', extra: c);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel aceitar o pedido.')),
+        );
+      }
+    }
   }
 
   Future<void> _decline(
@@ -177,8 +185,16 @@ class _PendingList extends ConsumerWidget {
     WidgetRef ref,
     ConversationSummary c,
   ) async {
-    await ref.read(chatRepositoryProvider).declineRequest(c.id);
-    ref.invalidate(conversationsProvider);
+    try {
+      await ref.read(chatRepositoryProvider).declineRequest(c.id);
+      ref.invalidate(conversationsProvider);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel recusar o pedido.')),
+        );
+      }
+    }
   }
 
   @override
@@ -227,16 +243,17 @@ class _PendingList extends ConsumerWidget {
                   )
                 else
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: () => _decline(context, ref, c),
-                        child: const Text('Recusar'),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () => _accept(context, ref, c),
+                          child: const Text('Aceitar'),
+                        ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
-                      FilledButton(
-                        onPressed: () => _accept(context, ref, c),
-                        child: const Text('Aceitar'),
+                      OutlinedButton(
+                        onPressed: () => _decline(context, ref, c),
+                        child: const Text('Recusar'),
                       ),
                     ],
                   ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/theme/app_spacing.dart';
 import '../../chat/application/chat_providers.dart';
 import '../application/connection_providers.dart';
 
@@ -51,30 +50,54 @@ class ConnectionActions extends ConsumerWidget {
               child: Text('Solicitacao enviada'),
             );
           case 'pending_in':
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            return Column(
               children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () async {
+                      try {
+                        await ref
+                            .read(connectionRepositoryProvider)
+                            .respond(status.requesterId!, true);
+                        ref.invalidate(connectionStatusProvider(targetId));
+                        ref.invalidate(connectionsProvider);
+                        ref.invalidate(conversationsProvider);
+                      } catch (_) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Nao foi possivel aceitar a conexao.',
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.person_add_alt_1, size: 18),
+                    label: const Text('Aceitar conexao'),
+                  ),
+                ),
                 TextButton(
                   onPressed: () async {
-                    await ref
-                        .read(connectionRepositoryProvider)
-                        .respond(status.requesterId!, false);
-                    ref.invalidate(connectionStatusProvider(targetId));
-                    ref.invalidate(connectionsProvider);
+                    try {
+                      await ref
+                          .read(connectionRepositoryProvider)
+                          .respond(status.requesterId!, false);
+                      ref.invalidate(connectionStatusProvider(targetId));
+                      ref.invalidate(connectionsProvider);
+                    } catch (_) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Nao foi possivel recusar.'),
+                          ),
+                        );
+                      }
+                    }
                   },
                   child: const Text('Recusar'),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                FilledButton(
-                  onPressed: () async {
-                    await ref
-                        .read(connectionRepositoryProvider)
-                        .respond(status.requesterId!, true);
-                    ref.invalidate(connectionStatusProvider(targetId));
-                    ref.invalidate(connectionsProvider);
-                    ref.invalidate(conversationsProvider);
-                  },
-                  child: const Text('Aceitar conexao'),
                 ),
               ],
             );

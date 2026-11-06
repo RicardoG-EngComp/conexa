@@ -25,6 +25,11 @@ class AdminScreen extends ConsumerWidget {
             icon: const Icon(Icons.menu_book_outlined),
             onPressed: () => context.push('/admin/studies'),
           ),
+          IconButton(
+            tooltip: 'Insignias',
+            icon: const Icon(Icons.military_tech_outlined),
+            onPressed: () => context.push('/admin/badges'),
+          ),
         ],
       ),
       body: SafeArea(

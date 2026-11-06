@@ -123,29 +123,48 @@ class ConnectionsList extends ConsumerWidget {
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppColors.border),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _ConnectionAvatar(path: c.avatarPath),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(child: Text(c.displayName)),
-          TextButton(
-            onPressed: () => _run(context, () async {
-              await ref
-                  .read(connectionRepositoryProvider)
-                  .respond(c.requesterId, false);
-              ref.invalidate(connectionsProvider);
-            }),
-            child: const Text('Recusar'),
+          Row(
+            children: [
+              _ConnectionAvatar(path: c.avatarPath),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  c.displayName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => _run(context, () async {
-              await ref
-                  .read(connectionRepositoryProvider)
-                  .respond(c.requesterId, true);
-              ref.invalidate(connectionsProvider);
-              ref.invalidate(conversationsProvider);
-            }),
-            child: const Text('Aceitar'),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton(
+                  onPressed: () => _run(context, () async {
+                    await ref
+                        .read(connectionRepositoryProvider)
+                        .respond(c.requesterId, true);
+                    ref.invalidate(connectionsProvider);
+                    ref.invalidate(conversationsProvider);
+                  }),
+                  child: const Text('Aceitar'),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              OutlinedButton(
+                onPressed: () => _run(context, () async {
+                  await ref
+                      .read(connectionRepositoryProvider)
+                      .respond(c.requesterId, false);
+                  ref.invalidate(connectionsProvider);
+                }),
+                child: const Text('Recusar'),
+              ),
+            ],
           ),
         ],
       ),

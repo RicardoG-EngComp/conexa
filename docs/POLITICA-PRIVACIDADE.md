@@ -4,7 +4,7 @@
 > da producao.
 
 **Ultima atualizacao:** 4 de novembro de 2026.
-**Contato do responsavel:** panfyllus@alunos.ufv.br.
+**Contato do responsavel:** conexa.projeto@gmail.com.
 
 ## 1. Quem somos
 

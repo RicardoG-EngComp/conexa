@@ -70,4 +70,4 @@ matches ou aprovacoes. Voce e responsavel pelas interacoes e pelo conteudo.
 
 ## 11. Contato
 
-panfyllus@alunos.ufv.br
+conexa.projeto@gmail.com

@@ -28,7 +28,7 @@ O teste interno nao conta para producao. O beta pode ter centenas de pessoas;
 - Gratuito; sem anuncios.
 - Publico-alvo 18+; **Restrict Minor Access** ativado.
 - Assinatura: Play App Signing.
-- `versionCode`: 8 (`1.0.7+8`).
+- `versionCode`: 9 (`1.0.8+9`).
 
 ## Bloqueios antes do upload
 
@@ -57,9 +57,7 @@ duvidas da sua universidade. Ambiente 18+, com moderacao e diretrizes claras.
 
 Beta fechado para estudantes da UFV.
 
-**Contato:** criar Gmail dedicado e substituir o email nos arquivos publicos
-(`docs/*.html`) antes de submeter. Enquanto isso, o contato provisorio e
-`panfyllus@alunos.ufv.br`.
+**Contato:** `conexa.projeto@gmail.com`.
 
 **Politica de privacidade:** `https://ricardog-engcomp.github.io/conexa/privacy.html`
 
@@ -118,7 +116,7 @@ depois. Nunca commite as senhas.
 ## AAB
 
 ```powershell
-flutter build appbundle --release --build-name=1.0.7 --build-number=8
+flutter build appbundle --release --build-name=1.0.8 --build-number=9
 ```
 
 Saida: `app/build/app/outputs/bundle/release/app-release.aab`.
