@@ -15,7 +15,7 @@ class AuthRepository {
 
   String get redirectTo => kIsWeb
       ? 'http://localhost:8081'
-      : 'com.ricardogengcomp.match://login-callback';
+      : 'com.ricardogengcomp.conexa://login-callback';
 
   Future<AuthResponse> signUp({
     required String email,

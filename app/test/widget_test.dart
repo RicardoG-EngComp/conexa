@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:match/app.dart';
+import 'package:conexa/app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -15,7 +15,7 @@ void main() {
   });
 
   testWidgets('abre na tela de boas-vindas', (tester) async {
-    await tester.pumpWidget(const MatchApp());
+    await tester.pumpWidget(const ConexaApp());
     await tester.pumpAndSettle();
 
     expect(find.text('Tenho 18 anos ou mais'), findsOneWidget);

@@ -18,7 +18,7 @@ class WelcomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Spacer(),
-              Text('match', style: theme.textTheme.titleMedium),
+              Text('Conexa', style: theme.textTheme.titleMedium),
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Conexoes reais,\ncom mais cuidado.',
@@ -26,8 +26,8 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'A rede social dos estudantes da UFV. Conheca pessoas com '
-                'afinidade, de forma amigavel ou intima.',
+                'A comunidade dos estudantes da UFV. Estude, conecte-se e '
+                'acompanhe a vida do campus.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: AppColors.muted,
                 ),

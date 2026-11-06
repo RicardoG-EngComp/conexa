@@ -1,6 +1,6 @@
 class LegalUrls {
   static const String base =
-      'https://ricardog-engcomp.github.io/tinder-de-republicas';
+      'https://ricardog-engcomp.github.io/conexa';
   static const String privacy = '$base/privacy.html';
   static const String terms = '$base/terms.html';
   static const String guidelines = '$base/community-guidelines.html';

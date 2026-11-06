@@ -6,14 +6,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 
-class MatchApp extends StatefulWidget {
-  const MatchApp({super.key});
+class ConexaApp extends StatefulWidget {
+  const ConexaApp({super.key});
 
   @override
-  State<MatchApp> createState() => _MatchAppState();
+  State<ConexaApp> createState() => _ConexaAppState();
 }
 
-class _MatchAppState extends State<MatchApp> {
+class _ConexaAppState extends State<ConexaApp> {
   StreamSubscription<AuthState>? _subscription;
 
   @override

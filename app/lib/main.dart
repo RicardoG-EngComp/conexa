@@ -13,5 +13,5 @@ Future<void> main() async {
     url: Env.supabaseUrl,
     publishableKey: Env.supabaseAnonKey,
   );
-  runApp(const ProviderScope(child: MatchApp()));
+  runApp(const ProviderScope(child: ConexaApp()));
 }

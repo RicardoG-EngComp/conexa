@@ -22,13 +22,13 @@ O teste interno nao conta para producao. O beta pode ter centenas de pessoas;
 ## App
 
 - Nome de listagem: **Conexa**.
-- Pacote: `com.ricardogengcomp.match` (fixo).
+- Pacote: `com.ricardogengcomp.conexa` (fixo).
 - Idioma: portugues (Brasil).
 - Categoria: Social.
 - Gratuito; sem anuncios.
 - Publico-alvo 18+; **Restrict Minor Access** ativado.
 - Assinatura: Play App Signing.
-- `versionCode`: 7 (`1.0.6+7`).
+- `versionCode`: 8 (`1.0.7+8`).
 
 ## Bloqueios antes do upload
 
@@ -61,9 +61,9 @@ Beta fechado para estudantes da UFV.
 (`docs/*.html`) antes de submeter. Enquanto isso, o contato provisorio e
 `panfyllus@alunos.ufv.br`.
 
-**Politica de privacidade:** `https://ricardog-engcomp.github.io/tinder-de-republicas/privacy.html`
+**Politica de privacidade:** `https://ricardog-engcomp.github.io/conexa/privacy.html`
 
-**Exclusao de conta:** `https://ricardog-engcomp.github.io/tinder-de-republicas/account-deletion.html`
+**Exclusao de conta:** `https://ricardog-engcomp.github.io/conexa/account-deletion.html`
 
 > Ativar GitHub Pages em Settings > Pages, pasta `/docs`, antes de submeter.
 
@@ -118,7 +118,7 @@ depois. Nunca commite as senhas.
 ## AAB
 
 ```powershell
-flutter build appbundle --release --build-name=1.0.6 --build-number=7
+flutter build appbundle --release --build-name=1.0.7 --build-number=8
 ```
 
 Saida: `app/build/app/outputs/bundle/release/app-release.aab`.
