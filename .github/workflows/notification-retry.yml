@@ -1,0 +1,25 @@
+name: Notification retry
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  retry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process pending notifications
+        env:
+          FUNCTION_URL: ${{ secrets.NOTIFICATION_FUNCTION_URL }}
+          WEBHOOK_SECRET: ${{ secrets.NOTIFICATION_WEBHOOK_SECRET }}
+        run: |
+          if [ -z "$FUNCTION_URL" ] || [ -z "$WEBHOOK_SECRET" ]; then
+            echo "Notification retry secrets not configured. Skipping."
+            exit 0
+          fi
+          curl --fail --silent --show-error \
+            --request POST "$FUNCTION_URL" \
+            --header "x-webhook-secret: $WEBHOOK_SECRET" \
+            --header "content-type: application/json" \
+            --data '{}'
