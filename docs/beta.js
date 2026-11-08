@@ -7,8 +7,12 @@
   var list = document.getElementById("courseList");
   var status = document.getElementById("status");
   var submitBtn = document.getElementById("submitBtn");
-  var frame = document.getElementById("submitFrame");
-  var endpoint = (window.CONEXA_BETA_ENDPOINT || "").trim();
+
+  var supabaseUrl = (window.CONEXA_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  var supabaseKey = (window.CONEXA_SUPABASE_ANON_KEY || "").trim();
+  var rpcUrl = supabaseUrl
+    ? supabaseUrl + "/rest/v1/rpc/submit_beta_signup"
+    : "";
 
   var courses = [];
   var filtered = [];
@@ -125,6 +129,32 @@
     return "";
   }
 
+  function payload() {
+    return {
+      p_name: (form.elements.name.value || "").trim(),
+      p_ufv_email: (form.elements.ufv_email.value || "").trim(),
+      p_gmail: (form.elements.gmail.value || "").trim(),
+      p_course: hiddenCourse.value,
+      p_campus: form.elements.campus.value,
+      p_gender: form.elements.gender.value,
+      p_how_heard: (form.elements.how_heard.value || "").trim(),
+      p_difficulty: (form.elements.difficulty.value || "").trim(),
+      p_website: (form.elements.website.value || "").trim(),
+      p_age: form.elements.age.checked,
+      p_android: form.elements.android.checked,
+      p_four_weeks: form.elements.four_weeks.checked,
+      p_consent_independent: form.elements.consent_independent.checked,
+      p_consent_firebase: form.elements.consent_firebase.checked,
+      p_consent_privacy: form.elements.consent_privacy.checked
+    };
+  }
+
+  function finishWithError(message) {
+    submitting = false;
+    submitBtn.disabled = false;
+    setStatus(message, "error");
+  }
+
   search.addEventListener("focus", function () {
     renderList(search.value);
   });
@@ -165,14 +195,17 @@
   });
 
   form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    if (submitting) return;
+
     var error = validate();
     if (error) {
-      event.preventDefault();
       setStatus(error, "error");
       return;
     }
-    if (!endpoint) {
-      event.preventDefault();
+
+    if (!rpcUrl || !supabaseKey) {
       setStatus(
         "Formulário em configuração. Envie um email para conexa.projeto@gmail.com.",
         "error"
@@ -183,17 +216,43 @@
     setStatus("Enviando inscrição...", "");
     submitBtn.disabled = true;
     submitting = true;
-    form.action = endpoint;
-  });
 
-  frame.addEventListener("load", function () {
-    if (!submitting) return;
-    submitting = false;
-    setStatus(
-      "Inscrição recebida. A seleção considera a ordem de resposta e o equilíbrio da amostra. Se aprovado, enviaremos o link no Gmail informado.",
-      "success"
-    );
-    submitBtn.textContent = "Inscrição enviada";
+    fetch(rpcUrl, {
+      method: "POST",
+      headers: {
+        "apikey": supabaseKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload())
+    })
+      .then(function (response) {
+        return response.json()
+          .catch(function () { return {}; })
+          .then(function (data) {
+            return { httpOk: response.ok, data: data };
+          });
+      })
+      .then(function (result) {
+        if (result.httpOk && result.data && result.data.ok === true) {
+          setStatus(
+            "Inscrição recebida. A seleção considera a ordem de resposta e o equilíbrio da amostra. Se aprovado, enviaremos o link no Gmail informado.",
+            "success"
+          );
+          submitBtn.textContent = "Inscrição enviada";
+          submitting = false;
+          return;
+        }
+
+        var message = result.data && result.data.message
+          ? result.data.message
+          : "Não foi possível registrar a inscrição. Tente novamente.";
+        finishWithError(message);
+      })
+      .catch(function () {
+        finishWithError(
+          "Não foi possível conectar. Verifique sua internet e tente novamente."
+        );
+      });
   });
 
   fetch("courses.json")
@@ -214,7 +273,7 @@
       setStatus("Não foi possível carregar a lista de cursos.", "error");
     });
 
-  if (!endpoint) {
+  if (!rpcUrl || !supabaseKey) {
     setStatus(
       "Formulário ainda não configurado. O envio será liberado após a publicação do backend.",
       "error"

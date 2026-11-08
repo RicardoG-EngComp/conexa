@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f5c5c">
+<meta name="description" content="Conexa: projeto estudantil independente para comunidade, estudos e vida no campus da UFV. Beta fechado 2026.">
+<title>Conexa - projeto estudantil da UFV</title>
+<style>
+  :root {
+    --paper: #f6f2ea;
+    --ink: #14130f;
+    --teal: #0f5c5c;
+    --muted: #5b5a54;
+    --border: #e2ddd2;
+    --surface: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 36px 22px 48px; }
+  .brand {
+    font-family: Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: .01em;
+  }
+  h1, h2 { font-family: Georgia, serif; line-height: 1.15; }
+  h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin: 18px 0 14px; max-width: 720px; }
+  h2 { font-size: 1.35rem; margin: 0 0 10px; }
+  p { margin: 10px 0; }
+  .lede { font-size: 1.08rem; max-width: 650px; color: var(--muted); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+    margin: 28px 0;
+  }
+  .badge {
+    display: inline-block;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: #e8f1ef;
+    color: var(--teal);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .card h2 { margin-top: 12px; }
+  .muted { color: var(--muted); font-size: .94rem; }
+  .btn {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 13px 22px;
+    border-radius: 999px;
+    background: var(--teal);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .btn:hover { background: #0a4444; }
+  .section-title { margin-top: 34px; }
+  .links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .link-card {
+    display: block;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .link-card:hover { border-color: var(--teal); }
+  .link-card strong { display: block; color: var(--teal); }
+  .link-card span { display: block; margin-top: 3px; color: var(--muted); font-size: .9rem; }
+  .about { max-width: 720px; }
+  footer {
+    margin-top: 36px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: .9rem;
+    color: var(--muted);
+  }
+  a { color: var(--teal); }
+  a:focus-visible, .btn:focus-visible, .link-card:focus-visible {
+    outline: 3px solid #0f5c5c;
+    outline-offset: 3px;
+  }
+  @media (max-width: 560px) {
+    .wrap { padding-top: 26px; }
+    .card { padding: 19px; }
+    .links { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Conexa</div>
+    <h1>Comunidade, estudos e vida no campus.</h1>
+    <p class="lede">O Conexa é um projeto estudantil independente para a comunidade universitária, começando pela UFV. Sem vínculo oficial com a instituição.</p>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="beta-title">
+      <span class="badge">Beta fechado 2026</span>
+      <h2 id="beta-title">Participe do beta</h2>
+      <p>Estamos selecionando 50 estudantes da UFV para testar o app por 4 semanas. É 18+, Android e gratuito.</p>
+      <p class="muted">A instalação é feita pelo Firebase App Tester, com link oficial do Google/Firebase. O aplicativo ainda não está na Play Store.</p>
+      <a class="btn" href="beta.html">Preencher o formulário</a>
+    </section>
+
+    <h2 class="section-title">Informações e políticas</h2>
+    <div class="links">
+      <a class="link-card" href="privacy.html">
+        <strong>Política de Privacidade</strong>
+        <span>Como tratamos seus dados e protegemos sua privacidade.</span>
+      </a>
+      <a class="link-card" href="terms.html">
+        <strong>Termos de Uso</strong>
+        <span>Regras para usar o Conexa durante o beta.</span>
+      </a>
+      <a class="link-card" href="community-guidelines.html">
+        <strong>Diretrizes da Comunidade</strong>
+        <span>Convivência, respeito e segurança no app.</span>
+      </a>
+      <a class="link-card" href="account-deletion.html">
+        <strong>Exclusão de conta</strong>
+        <span>Como apagar sua conta e seus dados.</span>
+      </a>
+      <a class="link-card" href="copyright.html">
+        <strong>Direitos autorais e remoção</strong>
+        <span>Uso de materiais e pedidos de remoção.</span>
+      </a>
+      <a class="link-card" href="https://github.com/RicardoG-EngComp/conexa/tree/main/docs" rel="noopener">
+        <strong>Documentação do projeto</strong>
+        <span>Visão, roadmap e documentos técnicos.</span>
+      </a>
+    </div>
+
+    <h2 class="section-title">Sobre o projeto</h2>
+    <p class="about">A visão é reunir comunidade, estudos, eventos e serviços do campus em um só lugar. A base já funciona e novas funcionalidades entram a cada etapa, com o feedback dos primeiros usuários.</p>
+    <p class="about muted">Projeto independente, 18+. Sem anúncios e sem venda de dados.</p>
+  </main>
+
+  <footer>
+    <p>Contato: <a href="mailto:conexa.projeto@gmail.com">conexa.projeto@gmail.com</a></p>
+    <p>Conexa - projeto estudantil independente. Sem vínculo oficial com a UFV.</p>
+  </footer>
+</div>
+</body>
+</html>
