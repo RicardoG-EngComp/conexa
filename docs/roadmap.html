@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f5c5c">
+<meta name="description" content="O que vem por aí no Conexa: usabilidade, feed e grupos, estudos, vida no campus e preparação para a Play Store.">
+<title>O que vem por aí - Conexa</title>
+<style>
+  :root {
+    --paper: #f6f2ea;
+    --ink: #14130f;
+    --teal: #0f5c5c;
+    --muted: #5b5a54;
+    --border: #e2ddd2;
+    --surface: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 36px 22px 48px; }
+  .brand {
+    font-family: Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--teal);
+  }
+  h1, h2 { font-family: Georgia, serif; line-height: 1.15; }
+  h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 18px 0 12px; }
+  h2 { font-size: 1.3rem; margin: 0 0 6px; }
+  p { margin: 9px 0; }
+  .lede { font-size: 1.06rem; color: var(--muted); max-width: 680px; }
+  .note {
+    margin: 20px 0 28px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: .94rem;
+  }
+  .phase {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 14px 0;
+  }
+  .phase-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #e8f1ef;
+    color: var(--teal);
+    font-size: .76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .tag.next { background: #0f5c5c; color: #fff; }
+  .tag.later { background: #f1ece2; color: var(--muted); }
+  ul { margin: 10px 0 0; padding-left: 20px; }
+  li { margin: 5px 0; }
+  a { color: var(--teal); }
+  .back { margin-top: 30px; font-size: .94rem; }
+  footer {
+    margin-top: 34px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: .9rem;
+  }
+  a:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+  @media (max-width: 560px) {
+    .wrap { padding-top: 26px; }
+    .phase { padding: 17px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Conexa</div>
+  <h1>O que vem por aí</h1>
+  <p class="lede">O Conexa está sendo construído em etapas, com o feedback dos primeiros usuários. A ordem pode mudar; não há promessa de prazo.</p>
+  <p class="note">A base atual já funciona. As próximas etapas priorizam usabilidade, feed, grupos, estudos e vida no campus.</p>
+
+  <main>
+    <section class="phase">
+      <div class="phase-header">
+        <h2>Beta atual</h2>
+        <span class="tag">Concluída</span>
+      </div>
+      <p>Comunidade, descoberta, conexões com pedido de mensagem, conversas, estudos fase 1, moderação e insígnias.</p>
+    </section>
+
+    <section class="phase">
+      <div class="phase-header">
+        <h2>Usabilidade essencial</h2>
+        <span class="tag">Agora</span>
+      </div>
+      <p>Para o usuário não ficar perdido e ser avisado sem precisar abrir o app o tempo todo.</p>
+      <ul>
+        <li>Notificações de pedidos, mensagens, conexões e estudos.</li>
+        <li>Central de notificações com leitura e badge.</li>
+        <li>Tutorial de como funciona o app.</li>
+        <li>Checklist de perfil, estados vazios e ajuda.</li>
+        <li>Busca de conversas, acessibilidade e desempenho.</li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <div class="phase-header">
+        <h2>Feed e Grupos</h2>
+        <span class="tag next">Próximo</span>
+      </div>
+      <p>Para o feed ficar mais familiar ao dia a dia universitário e dar voz aos grupos do campus.</p>
+      <ul>
+        <li>Feed com duas abas: Para Você e Conexão.</li>
+        <li>Posts citados e respostas encadeadas.</li>
+        <li>Grupos de estudos, repúblicas e grupos de amigos, com convites e cargos.</li>
+        <li>Grupos públicos de DCE/CA/república oficial com verificação manual.</li>
+        <li>Botão flutuante de publicar e publicar como grupo.</li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <div class="phase-header">
+        <h2>Estudos fase 2</h2>
+        <span class="tag later">Depois</span>
+      </div>
+      <p>Para estudar, tirar dúvidas e organizar materiais com mais profundidade.</p>
+      <ul>
+        <li>Perguntas e respostas por disciplina.</li>
+        <li>Grupos de estudo.</li>
+        <li>Materiais salvos e avaliações.</li>
+        <li>Status de aprovação e upload mais claro.</li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <div class="phase-header">
+        <h2>Vida no campus</h2>
+        <span class="tag later">Depois</span>
+      </div>
+      <p>Para o Conexa ser útil além da comunidade.</p>
+      <ul>
+        <li>Eventos e serviços do campus.</li>
+        <li>Avisos e canais oficiais.</li>
+        <li>Professores, servidores e alumni.</li>
+        <li>Mentoria e oportunidades.</li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <div class="phase-header">
+        <h2>Confiança e controle</h2>
+        <span class="tag">Contínuo</span>
+      </div>
+      <p>Segurança e transparência em todas as etapas.</p>
+      <ul>
+        <li>Status de denúncias.</li>
+        <li>Central de privacidade e bloqueios.</li>
+        <li>Preferências de notificação.</li>
+        <li>Exclusão de conta e moderação.</li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <div class="phase-header">
+        <h2>Preparação para a Play Store</h2>
+        <span class="tag later">Quando estivermos prontos</span>
+      </div>
+      <p>Instalação mais fácil e atualizações pela loja.</p>
+      <ul>
+        <li>Teste fechado com número mínimo de testadores.</li>
+        <li>Atualizações pela Play.</li>
+        <li>Segurança de dados e classificação 18+.</li>
+        <li>Revisão da ficha e dos materiais.</li>
+      </ul>
+    </section>
+
+    <section class="phase">
+      <div class="phase-header">
+        <h2>Depois do beta</h2>
+        <span class="tag later">Futuro</span>
+      </div>
+      <p>Crescer sem perder a proposta de comunidade e estudos.</p>
+      <ul>
+        <li>Outros campi e universidades.</li>
+        <li>Alumni e mentoria.</li>
+        <li>Avaliação de novos produtos no futuro.</li>
+      </ul>
+    </section>
+
+    <p class="back"><a href="index.html">Voltar para a página inicial</a> · <a href="beta.html">Participar do beta</a></p>
+  </main>
+
+  <footer>
+    <p>Projeto estudantil independente, sem vínculo oficial com a UFV. 18+.</p>
+    <p>Contato: <a href="mailto:conexa.projeto@gmail.com">conexa.projeto@gmail.com</a></p>
+  </footer>
+</div>
+</body>
+</html>
