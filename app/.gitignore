@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Integration test credentials
+test/integration/.env
+test/integration/.env.local
