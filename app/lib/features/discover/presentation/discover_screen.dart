@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../notifications/presentation/notification_bell.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../profile/data/ufv_courses.dart';
 import '../../profile/presentation/incomplete_profile_banner.dart';
@@ -21,8 +22,6 @@ class DiscoverScreen extends ConsumerStatefulWidget {
 }
 
 class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
-  final _search = TextEditingController();
-  Timer? _debounce;
   String _section = 'people';
 
   @override
@@ -34,27 +33,30 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   }
 
   @override
-  void dispose() {
-    _debounce?.cancel();
-    _search.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final state = ref.watch(discoverControllerProvider);
 
     return Scaffold(
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Descobrir', style: theme.textTheme.displayMedium),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Descobrir',
+                          style: theme.textTheme.displayMedium,
+                        ),
+                      ),
+                      const NotificationBell(),
+                    ],
+                  ),
                   const SizedBox(height: AppSpacing.md),
                   SegmentedButton<String>(
                     segments: const [
@@ -71,78 +73,123 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     ],
                     selected: {_section},
                     showSelectedIcon: false,
-                    onSelectionChanged: (value) =>
-                        setState(() => _section = value.first),
+                    onSelectionChanged: (value) {
+                      FocusScope.of(context).unfocus();
+                      setState(() => _section = value.first);
+                    },
                   ),
                   const IncompleteProfileBanner(),
-                  if (_section == 'people') ...[
-                    const SizedBox(height: AppSpacing.md),
-                    TextField(
-                      controller: _search,
-                      decoration: const InputDecoration(
-                        hintText: 'Buscar por nome ou curso...',
-                        prefixIcon: Icon(Icons.search),
-                      ),
-                      onChanged: (value) {
-                        _debounce?.cancel();
-                        _debounce = Timer(
-                          const Duration(milliseconds: 400),
-                          () => ref
-                              .read(discoverControllerProvider.notifier)
-                              .applySearch(value),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    DropdownButtonFormField<String>(
-                      initialValue: state.course,
-                      decoration: const InputDecoration(labelText: 'Curso'),
-                      items: [
-                        const DropdownMenuItem<String>(
-                          value: null,
-                          child: Text('Todos os cursos'),
-                        ),
-                        ...ufvCourses.map(
-                          (c) => DropdownMenuItem<String>(
-                            value: c,
-                            child: Text(c),
-                          ),
-                        ),
-                      ],
-                      onChanged: (value) => ref
-                          .read(discoverControllerProvider.notifier)
-                          .setCourse(value),
-                    ),
-                  ],
                 ],
               ),
             ),
             Expanded(
-              child: _section == 'people'
-                  ? _PeopleList(state: state, theme: theme)
-                  : const StudiesHome(),
-            ),
-            if (_section == 'people' && state.hasMore)
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: OutlinedButton(
-                  onPressed: state.loading
-                      ? null
-                      : () => ref
-                            .read(discoverControllerProvider.notifier)
-                            .loadMore(),
-                  child: state.loading
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Carregar mais'),
-                ),
+              child: IndexedStack(
+                index: _section == 'people' ? 0 : 1,
+                children: const [_PeopleTab(), StudiesHome()],
               ),
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PeopleTab extends ConsumerStatefulWidget {
+  const _PeopleTab();
+
+  @override
+  ConsumerState<_PeopleTab> createState() => _PeopleTabState();
+}
+
+class _PeopleTabState extends ConsumerState<_PeopleTab> {
+  final _search = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final state = ref.watch(discoverControllerProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+            0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: _search,
+                decoration: const InputDecoration(
+                  hintText: 'Buscar por nome ou curso...',
+                  prefixIcon: Icon(Icons.search),
+                ),
+                onChanged: (value) {
+                  _debounce?.cancel();
+                  _debounce = Timer(
+                    const Duration(milliseconds: 400),
+                    () => ref
+                        .read(discoverControllerProvider.notifier)
+                        .applySearch(value),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                initialValue: state.course,
+                decoration: const InputDecoration(labelText: 'Curso'),
+                items: [
+                  const DropdownMenuItem<String>(
+                    value: null,
+                    child: Text('Todos os cursos'),
+                  ),
+                  ...ufvCourses.map(
+                    (c) => DropdownMenuItem<String>(value: c, child: Text(c)),
+                  ),
+                ],
+                onChanged: (value) => ref
+                    .read(discoverControllerProvider.notifier)
+                    .setCourse(value),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _PeopleList(state: state, theme: theme),
+        ),
+        if (state.hasMore)
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: OutlinedButton(
+              onPressed: state.loading
+                  ? null
+                  : () => ref
+                        .read(discoverControllerProvider.notifier)
+                        .loadMore(),
+              child: state.loading
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Carregar mais'),
+            ),
+          ),
+      ],
     );
   }
 }
