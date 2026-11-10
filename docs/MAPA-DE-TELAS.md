@@ -10,21 +10,29 @@ App
 │   ├── Verificação de identidade
 │   ├── Montar perfil
 │   ├── Preferências
-│   └── Localização (opcional)
+│   └── Tutorial (1x) / Notificações
 └── Principal (logado)
+    ├── Feed
+    │   ├── Abas: Para Você / Conexão
+    │   ├── FAB → Publicar / Publicar em grupo / Criar grupo
+    │   ├── Publicação (visibilidade, tópicos, cargo, citação)
+    │   └── Detalhe do post (respostas de até 3 níveis, citação, moderação)
     ├── Descobrir
-    ├── Curtidas / Matches
+    │   ├── Pessoas
+    │   ├── Grupos (diretório público + perfil de grupo)
+    │   └── Estudos
     ├── Conversas
     │   └── Chat
-    ├── AI Coach (assinante)
-    ├── Mapa / Perto de você
-    ├── Assinatura
+    ├── Perfil de grupo (membros, cargos, seguidores, convites)
+    ├── Criar / Gerenciar grupo
     └── Configurações
 ```
 ```
 Admin (web)
 ├── Fila de moderação
+├── Aprovar grupos públicos (selo oficial)
 ├── Gestão de usuários
+├── Estudos pendentes
 └── Denúncias
 ```
 
@@ -350,6 +358,69 @@ Admin (web)
 |                                  |
 |  [ Enviar denúncia ]             |
 |  [ Bloquear usuário ]            |
++----------------------------------+
+```
+
+---
+
+## 1.0.14 — Feed e Grupos
+
+### F.1 Feed (abas + FAB)
+```
++----------------------------------+
+| Feed UFV                   [sino]|
+| [ Para você | Conexão ]          |
+| +----------------------------+  |
+| | Ana · C. da Computação     |  |
+| | "roda de conversa..."      |  |
+| | [Diretoria · CAC] (cargo)  |  |
+| | [curso][campus][evento]    |  |
+| | ( 48 curtidas, 6 respostas )| |
+| | Republicar                 |  |
+| +----------------------------+  |
+|                        ( FAB + ) |
++----------------------------------+
+FAB -> Publicar / Publicar em grupo / Criar grupo
+```
+
+### F.2 Página de publicação
+```
++----------------------------------+
+| <  Publicar                      |
+| [ texto: o que compartilhar? ]   |
+| Quem pode ver: (Público|Conexões)|
+| Tópicos: curso / campus /        |
+|          categorias (até 3)      |
+| Selo de cargo (grupos verif.)    |
+| Em grupo: cargo + "em nome"      |
+| [ Publicar ]                     |
++----------------------------------+
+```
+
+### F.3 Perfil de grupo
+```
++----------------------------------+
+| <  Grupo                  [...]  |
+| [avatar] Centro Acad. Comp.      |
+| [Grupo oficial][cat][campus]     |
+| Membros 12 . Seguidores 340      |
+| [ Entrar/Sair ] [ Seguir ]       |
+| [Membros][Cargos][Seguidores]    |
+| [Convites]                       |
++----------------------------------+
+Convites: criar (validade/usos) ->
+copiar link 1x -> status -> revogar
+```
+
+### F.4 Aprovação de grupo (admin)
+```
++----------------------------------+
+| <  Aprovar grupos                |
+| +----------------------------+  |
+| | Grupo X · cat · campus     |  |
+| | descrição...               |  |
+| | [ Rejeitar ] [ Aprovar ]   |  |
+| +----------------------------+  |
 +----------------------------------+
 ```
 

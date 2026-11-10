@@ -250,6 +250,46 @@
 7. Peça para a outra conta enviar uma mensagem.
 8. Confirme que o push chega e abre a conversa.
 
+## 11. RLS de grupos e feed (1.0.14)
+
+**O que validar:** regras de grupo e feed funcionam para dois perfis de
+usuário (membro vs. não membro/gestor) e bloqueios valem em grupo.
+
+| Item | ✅/❌ | Comentário | Evidência |
+|---|---|---|---|
+| Feed mostra só Para Você / Conexão (sem compositor fixo) | | | |
+| FAB: opções conforme perfil (sem grupo não mostra "Publicar em grupo") | | | |
+| Grupo privado não aparece para B (busca/diretório/feed) | | | |
+| Convite vencido/revogado/esgotado não entra | | | |
+| B não consegue se atribuir cargo (ausente/erro no servidor) | | | |
+| Nome público duplicado (caixa/acento) é recusado | | | |
+| Cargo retirado depois: post mostra "cargo à época" | | | |
+| Moderador do grupo oculta/apaga post e resposta | | | |
+| Citação de post restrito mostra "Conteúdo indisponível" | | | |
+| Bloqueio esconde post de grupo mesmo sendo membro | | | |
+
+**Passos:**
+1. Com A e B logados em aparelhos (ou na mesma sessão, alternando contas):
+   crie um grupo **privado** em A e tente encontrá-lo em B (Descobrir >
+   Grupos e feed).
+2. Gere um convite em A, deixe 1 uso; use B. Gere outro, revogue; tente B
+   (deve falhar).
+3. Em A, inicie **não-atribuição**: tente, no menu do próprio cargo, atribuir
+   cargo a si mesmo (servidor deve recusar).
+4. Crie cargo público duplicado (mesmo nome variando caixa/acento) — o
+   segundo deve ser recusado.
+5. Remova o cargo de um membro depois de ele publicar: o post antigo deve
+   exibir o nome do cargo com "cargo à época".
+6. Promova B a moderador (`moderate_content`): no detalhe do post do grupo,
+   o menu deve mostrar Ocultar/Apagar; um membro comum não deve ver essas
+   opções.
+7. Publique em A um post citando um post "Só conexões" de B não-conectado:
+   para quem não tem acesso, o cartão deve mostrar "Conteúdo indisponível".
+8. Bloqueie em A a conta B (A e B membros do mesmo grupo): B deve deixar de
+   ver o post de A naquele grupo.
+
+Referência técnica completa em `docs/GRUPOS.md`.
+
 ---
 
 ## Resumo da rodada
@@ -266,6 +306,7 @@
 | 8. Doze/bateria | | | | |
 | 9. App force-stopped | | | | |
 | 10. Instalação limpa | | | | |
+| 11. RLS de grupos e feed | | | | |
 
 **Versão testada:** _______________
 **Data da rodada:** _______________

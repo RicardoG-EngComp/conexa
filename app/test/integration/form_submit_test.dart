@@ -1,9 +1,11 @@
-import 'package:flutter_test/flutter_test.dart';
+﻿import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers.dart';
 
 final _uniqueEmail =
     'test.integration.${DateTime.now().millisecondsSinceEpoch}@alunos.ufv.br';
+final _uniqueGmail =
+    'test.integration.${DateTime.now().millisecondsSinceEpoch}@gmail.com';
 
 void main() {
   final skip = skipIfNoCredentials();
@@ -17,7 +19,7 @@ void main() {
         params: {
           'p_name': 'Teste Integracao',
           'p_ufv_email': _uniqueEmail,
-          'p_gmail': 'test.integration.ci@gmail.com',
+          'p_gmail': _uniqueGmail,
           'p_course': 'Administracao',
           'p_campus': 'Vicosa',
           'p_gender': 'Outro',
@@ -49,7 +51,7 @@ void main() {
         params: {
           'p_name': 'Teste Integracao Duplicado',
           'p_ufv_email': _uniqueEmail,
-          'p_gmail': 'test.integration.ci.dup@gmail.com',
+          'p_gmail': 'test.integration.${_uniqueEmail.split('@')[0]}@gmail.com',
           'p_course': 'Administracao',
           'p_campus': 'Florestal',
           'p_gender': 'Outro',

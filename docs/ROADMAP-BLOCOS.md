@@ -28,7 +28,11 @@
 **Status:** ✅ Perfil, fotos, prompts, favoritos, perfil público.
 
 ### B3 — Descoberta & Match
-**Status:** ✅ Feed social, descobrir, conexões e bloqueios. Romance pendente.
+**Status:** ✅ Feed social (abas Para Você/Conexão com relevância transparente,
+FAB, publicação com tópicos/cargo, citações e respostas de até 3 níveis),
+descobrir, conexões e bloqueios. Grupos para o campus (1.0.14): schema, RLS,
+cargos/convites, diretório e aprovação de grupo público — ver
+`docs/GRUPOS.md`. Romance pendente.
 
 ### B4 — Chat & Segurança
 **Status:** ✅ Mensagens, pedidos, moderação e denúncias.
