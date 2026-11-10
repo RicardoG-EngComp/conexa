@@ -8,8 +8,16 @@ final feedRepositoryProvider = Provider<FeedRepository>(
   (ref) => FeedRepository(Supabase.instance.client),
 );
 
-final feedProvider = FutureProvider.autoDispose<List<FeedPost>>(
-  (ref) => ref.read(feedRepositoryProvider).fetchPosts(),
+final feedForYouProvider = FutureProvider.autoDispose<List<FeedPost>>(
+  (ref) => ref.read(feedRepositoryProvider).fetchForYou(),
+);
+
+final feedConnectionsProvider = FutureProvider.autoDispose<List<FeedPost>>(
+  (ref) => ref.read(feedRepositoryProvider).fetchConnections(),
+);
+
+final topicsProvider = FutureProvider.autoDispose<List<FeedTopic>>(
+  (ref) => ref.read(feedRepositoryProvider).fetchTopics(),
 );
 
 final commentsProvider = FutureProvider.autoDispose

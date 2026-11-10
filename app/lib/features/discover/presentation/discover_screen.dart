@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../notifications/presentation/notification_bell.dart';
+import '../../groups/presentation/groups_directory.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../profile/data/ufv_courses.dart';
 import '../../profile/presentation/incomplete_profile_banner.dart';
@@ -66,6 +67,11 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         icon: Icon(Icons.people_outline),
                       ),
                       ButtonSegment(
+                        value: 'groups',
+                        label: Text('Grupos'),
+                        icon: Icon(Icons.groups_outlined),
+                      ),
+                      ButtonSegment(
                         value: 'studies',
                         label: Text('Estudos'),
                         icon: Icon(Icons.menu_book_outlined),
@@ -84,8 +90,16 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
             ),
             Expanded(
               child: IndexedStack(
-                index: _section == 'people' ? 0 : 1,
-                children: const [_PeopleTab(), StudiesHome()],
+                index: switch (_section) {
+                  'groups' => 1,
+                  'studies' => 2,
+                  _ => 0,
+                },
+                children: const [
+                  _PeopleTab(),
+                  GroupsDirectory(),
+                  StudiesHome(),
+                ],
               ),
             ),
           ],

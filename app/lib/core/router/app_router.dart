@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../features/admin/presentation/admin_groups_screen.dart';
 import '../../features/admin/presentation/admin_notifications_screen.dart';
 import '../../features/admin/presentation/admin_screen.dart';
 import '../../features/badges/presentation/admin_badges_screen.dart';
@@ -18,8 +19,12 @@ import '../../features/coach/presentation/coach_screen.dart';
 import '../../features/connections/presentation/sent_connections_screen.dart';
 import '../../features/discover/presentation/discover_screen.dart';
 import '../../features/feed/data/feed_models.dart';
+import '../../features/feed/presentation/compose_post_screen.dart';
 import '../../features/feed/presentation/feed_screen.dart';
 import '../../features/feed/presentation/post_detail_screen.dart';
+import '../../features/groups/presentation/group_create_screen.dart';
+import '../../features/groups/presentation/group_manage_screen.dart';
+import '../../features/groups/presentation/group_profile_screen.dart';
 import '../../features/help/presentation/help_screen.dart';
 import '../../features/matches/presentation/matches_screen.dart';
 import '../../features/notifications/presentation/notification_preferences_screen.dart';
@@ -134,10 +139,33 @@ final GoRouter appRouter = GoRouter(
       ],
     ),
     GoRoute(
+      path: '/feed/compose',
+      builder: (_, state) => ComposePostScreen(
+        groupId: state.uri.queryParameters['group'],
+        quoted: state.extra is FeedPost ? state.extra as FeedPost : null,
+      ),
+    ),
+    GoRoute(
       path: '/feed/:id',
       builder: (_, state) => PostDetailScreen(
         postId: state.pathParameters['id'] ?? '',
         post: state.extra is FeedPost ? state.extra as FeedPost : null,
+      ),
+    ),
+    GoRoute(
+      path: '/groups/create',
+      builder: (_, _) => const GroupCreateScreen(),
+    ),
+    GoRoute(
+      path: '/groups/:id',
+      builder: (_, state) => GroupProfileScreen(
+        groupId: state.pathParameters['id'] ?? '',
+      ),
+    ),
+    GoRoute(
+      path: '/groups/:id/manage',
+      builder: (_, state) => GroupManageScreen(
+        groupId: state.pathParameters['id'] ?? '',
       ),
     ),
     GoRoute(
@@ -158,6 +186,10 @@ final GoRouter appRouter = GoRouter(
       builder: (_, _) => const SubscriptionScreen(),
     ),
     GoRoute(path: '/admin', builder: (_, _) => const AdminScreen()),
+    GoRoute(
+      path: '/admin/groups',
+      builder: (_, _) => const AdminGroupsScreen(),
+    ),
     GoRoute(
       path: '/admin/badges',
       builder: (_, _) => const AdminBadgesScreen(),

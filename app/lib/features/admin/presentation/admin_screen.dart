@@ -26,6 +26,11 @@ class AdminScreen extends ConsumerWidget {
             onPressed: () => context.push('/admin/studies'),
           ),
           IconButton(
+            tooltip: 'Aprovar grupos',
+            icon: const Icon(Icons.groups_outlined),
+            onPressed: () => context.push('/admin/groups'),
+          ),
+          IconButton(
             tooltip: 'Insignias',
             icon: const Icon(Icons.military_tech_outlined),
             onPressed: () => context.push('/admin/badges'),
