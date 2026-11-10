@@ -122,4 +122,11 @@ class ConnectionRepository {
     return (result as Map)['status'] as String? ??
         (accept ? 'accepted' : 'declined');
   }
+
+  Future<void> cancelRequest(String targetId) async {
+    await _client.rpc(
+      'cancel_connection_request',
+      params: {'p_target_user': targetId},
+    );
+  }
 }

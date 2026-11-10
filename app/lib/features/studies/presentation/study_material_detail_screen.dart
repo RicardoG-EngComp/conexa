@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/errors/moderation_errors.dart';
+import '../../../core/errors/moderation_ui.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../reports/presentation/report_dialog.dart';
@@ -141,16 +142,20 @@ class _MaterialContent extends ConsumerWidget {
                   ref.invalidate(materialsProvider(material.disciplineId));
                 } catch (error) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          friendlyModerationError(
-                            error,
-                            fallback: 'Não foi possível votar.',
+                    if (needsGuidelinesAcceptance(error)) {
+                      await showGuidelinesConsentDialog(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            friendlyModerationError(
+                              error,
+                              fallback: 'Não foi possível votar.',
+                            ),
                           ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   }
                 }
               },

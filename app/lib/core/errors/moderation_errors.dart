@@ -1,5 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+bool needsGuidelinesAcceptance(Object error) {
+  return error is PostgrestException &&
+      error.message.contains('diretrizes_necessarias');
+}
+
 String friendlyModerationError(
   Object error, {
   String fallback = 'Nao foi possivel concluir.',

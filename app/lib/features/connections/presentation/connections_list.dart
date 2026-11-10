@@ -34,8 +34,7 @@ class ConnectionsList extends ConsumerWidget {
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, _) =>
-          const Center(child: Text('Erro ao carregar conexoes.')),
+      error: (_, _) => const Center(child: Text('Erro ao carregar conexoes.')),
       data: (data) {
         return RefreshIndicator(
           onRefresh: () async {
@@ -49,9 +48,7 @@ class ConnectionsList extends ConsumerWidget {
                   data.outgoing.isEmpty &&
                   data.accepted.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.xl,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
                   child: Text(
                     'Nenhuma conexao ainda.',
                     style: theme.textTheme.bodyLarge?.copyWith(
@@ -65,22 +62,27 @@ class ConnectionsList extends ConsumerWidget {
                   style: theme.textTheme.titleSmall,
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                ...data.incoming.map(
-                  (c) => _incomingCard(context, ref, c),
-                ),
+                ...data.incoming.map((c) => _incomingCard(context, ref, c)),
               ],
-              if (data.outgoing.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.lg),
-                Text('Enviadas', style: theme.textTheme.titleSmall),
-                ...data.outgoing.map(
-                  (c) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: _ConnectionAvatar(path: c.avatarPath),
-                    title: Text(c.displayName),
-                    subtitle: const Text('Aguardando aprovacao'),
+              if (data.outgoing.isNotEmpty)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.outbox_outlined),
+                  title: const Text('Solicitacoes enviadas'),
+                  subtitle: const Text('Aguardando aprovacao'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${data.outgoing.length}',
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      const Icon(Icons.chevron_right),
+                    ],
                   ),
+                  onTap: () => context.push('/connections/sent'),
                 ),
-              ],
               if (data.accepted.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.lg),
                 Text('Conectados', style: theme.textTheme.titleSmall),
@@ -110,63 +112,81 @@ class ConnectionsList extends ConsumerWidget {
     );
   }
 
-  Widget _incomingCard(
-    BuildContext context,
-    WidgetRef ref,
-    ConnectionEntry c,
-  ) {
+  Widget _incomingCard(BuildContext context, WidgetRef ref, ConnectionEntry c) {
     return Container(
       margin: const EdgeInsets.only(top: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppColors.border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _ConnectionAvatar(path: c.avatarPath),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  c.displayName,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        color: AppColors.surface,
+        child: InkWell(
+          onTap: () => context.push('/profile/${c.userId}'),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _ConnectionAvatar(path: c.avatarPath),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        c.displayName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right,
+                      size: 20,
+                      color: AppColors.muted,
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              Expanded(
-                child: FilledButton(
-                  onPressed: () => _run(context, () async {
-                    await ref
-                        .read(connectionRepositoryProvider)
-                        .respond(c.requesterId, true);
-                    ref.invalidate(connectionsProvider);
-                    ref.invalidate(conversationsProvider);
-                  }),
-                  child: const Text('Aceitar'),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 52),
+                        ),
+                        onPressed: () => _run(context, () async {
+                          await ref
+                              .read(connectionRepositoryProvider)
+                              .respond(c.requesterId, true);
+                          ref.invalidate(connectionsProvider);
+                          ref.invalidate(conversationsProvider);
+                        }),
+                        child: const Text('Aceitar'),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 52),
+                        ),
+                        onPressed: () => _run(context, () async {
+                          await ref
+                              .read(connectionRepositoryProvider)
+                              .respond(c.requesterId, false);
+                          ref.invalidate(connectionsProvider);
+                        }),
+                        child: const Text('Recusar'),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              OutlinedButton(
-                onPressed: () => _run(context, () async {
-                  await ref
-                      .read(connectionRepositoryProvider)
-                      .respond(c.requesterId, false);
-                  ref.invalidate(connectionsProvider);
-                }),
-                child: const Text('Recusar'),
-              ),
-            ],
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }

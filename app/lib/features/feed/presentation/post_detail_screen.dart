@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/moderation_errors.dart';
+import '../../../core/errors/moderation_ui.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
@@ -39,16 +40,20 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       ref.invalidate(feedProvider);
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              friendlyModerationError(
-                error,
-                fallback: 'Nao foi possivel comentar.',
+        if (needsGuidelinesAcceptance(error)) {
+          await showGuidelinesConsentDialog(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                friendlyModerationError(
+                  error,
+                  fallback: 'Nao foi possivel comentar.',
+                ),
               ),
             ),
-          ),
-        );
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _sending = false);

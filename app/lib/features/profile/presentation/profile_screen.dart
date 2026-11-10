@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/errors/moderation_errors.dart';
+import '../../../core/errors/moderation_ui.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../badges/application/badge_providers.dart';
@@ -387,16 +388,20 @@ class ProfileScreen extends ConsumerWidget {
       }
     } catch (error) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              friendlyModerationError(
-                error,
-                fallback: 'Nao foi possivel enviar o pedido.',
+        if (needsGuidelinesAcceptance(error)) {
+          await showGuidelinesConsentDialog(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                friendlyModerationError(
+                  error,
+                  fallback: 'Nao foi possivel enviar o pedido.',
+                ),
               ),
             ),
-          ),
-        );
+          );
+        }
       }
     }
   }

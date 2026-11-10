@@ -7,20 +7,38 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
 import '../../connections/presentation/connections_list.dart';
+import '../../notifications/presentation/notification_bell.dart';
 import '../application/chat_providers.dart';
 import '../data/chat_models.dart';
 
-class ChatListScreen extends ConsumerWidget {
-  const ChatListScreen({super.key});
+class ChatListScreen extends ConsumerStatefulWidget {
+  const ChatListScreen({super.key, this.initialTab = 0});
+
+  final int initialTab;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChatListScreen> createState() => _ChatListScreenState();
+}
+
+class _ChatListScreenState extends ConsumerState<ChatListScreen> {
+  final _search = TextEditingController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final conversationsAsync = ref.watch(conversationsProvider);
     final myId = Supabase.instance.client.auth.currentUser?.id;
+    final query = _search.text.trim().toLowerCase();
 
     return DefaultTabController(
       length: 3,
+      initialIndex: widget.initialTab.clamp(0, 2),
       child: Scaffold(
         body: SafeArea(
           child: Column(
@@ -32,11 +50,31 @@ class ChatListScreen extends ConsumerWidget {
                   AppSpacing.lg,
                   0,
                 ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Conversas',
-                    style: theme.textTheme.displayMedium,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Conversas',
+                        style: theme.textTheme.displayMedium,
+                      ),
+                    ),
+                    const NotificationBell(),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.sm,
+                  AppSpacing.lg,
+                  AppSpacing.sm,
+                ),
+                child: TextField(
+                  controller: _search,
+                  onChanged: (_) => setState(() {}),
+                  decoration: const InputDecoration(
+                    hintText: 'Buscar conversa...',
+                    prefixIcon: Icon(Icons.search),
                   ),
                 ),
               ),
@@ -56,13 +94,26 @@ class ChatListScreen extends ConsumerWidget {
                   data: (conversations) {
                     final accepted = conversations
                         .where((c) => c.status == 'accepted')
+                        .where((c) {
+                          if (query.isEmpty) return true;
+                          return c.otherName.toLowerCase().contains(query) ||
+                              (c.lastMessage ?? '').toLowerCase().contains(
+                                query,
+                              );
+                        })
                         .toList();
                     final pending = conversations
                         .where((c) => c.status == 'pending')
                         .toList();
                     return TabBarView(
                       children: [
-                        _AcceptedList(conversations: accepted),
+                        _AcceptedList(
+                          conversations: accepted,
+                          emptyMessage: query.isEmpty
+                              ? 'Nenhuma conversa ainda. Voce pode enviar um '
+                                    'pedido de mensagem pelo perfil de alguem.'
+                              : 'Nenhuma conversa encontrada.',
+                        ),
                         _PendingList(conversations: pending, myId: myId),
                         const ConnectionsList(),
                       ],
@@ -79,9 +130,13 @@ class ChatListScreen extends ConsumerWidget {
 }
 
 class _AcceptedList extends ConsumerWidget {
-  const _AcceptedList({required this.conversations});
+  const _AcceptedList({
+    required this.conversations,
+    required this.emptyMessage,
+  });
 
   final List<ConversationSummary> conversations;
+  final String emptyMessage;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -98,8 +153,7 @@ class _AcceptedList extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
               child: Text(
-                'Nenhuma conversa ainda. Voce pode enviar um pedido de '
-                'mensagem pelo perfil de alguem.',
+                emptyMessage,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: AppColors.muted,
                 ),
@@ -216,48 +270,83 @@ class _PendingList extends ConsumerWidget {
         for (final c in conversations)
           Container(
             margin: const EdgeInsets.only(bottom: AppSpacing.md),
-            padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(AppRadius.md),
               border: Border.all(color: AppColors.border),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(c.otherName, style: theme.textTheme.titleSmall),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  c.requestMessage ?? 'Sem mensagem de apresentacao.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.muted,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                if (c.initiatorId == myId)
-                  Text(
-                    'Aguardando aprovacao do outro usuario.',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.muted,
-                    ),
-                  )
-                else
-                  Row(
+            clipBehavior: Clip.antiAlias,
+            child: Material(
+              color: AppColors.surface,
+              child: InkWell(
+                onTap: c.otherUserId.isEmpty
+                    ? null
+                    : () => context.push('/profile/${c.otherUserId}'),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () => _accept(context, ref, c),
-                          child: const Text('Aceitar'),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              c.otherName,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleSmall,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.chevron_right,
+                            size: 20,
+                            color: AppColors.muted,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        c.requestMessage ?? 'Sem mensagem de apresentacao.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppColors.muted,
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.sm),
-                      OutlinedButton(
-                        onPressed: () => _decline(context, ref, c),
-                        child: const Text('Recusar'),
-                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      if (c.initiatorId == myId)
+                        Text(
+                          'Aguardando aprovacao do outro usuario.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: AppColors.muted,
+                          ),
+                        )
+                      else
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FilledButton(
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size(0, 52),
+                                ),
+                                onPressed: () => _accept(context, ref, c),
+                                child: const Text('Aceitar'),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(0, 52),
+                                ),
+                                onPressed: () => _decline(context, ref, c),
+                                child: const Text('Recusar'),
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
-              ],
+                ),
+              ),
             ),
           ),
       ],

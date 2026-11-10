@@ -33,6 +33,7 @@ class ChatMessage {
     this.kind = 'text',
     this.stickerPath,
     this.gifUrl,
+    this.deletedForEveryone = false,
   });
 
   final String id;
@@ -44,6 +45,7 @@ class ChatMessage {
   final String kind;
   final String? stickerPath;
   final String? gifUrl;
+  final bool deletedForEveryone;
 
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
     return ChatMessage(
@@ -56,6 +58,7 @@ class ChatMessage {
       kind: (map['kind'] as String?) ?? 'text',
       stickerPath: map['sticker_path'] as String?,
       gifUrl: map['gif_url'] as String?,
+      deletedForEveryone: map['deleted_for_all_at'] != null,
     );
   }
 }

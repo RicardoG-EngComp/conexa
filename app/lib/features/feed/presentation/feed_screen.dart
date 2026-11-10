@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/errors/moderation_errors.dart';
+import '../../../core/errors/moderation_ui.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
+import '../../notifications/presentation/notification_bell.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../profile/presentation/incomplete_profile_banner.dart';
 import '../../reports/presentation/report_dialog.dart';
@@ -43,16 +45,20 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
       ref.invalidate(feedProvider);
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              friendlyModerationError(
-                error,
-                fallback: 'Nao foi possivel publicar.',
+        if (needsGuidelinesAcceptance(error)) {
+          await showGuidelinesConsentDialog(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                friendlyModerationError(
+                  error,
+                  fallback: 'Nao foi possivel publicar.',
+                ),
               ),
             ),
-          ),
-        );
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _posting = false);
@@ -132,7 +138,17 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
-              Text('Feed UFV', style: theme.textTheme.displayMedium),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Feed UFV',
+                      style: theme.textTheme.displayMedium,
+                    ),
+                  ),
+                  const NotificationBell(),
+                ],
+              ),
               const SizedBox(height: AppSpacing.md),
               const IncompleteProfileBanner(),
               Container(

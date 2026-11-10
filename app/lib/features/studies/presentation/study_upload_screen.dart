@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/config/legal_urls.dart';
 import '../../../core/errors/moderation_errors.dart';
+import '../../../core/errors/moderation_ui.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../application/study_providers.dart';
@@ -157,12 +158,16 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
       );
     } catch (error) {
       if (mounted) {
-        setState(
-          () => _error = friendlyModerationError(
-            error,
-            fallback: 'Não foi possível enviar o material.',
-          ),
-        );
+        if (needsGuidelinesAcceptance(error)) {
+          await showGuidelinesConsentDialog(context);
+        } else {
+          setState(
+            () => _error = friendlyModerationError(
+              error,
+              fallback: 'Não foi possível enviar o material.',
+            ),
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _busy = false);

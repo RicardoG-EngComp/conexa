@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'core/notifications/notification_service.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/update/firebase_update_service.dart';
@@ -20,6 +21,9 @@ class _ConexaAppState extends State<ConexaApp> {
   @override
   void initState() {
     super.initState();
+    NotificationService.instance.setRouteOpener((route) {
+      appRouter.go(route);
+    });
     _subscription = Supabase.instance.client.auth.onAuthStateChange.listen((
       state,
     ) {

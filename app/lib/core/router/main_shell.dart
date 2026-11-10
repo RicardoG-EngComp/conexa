@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/onboarding/application/tutorial_providers.dart';
 import '../../features/verification/application/verification_providers.dart';
 
 class MainShell extends ConsumerWidget {
@@ -14,6 +15,7 @@ class MainShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(profileProvider);
+    final tutorialSeenAsync = ref.watch(tutorialSeenProvider);
 
     return profileAsync.when(
       loading: () =>
@@ -21,6 +23,11 @@ class MainShell extends ConsumerWidget {
       error: (_, _) =>
           const Scaffold(body: Center(child: Text('Erro ao carregar perfil.'))),
       data: (profile) {
+        if (tutorialSeenAsync.asData?.value == false) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go('/tutorial');
+          });
+        }
         final accountStatus =
             (profile?['account_status'] as String?) ?? 'active';
         if (accountStatus != 'active') {

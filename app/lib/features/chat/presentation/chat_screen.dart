@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/errors/moderation_errors.dart';
+import '../../../core/errors/moderation_ui.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../reports/presentation/report_dialog.dart';
@@ -94,16 +95,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _controller.clear();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              friendlyModerationError(
-                error,
-                fallback: 'Nao foi possivel enviar.',
+        if (needsGuidelinesAcceptance(error)) {
+          await showGuidelinesConsentDialog(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                friendlyModerationError(
+                  error,
+                  fallback: 'Nao foi possivel enviar.',
+                ),
               ),
             ),
-          ),
-        );
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -118,6 +123,214 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
+  bool _canDeleteForEveryone(ChatMessage message) {
+    final mine =
+        message.senderId == Supabase.instance.client.auth.currentUser?.id;
+    if (!mine || message.deletedForEveryone) return false;
+    return DateTime.now().toUtc().difference(message.createdAt.toUtc()) <
+        const Duration(minutes: 5);
+  }
+
+  Future<void> _showMessageActions(ChatMessage message) async {
+    final mine =
+        message.senderId == Supabase.instance.client.auth.currentUser?.id;
+    final canDeleteForEveryone = _canDeleteForEveryone(message);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: const Text('Apagar para mim'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _deleteForMe(message);
+              },
+            ),
+            if (canDeleteForEveryone)
+              ListTile(
+                leading: const Icon(
+                  Icons.delete_forever_outlined,
+                  color: AppColors.danger,
+                ),
+                title: const Text(
+                  'Apagar para todos',
+                  style: TextStyle(color: AppColors.danger),
+                ),
+                subtitle: const Text('Disponivel por 5 minutos apos o envio.'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _deleteForEveryone(message);
+                },
+              ),
+            if (!mine)
+              ListTile(
+                leading: const Icon(Icons.flag_outlined),
+                title: const Text('Denunciar'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  showReportDialog(
+                    context,
+                    ref,
+                    reportedUserId: message.senderId,
+                    targetType: 'message',
+                    targetId: message.id,
+                    contentSnapshot: message.kind == 'text'
+                        ? message.content
+                        : message.kind == 'sticker'
+                        ? '[figurinha]'
+                        : '[GIF]',
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _deleteForMe(ChatMessage message) async {
+    try {
+      await ref.read(chatRepositoryProvider).deleteMessageForMe(message.id);
+      ref.invalidate(messagesStreamProvider(widget.id));
+      ref.invalidate(conversationsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mensagem apagada para voce.')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel apagar a mensagem.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteForEveryone(ChatMessage message) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Apagar para todos?'),
+        content: const Text(
+          'A mensagem sera apagada para voce e para a outra pessoa. '
+          'Esta acao nao pode ser desfeita.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Apagar para todos'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    try {
+      await ref
+          .read(chatRepositoryProvider)
+          .deleteMessageForEveryone(message.id);
+      ref.invalidate(conversationsProvider);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Nao foi possivel apagar para todos. O prazo de 5 minutos '
+              'pode ter expirado.',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _clearConversation() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Limpar conversa?'),
+        content: const Text(
+          'As mensagens somem apenas para voce. A outra pessoa continua '
+          'vendo o historico.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Limpar'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    try {
+      await ref.read(chatRepositoryProvider).clearConversation(widget.id);
+      ref.invalidate(messagesStreamProvider(widget.id));
+      ref.invalidate(conversationsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Conversa limpa para voce.')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel limpar a conversa.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteConversation() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Excluir conversa?'),
+        content: const Text(
+          'A conversa some da sua lista. Se a outra pessoa enviar uma nova '
+          'mensagem, ela volta a aparecer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    try {
+      await ref.read(chatRepositoryProvider).deleteConversation(widget.id);
+      ref.invalidate(conversationsProvider);
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel excluir a conversa.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -125,7 +338,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final messagesAsync = ref.watch(messagesStreamProvider(widget.id));
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.summary?.otherName ?? 'Conversa')),
+      appBar: AppBar(
+        title: Text(widget.summary?.otherName ?? 'Conversa'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'clear') {
+                _clearConversation();
+              } else if (value == 'delete') {
+                _deleteConversation();
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'clear', child: Text('Limpar conversa')),
+              PopupMenuItem(value: 'delete', child: Text('Excluir conversa')),
+            ],
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -156,6 +386,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       return _Bubble(
                         message: message,
                         mine: mine,
+                        onLongPress: () => _showMessageActions(message),
                         onReport: mine
                             ? null
                             : () => showReportDialog(
@@ -167,8 +398,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 contentSnapshot: message.kind == 'text'
                                     ? message.content
                                     : message.kind == 'sticker'
-                                        ? '[figurinha]'
-                                        : '[GIF]',
+                                    ? '[figurinha]'
+                                    : '[GIF]',
                               ),
                       );
                     },
@@ -210,13 +441,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 }
 
 class _Bubble extends StatelessWidget {
-  const _Bubble({required this.message, required this.mine, this.onReport});
+  const _Bubble({
+    required this.message,
+    required this.mine,
+    this.onReport,
+    this.onLongPress,
+  });
 
   final ChatMessage message;
   final bool mine;
   final VoidCallback? onReport;
+  final VoidCallback? onLongPress;
 
   Widget _content(ThemeData theme) {
+    if (message.deletedForEveryone) {
+      return Text(
+        'Mensagem apagada',
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: AppColors.muted,
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    }
     if (message.kind == 'sticker' && message.stickerPath != null) {
       return Image.network(
         Supabase.instance.client.storage
@@ -225,10 +471,8 @@ class _Bubble extends StatelessWidget {
         width: 140,
         height: 140,
         fit: BoxFit.contain,
-        errorBuilder: (_, _, _) => const Icon(
-          Icons.broken_image_outlined,
-          color: AppColors.muted,
-        ),
+        errorBuilder: (_, _, _) =>
+            const Icon(Icons.broken_image_outlined, color: AppColors.muted),
       );
     }
     if (message.kind == 'gif' && message.gifUrl != null) {
@@ -238,10 +482,8 @@ class _Bubble extends StatelessWidget {
           message.gifUrl!,
           width: 200,
           fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => const Icon(
-            Icons.broken_image_outlined,
-            color: AppColors.muted,
-          ),
+          errorBuilder: (_, _, _) =>
+              const Icon(Icons.broken_image_outlined, color: AppColors.muted),
         ),
       );
     }
@@ -256,14 +498,20 @@ class _Bubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final media = message.kind != 'text';
+    final deleted = message.deletedForEveryone;
+    final media = !deleted && message.kind != 'text';
+    final bubbleColor = deleted
+        ? AppColors.surface
+        : mine
+        ? AppColors.teal
+        : AppColors.surface;
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!mine)
+          if (!mine && !deleted)
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_horiz, size: 18),
               onSelected: (_) => onReport?.call(),
@@ -272,69 +520,67 @@ class _Bubble extends StatelessWidget {
               ],
             ),
           Flexible(
-            child: Container(
-              margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-              padding: media
-                  ? EdgeInsets.zero
-                  : const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              constraints: const BoxConstraints(maxWidth: 280),
-              decoration: media
-                  ? null
-                  : BoxDecoration(
-                      color: mine ? AppColors.teal : AppColors.surface,
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                      border: Border.all(color: AppColors.border),
-                    ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _content(theme),
-                  const SizedBox(height: 2),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    widthFactor: 1,
-                    child: Text(
-                      _formatTime(message.createdAt),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: 10,
-                        color: media
-                            ? AppColors.muted
-                            : mine
-                                ? Colors.white70
-                                : AppColors.muted,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onLongPress: onLongPress,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                padding: media
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                constraints: const BoxConstraints(maxWidth: 280),
+                decoration: media
+                    ? null
+                    : BoxDecoration(
+                        color: bubbleColor,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _content(theme),
+                    const SizedBox(height: 2),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      widthFactor: 1,
+                      child: Text(
+                        _formatTime(message.createdAt),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          color: deleted || media || !mine
+                              ? AppColors.muted
+                              : Colors.white70,
+                        ),
                       ),
                     ),
-                  ),
-                  if (message.flagged) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.warning_amber_rounded,
-                          size: 12,
-                          color: media
-                              ? AppColors.muted
-                              : mine
-                                  ? Colors.white70
-                                  : AppColors.muted,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'sinalizada',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: media
+                    if (message.flagged && !deleted) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            size: 12,
+                            color: media || !mine
                                 ? AppColors.muted
-                                : mine
-                                    ? Colors.white70
-                                    : AppColors.muted,
+                                : Colors.white70,
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'sinalizada',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: media || !mine
+                                  ? AppColors.muted
+                                  : Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),

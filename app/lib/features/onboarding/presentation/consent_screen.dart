@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/config/legal_urls.dart';
+import '../../../core/router/consent_gate.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../auth/application/auth_providers.dart';
@@ -45,6 +46,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
       await ref
           .read(authRepositoryProvider)
           .saveConsents(AuthRepository.requiredConsents);
+      ConsentGate.markAccepted();
       final complete = await ref
           .read(authRepositoryProvider)
           .isProfileComplete();

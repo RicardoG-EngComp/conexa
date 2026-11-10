@@ -30,6 +30,11 @@ class AdminScreen extends ConsumerWidget {
             icon: const Icon(Icons.military_tech_outlined),
             onPressed: () => context.push('/admin/badges'),
           ),
+          IconButton(
+            tooltip: 'Diagnostico de notificacoes',
+            icon: const Icon(Icons.notifications_active_outlined),
+            onPressed: () => context.push('/admin/notifications'),
+          ),
         ],
       ),
       body: SafeArea(
@@ -76,7 +81,8 @@ class AdminScreen extends ConsumerWidget {
                                 reportedUserId: report.reportedUserId,
                                 action: action,
                                 targetType: report.targetType,
-                                targetId: report.targetId ??
+                                targetId:
+                                    report.targetId ??
                                     (report.targetType == 'profile'
                                         ? report.reportedUserId
                                         : null),

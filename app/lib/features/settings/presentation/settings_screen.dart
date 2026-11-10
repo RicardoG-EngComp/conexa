@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/config/legal_urls.dart';
+import '../../../core/notifications/notification_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/update/firebase_update_service.dart';
 import '../../auth/application/auth_providers.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../reports/application/report_providers.dart';
@@ -56,15 +56,35 @@ class SettingsScreen extends ConsumerWidget {
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.system_update_alt),
-              title: const Text('Verificar atualizacao'),
-              subtitle: const Text('Baixar a versao mais recente do beta.'),
-              onTap: () async {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Verificando atualizacao...')),
-                );
-                await FirebaseUpdateService().check(force: true);
-              },
+              leading: const Icon(Icons.notifications_outlined),
+              title: const Text('Notificacoes'),
+              subtitle: const Text(
+                'Ativar push e escolher pedidos, mensagens, conexoes e estudos.',
+              ),
+              onTap: () => context.push('/notification-preferences'),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.slideshow_outlined),
+              title: const Text('Como funciona'),
+              subtitle: const Text('Rever o tutorial do aplicativo.'),
+              onTap: () => context.push('/tutorial'),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.checklist_outlined),
+              title: const Text('Checklist do perfil'),
+              subtitle: const Text(
+                'Veja o que falta para completar seu perfil.',
+              ),
+              onTap: () => context.push('/profile-checklist'),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.help_outline),
+              title: const Text('Ajuda e FAQ'),
+              subtitle: const Text('Duvidas, politicas e contato.'),
+              onTap: () => context.push('/help'),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -196,6 +216,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 );
                 if (confirm != true) return;
+                await NotificationService.instance.unregisterCurrentToken();
                 await ref.read(authRepositoryProvider).signOut();
                 if (context.mounted) context.go('/welcome');
               },

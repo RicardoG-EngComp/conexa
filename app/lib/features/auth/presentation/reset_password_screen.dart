@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/notifications/notification_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../application/auth_providers.dart';
@@ -42,6 +43,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     });
     try {
       await ref.read(authRepositoryProvider).updatePassword(_new.text);
+      await NotificationService.instance.unregisterCurrentToken();
       await ref.read(authRepositoryProvider).signOut();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
