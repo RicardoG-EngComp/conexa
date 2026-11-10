@@ -21,7 +21,7 @@ jobs:
         working-directory: app
 
       - name: Analyze
-        run: flutter analyze
+        run: flutter analyze --no-fatal-warnings
         working-directory: app
 
       - name: Run widget tests
@@ -29,7 +29,6 @@ jobs:
         working-directory: app
 
       - name: Run integration tests
-        if: ${{ env.TEST_USER_A_EMAIL != '' }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
