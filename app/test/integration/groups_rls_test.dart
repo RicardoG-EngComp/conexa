@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -77,7 +77,7 @@ void main() {
   }
 
   test(
-    'grupo privado fica invisÃ­vel para quem nÃ£o Ã© membro',
+    'grupo privado fica invisível para quem não é membro',
     () async {
       final client = createSupabaseClient()!;
       final ts = DateTime.now().millisecondsSinceEpoch;
@@ -100,7 +100,7 @@ void main() {
   );
 
   test(
-    'nome pÃºblico Ã© Ãºnico, ignorando acentos, caixa e espaÃ§os',
+    'nome público é único, ignorando acentos, caixa e espaços',
     () async {
       final client = createSupabaseClient()!;
       final ts = DateTime.now().millisecondsSinceEpoch;
@@ -187,7 +187,7 @@ void main() {
   );
 
   test(
-    'ninguÃ©m se atribui cargo; sÃ³ gestor atribui',
+    'ninguém se atribui cargo; só gestor atribui',
     () async {
       final client = createSupabaseClient()!;
       final ts = DateTime.now().millisecondsSinceEpoch;

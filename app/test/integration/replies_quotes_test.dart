@@ -1,4 +1,4 @@
-﻿import 'package:conexa/core/utils/uuid.dart';
+import 'package:conexa/core/utils/uuid.dart';
 
 import 'dart:io';
 
@@ -80,7 +80,7 @@ void main() {
   }
 
   test(
-    'resposta encadeada respeita o limite de 3 nÃ­veis',
+    'resposta encadeada respeita o limite de 3 níveis',
     () async {
       final client = createSupabaseClient()!;
       await signInA(client);
@@ -93,25 +93,25 @@ void main() {
       final c1 = await createComment(
         client,
         postId,
-        'Resposta nÃ­vel 1',
+        'Resposta nível 1',
         parentId: c0,
       );
       final c2 = await createComment(
         client,
         postId,
-        'Resposta nÃ­vel 2',
+        'Resposta nível 2',
         parentId: c1,
       );
       final c3 = await createComment(
         client,
         postId,
-        'Resposta nÃ­vel 3',
+        'Resposta nível 3',
         parentId: c2,
       );
 
       await expectRpcError(
         () =>
-            createComment(client, postId, 'Tentativa de nÃ­vel 4', parentId: c3),
+            createComment(client, postId, 'Tentativa de nível 4', parentId: c3),
         'profundidade_maxima',
       );
 
@@ -122,14 +122,14 @@ void main() {
   );
 
   test(
-    'citar publicaÃ§Ã£o inacessÃ­vel Ã© bloqueado na criaÃ§Ã£o',
+    'citar publicação inacessível é bloqueado na criação',
     () async {
       final client = createSupabaseClient()!;
 
       await signInA(client);
       final friendsPost = await createPost(
         client,
-        'Post sÃ³ para conexÃµes.',
+        'Post só para conexões.',
         visibility: 'friends',
       );
 
@@ -137,7 +137,7 @@ void main() {
       await expectRpcError(
         () => createPost(
           client,
-          'Tentando citar um post de conexÃµes de outra pessoa.',
+          'Tentando citar um post de conexões de outra pessoa.',
           quotedPostId: friendsPost,
         ),
         'publicacao_inacessivel',
@@ -150,12 +150,12 @@ void main() {
   );
 
   test(
-    'citaÃ§Ã£o mantÃ©m "foi citaÃ§Ã£o" quando o original Ã© apagado',
+    'citação mantém "foi citação" quando o original é apagado',
     () async {
       final client = createSupabaseClient()!;
       await signInA(client);
 
-      final original = await createPost(client, 'Post original pÃºblico.');
+      final original = await createPost(client, 'Post original público.');
       final quote = await createPost(
         client,
         'Concordo com o que foi dito.',
