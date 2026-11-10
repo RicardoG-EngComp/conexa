@@ -57,6 +57,17 @@ class _GroupProfileScreenState extends ConsumerState<GroupProfileScreen> {
       length: 4,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            tooltip: 'Voltar',
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/groups');
+              }
+            },
+          ),
           title: const Text('Grupo'),
           actions: [
             detailAsync.maybeWhen(

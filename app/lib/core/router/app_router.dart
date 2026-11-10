@@ -25,6 +25,8 @@ import '../../features/feed/presentation/post_detail_screen.dart';
 import '../../features/groups/presentation/group_create_screen.dart';
 import '../../features/groups/presentation/group_manage_screen.dart';
 import '../../features/groups/presentation/group_profile_screen.dart';
+import '../../features/groups/presentation/groups_home_screen.dart';
+import '../../features/groups/presentation/join_group_screen.dart';
 import '../../features/help/presentation/help_screen.dart';
 import '../../features/matches/presentation/matches_screen.dart';
 import '../../features/notifications/presentation/notification_preferences_screen.dart';
@@ -122,6 +124,7 @@ final GoRouter appRouter = GoRouter(
       routes: [
         GoRoute(path: '/feed', builder: (_, _) => const FeedScreen()),
         GoRoute(path: '/discover', builder: (_, _) => const DiscoverScreen()),
+        GoRoute(path: '/groups', builder: (_, _) => const GroupsHomeScreen()),
         GoRoute(path: '/matches', builder: (_, _) => const MatchesScreen()),
         GoRoute(
           path: '/chats',
@@ -142,6 +145,7 @@ final GoRouter appRouter = GoRouter(
       path: '/feed/compose',
       builder: (_, state) => ComposePostScreen(
         groupId: state.uri.queryParameters['group'],
+        initialText: state.uri.queryParameters['text'],
         quoted: state.extra is FeedPost ? state.extra as FeedPost : null,
       ),
     ),
@@ -150,6 +154,12 @@ final GoRouter appRouter = GoRouter(
       builder: (_, state) => PostDetailScreen(
         postId: state.pathParameters['id'] ?? '',
         post: state.extra is FeedPost ? state.extra as FeedPost : null,
+      ),
+    ),
+    GoRoute(
+      path: '/join/:token',
+      builder: (_, state) => JoinGroupScreen(
+        token: state.pathParameters['token'] ?? '',
       ),
     ),
     GoRoute(

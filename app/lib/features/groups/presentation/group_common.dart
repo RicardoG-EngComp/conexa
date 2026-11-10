@@ -5,17 +5,40 @@ import '../../../core/theme/app_spacing.dart';
 import '../data/group_models.dart';
 
 const List<String> groupCategories = [
-  'Centro acadêmico',
+  'Centro Acadêmico',
   'Atlética',
-  'Coletivo',
-  'Projeto',
-  'Grupo de estudos',
-  'Religião',
-  'Cultura',
-  'Esportes',
-  'Causa',
+  'Grupo de Estudos',
+  'República',
   'Outros',
 ];
+
+const String defaultGroupCategory = 'Outros';
+
+String normalizeGroupCategory(String? category) {
+  if (category == null) return defaultGroupCategory;
+  final key = category
+      .trim()
+      .toLowerCase()
+      .replaceAll('á', 'a')
+      .replaceAll('à', 'a')
+      .replaceAll('â', 'a')
+      .replaceAll('ã', 'a')
+      .replaceAll('é', 'e')
+      .replaceAll('ê', 'e')
+      .replaceAll('í', 'i')
+      .replaceAll('ó', 'o')
+      .replaceAll('ô', 'o')
+      .replaceAll('õ', 'o')
+      .replaceAll('ú', 'u')
+      .replaceAll('ç', 'c');
+  return switch (key) {
+    'centro academico' => 'Centro Acadêmico',
+    'atletica' => 'Atlética',
+    'grupo de estudos' => 'Grupo de Estudos',
+    'republica' => 'República',
+    _ => defaultGroupCategory,
+  };
+}
 
 String permissionLabel(String key) {
   return switch (key) {

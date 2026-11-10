@@ -33,6 +33,43 @@ class FeedPostCard extends StatelessWidget {
   final bool showSource;
   final bool showRelevance;
 
+  void _showTopics(BuildContext context, List<FeedTopic> topics) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: AppColors.paper,
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              AppSpacing.lg,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Tópicos da publicação', style: theme.textTheme.titleLarge),
+                const SizedBox(height: AppSpacing.md),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: topics
+                      .map((topic) => _TopicChip(topic: topic))
+                      .toList(),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -181,13 +218,46 @@ class FeedPostCard extends StatelessWidget {
             _QuotedCard(quoted: post.quoted!),
           ],
           if (post.topics.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: AppSpacing.xs,
-              children: post.topics
-                  .map((topic) => _TopicChip(topic: topic))
-                  .toList(),
+            const SizedBox(height: AppSpacing.sm),
+            Tooltip(
+              message: 'Segure para ver os tópicos',
+              child: Semantics(
+                label: 'Tópicos da publicação. Segure para ver a lista.',
+                button: true,
+                child: GestureDetector(
+                  onLongPress: () => _showTopics(context, post.topics),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.teal.withValues(alpha: 0.07),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                      border: Border.all(
+                        color: AppColors.teal.withValues(alpha: 0.18),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.sell_outlined,
+                          size: 14,
+                          color: AppColors.teal,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${post.topics.length}',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: AppColors.teal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
           if (showRelevance &&

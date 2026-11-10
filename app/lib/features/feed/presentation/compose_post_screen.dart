@@ -12,10 +12,16 @@ import '../application/feed_providers.dart';
 import '../data/feed_models.dart';
 
 class ComposePostScreen extends ConsumerStatefulWidget {
-  const ComposePostScreen({super.key, this.quoted, this.groupId});
+  const ComposePostScreen({
+    super.key,
+    this.quoted,
+    this.groupId,
+    this.initialText,
+  });
 
   final FeedPost? quoted;
   final String? groupId;
+  final String? initialText;
 
   @override
   ConsumerState<ComposePostScreen> createState() => _ComposePostScreenState();
@@ -32,6 +38,15 @@ class _ComposePostScreenState extends ConsumerState<ComposePostScreen> {
   bool _posting = false;
 
   bool get _groupMode => widget.groupId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialText;
+    if (initial != null && initial.isNotEmpty) {
+      _text.text = initial;
+    }
+  }
 
   @override
   void dispose() {

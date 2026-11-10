@@ -10,7 +10,7 @@ class MainShell extends ConsumerWidget {
 
   final Widget child;
 
-  static const _paths = ['/feed', '/discover', '/chats', '/settings'];
+  static const _paths = ['/feed', '/discover', '/groups', '/chats', '/settings'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -94,6 +94,11 @@ class MainShell extends ConsumerWidget {
                 icon: Icon(Icons.explore_outlined),
                 selectedIcon: Icon(Icons.explore),
                 label: 'Descobrir',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.groups_outlined),
+                selectedIcon: Icon(Icons.groups),
+                label: 'Grupos',
               ),
               NavigationDestination(
                 icon: Icon(Icons.chat_bubble_outline),

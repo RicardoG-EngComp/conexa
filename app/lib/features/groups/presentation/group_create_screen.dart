@@ -18,7 +18,7 @@ class GroupCreateScreen extends ConsumerStatefulWidget {
 class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
   final _name = TextEditingController();
   final _description = TextEditingController();
-  String _category = groupCategories.first;
+  String _category = defaultGroupCategory;
   String _campus = ufvCampuses.first;
   String? _course;
   String _visibility = 'private';
@@ -52,7 +52,10 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
         visibility: _visibility,
       );
       ref.invalidate(myGroupsProvider);
-      if (mounted) context.go('/groups/$id');
+      if (mounted) {
+        context.go('/groups');
+        context.push('/groups/$id');
+      }
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

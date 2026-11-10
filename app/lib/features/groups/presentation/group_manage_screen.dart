@@ -19,7 +19,7 @@ class GroupManageScreen extends ConsumerStatefulWidget {
 class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
   final _name = TextEditingController();
   final _description = TextEditingController();
-  String _category = groupCategories.first;
+  String _category = defaultGroupCategory;
   String _campus = ufvCampuses.first;
   String? _course;
   bool _saving = false;
@@ -29,7 +29,7 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
     if (_initialized || detail == null) return;
     _name.text = detail.name;
     _description.text = detail.description ?? '';
-    _category = detail.category;
+    _category = normalizeGroupCategory(detail.category);
     _campus = detail.campus;
     _course = detail.course;
     _initialized = true;

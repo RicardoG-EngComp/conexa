@@ -68,6 +68,15 @@ passando pela RLS.
 - Grupo em revisão (`under_review`) ou arquivado sai do diretório; membros
   continuam vendo.
 
+### Categorias
+
+Categorias oficiais de grupo (fixas, validadas no servidor):
+
+`Centro Acadêmico`, `Atlética`, `Grupo de Estudos`, `República`, `Outros`.
+
+Valores fora dessa lista são rejeitados com `categoria_invalida`; dados antigos
+foram normalizados (maiúsculas/acentos reconhecidos; o resto virou `Outros`).
+
 ### Cargos e permissões
 
 Cargos são combináveis; as permissões de todos os cargos do membro somam.

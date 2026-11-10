@@ -132,7 +132,7 @@ class GroupRepository {
     return GroupDetail(
       id: row['id'] as String,
       name: row['name'] as String,
-      category: (row['category'] as String?) ?? 'outros',
+      category: (row['category'] as String?) ?? 'Outros',
       campus: (row['campus'] as String?) ?? 'Viçosa',
       visibility: (row['visibility'] as String?) ?? 'private',
       publicApproval: (row['public_approval'] as String?) ?? 'none',
@@ -318,7 +318,7 @@ class GroupRepository {
         id: r['id'] as String,
         name: r['name'] as String,
         description: r['description'] as String?,
-        category: (r['category'] as String?) ?? 'outros',
+        category: (r['category'] as String?) ?? 'Outros',
         campus: (r['campus'] as String?) ?? 'Viçosa',
         isOfficial: r['is_official'] == true,
         memberCount: (r['member_count'] as int?) ?? 0,
@@ -338,7 +338,7 @@ class GroupRepository {
         id: r['id'] as String,
         name: r['name'] as String,
         description: r['description'] as String?,
-        category: (r['category'] as String?) ?? 'outros',
+        category: (r['category'] as String?) ?? 'Outros',
         campus: (r['campus'] as String?) ?? 'Viçosa',
         isOfficial: r['is_official'] == true,
       );
@@ -444,6 +444,14 @@ class GroupRepository {
       'p_group_id': groupId,
       'p_user_id': userId,
     });
+  }
+
+  Future<String> redeemInvite(String token) async {
+    final res = await _client.rpc(
+      'redeem_group_invite',
+      params: {'p_token': token},
+    );
+    return res as String;
   }
 
   Future<void> deleteGroup(String groupId) async {

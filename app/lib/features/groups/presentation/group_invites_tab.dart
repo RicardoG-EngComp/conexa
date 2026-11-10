@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../chat/application/chat_providers.dart';
+import '../../connections/application/connection_providers.dart';
+import '../../connections/data/connection_models.dart';
 import '../application/group_providers.dart';
 import '../data/group_models.dart';
 import 'group_common.dart';
+
+enum _InviteShareAction { copy, post, message }
 
 class GroupInvitesTab extends ConsumerWidget {
   const GroupInvitesTab({
@@ -105,54 +111,26 @@ class GroupInvitesTab extends ConsumerWidget {
         onChanged();
         if (!context.mounted) return;
         final link = 'https://conexa.app/join/${created.token}';
-        await showDialog<void>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Copie o link agora'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.sm),
-                  decoration: BoxDecoration(
-                    color: AppColors.paper,
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: SelectableText(
-                    link,
-                    style: const TextStyle(fontFamily: 'monospace'),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                const Text(
-                  'Por segurança, guardamos apenas o hash. Este link não será '
-                  'exibido novamente.',
-                  style: TextStyle(color: AppColors.muted),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('Fechar'),
-              ),
-              FilledButton.icon(
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: link));
-                  if (ctx.mounted) Navigator.pop(ctx);
-                },
-                icon: const Icon(Icons.copy, size: 16),
-                label: const Text('Copiar link'),
-              ),
-            ],
-          ),
-        );
+        final action = await _showLinkDialog(context, link);
+        if (action == null || !context.mounted) return;
+
+        switch (action) {
+          case _InviteShareAction.copy:
+            await Clipboard.setData(ClipboardData(text: link));
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Link copiado.')),
+              );
+            }
+          case _InviteShareAction.post:
+            await _shareOnFeed(context, link);
+          case _InviteShareAction.message:
+            await _shareByMessage(context, ref, link);
+        }
       } catch (_) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Nao foi possivel criar o convite.')),
+            const SnackBar(content: Text('Não foi possível criar o convite.')),
           );
         }
       }
@@ -183,7 +161,9 @@ class GroupInvitesTab extends ConsumerWidget {
       } catch (_) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Nao foi possivel revogar o convite.')),
+            const SnackBar(
+              content: Text('Não foi possível revogar o convite.'),
+            ),
           );
         }
       }
@@ -237,13 +217,219 @@ class GroupInvitesTab extends ConsumerWidget {
                 if (invite.status == GroupInviteStatus.active)
                   TextButton(
                     onPressed: () => revokeInvite(invite),
-                    style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.danger,
+                    ),
                     child: const Text('Revogar'),
                   ),
               ],
             ),
           ),
       ],
+    );
+  }
+
+  Future<_InviteShareAction?> _showLinkDialog(
+    BuildContext context,
+    String link,
+  ) {
+    return showDialog<_InviteShareAction>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Copie o link agora'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              decoration: BoxDecoration(
+                color: AppColors.paper,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: SelectableText(
+                link,
+                style: const TextStyle(fontFamily: 'monospace'),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            const Text(
+              'Por segurança, guardamos apenas o hash. Este link não será '
+              'exibido novamente. Copie, publique no feed ou envie por '
+              'mensagem agora.',
+              style: TextStyle(color: AppColors.muted),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Fechar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, _InviteShareAction.message),
+            child: const Text('Enviar por mensagem'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, _InviteShareAction.post),
+            child: const Text('Publicar no feed'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(ctx, _InviteShareAction.copy),
+            icon: const Icon(Icons.copy, size: 16),
+            label: const Text('Copiar link'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _shareOnFeed(BuildContext context, String link) async {
+    if (detail.visibility != 'public') {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Publicar convite de grupo privado?'),
+          content: Text(
+            'Este grupo é privado. Qualquer pessoa que vir o post poderá entrar '
+            'pelo link, até o limite de usos do convite. Deseja continuar?',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Publicar mesmo assim'),
+            ),
+          ],
+        ),
+      );
+      if (ok != true || !context.mounted) return;
+    }
+    final text = 'Participe do grupo ${detail.name}: $link';
+    context.push('/feed/compose?text=${Uri.encodeComponent(text)}');
+  }
+
+  Future<void> _shareByMessage(
+    BuildContext context,
+    WidgetRef ref,
+    String link,
+  ) async {
+    final recipient = await showModalBottomSheet<ConnectionEntry>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: AppColors.paper,
+      builder: (_) => _ConnectionsPicker(),
+    );
+    if (recipient == null || !context.mounted) return;
+
+    try {
+      final chat = ref.read(chatRepositoryProvider);
+      final conversationId = await chat.startConversation(recipient.userId);
+      await chat.sendMessage(
+        conversationId: conversationId,
+        content: 'Convite para o grupo ${detail.name}: $link',
+        flagged: false,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Convite enviado para ${recipient.displayName}.'),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível enviar a mensagem.')),
+        );
+      }
+    }
+  }
+}
+
+class _ConnectionsPicker extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final connections = ref.watch(connectionsProvider);
+
+    return SafeArea(
+      child: SizedBox(
+        height: 420,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Text(
+                'Enviar para uma conexão',
+                style: theme.textTheme.titleLarge,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Text(
+                'Você só pode enviar convites por mensagem para conexões aceitas.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.muted,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Expanded(
+              child: connections.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (_, _) => const Center(
+                  child: Text('Erro ao carregar conexões.'),
+                ),
+                data: (data) {
+                  if (data.accepted.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Você ainda não tem conexões aceitas.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppColors.muted,
+                        ),
+                      ),
+                    );
+                  }
+                  return ListView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                    ),
+                    children: [
+                      for (final entry in data.accepted)
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const CircleAvatar(
+                            radius: 18,
+                            backgroundColor: AppColors.border,
+                            child: Icon(
+                              Icons.person,
+                              size: 18,
+                              color: AppColors.muted,
+                            ),
+                          ),
+                          title: Text(
+                            entry.displayName,
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          onTap: () => Navigator.pop(context, entry),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
