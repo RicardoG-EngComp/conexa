@@ -2,6 +2,18 @@ name: Build Android APK
 
 on:
   workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Versao (ex: 1.0.14)'
+        required: true
+        default: '1.0.14'
+      version_build:
+        description: 'Build number (ex: 14)'
+        required: true
+        default: '14'
+
+permissions:
+  contents: read
 
 jobs:
   build-apk:
@@ -35,6 +47,17 @@ jobs:
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
 
+      - name: Configure signing
+        run: |
+          mkdir -p android/keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/keystore/release.jks
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=keystore/release.jks
+          EOF
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -44,12 +67,12 @@ jobs:
       - name: Test
         run: flutter test
 
-      - name: Build debug APK
-        run: flutter build apk --debug
+      - name: Build release APK (universal)
+        run: flutter build apk --release --build-name=${{ inputs.version_name }} --build-number=${{ inputs.version_build }}
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: app/build/app/outputs/flutter-apk/app-debug.apk
+          name: conexa-${{ inputs.version_name }}-${{ inputs.version_build }}.apk
+          path: app/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
