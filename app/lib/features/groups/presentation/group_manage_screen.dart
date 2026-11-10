@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/errors/moderation_errors.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../profile/data/ufv_courses.dart';
 import '../application/group_providers.dart';
+import '../data/group_models.dart';
 import 'group_common.dart';
 
 class GroupManageScreen extends ConsumerStatefulWidget {
@@ -23,6 +27,7 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
   String _campus = ufvCampuses.first;
   String? _course;
   bool _saving = false;
+  bool _deleting = false;
   bool _initialized = false;
 
   void _init(dynamic detail) {
@@ -116,6 +121,58 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
     }
   }
 
+  Future<void> _confirmDelete(GroupDetail detail) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Excluir grupo?'),
+        content: const Text(
+          'Membros, cargos, convites, seguidores e todas as publicações do '
+          'grupo serão apagados. Esta ação não pode ser desfeita.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            child: const Text('Excluir grupo'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+
+    setState(() => _deleting = true);
+    try {
+      await ref.read(groupRepositoryProvider).deleteGroup(detail.id);
+      ref.invalidate(myGroupsProvider);
+      if (mounted) {
+        context.go('/groups');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Grupo excluído.')),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              friendlyModerationError(
+                error,
+                fallback: 'Não foi possível excluir o grupo.',
+              ),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -201,6 +258,44 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
+            ),
+          ],
+          if (detail != null &&
+              detail.ownerId ==
+                  Supabase.instance.client.auth.currentUser?.id) ...[
+            const SizedBox(height: AppSpacing.xl),
+            const Divider(),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'Zona de risco',
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: AppColors.danger,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'Excluir o grupo apaga membros, cargos, convites, seguidores e as '
+              'publicações do grupo. Não pode ser desfeito.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.muted,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            OutlinedButton.icon(
+              onPressed: _deleting ? null : () => _confirmDelete(detail),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.danger,
+                side: const BorderSide(color: AppColors.danger),
+              ),
+              icon: _deleting
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.delete_forever_outlined),
+              label: const Text('Excluir grupo'),
             ),
           ],
         ],

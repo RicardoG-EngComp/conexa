@@ -125,6 +125,8 @@ IconData _iconFor(String type) {
     case 'study_approved':
     case 'study_rejected':
       return Icons.menu_book_outlined;
+    case 'group_invite':
+      return Icons.groups_outlined;
     default:
       return Icons.notifications_outlined;
   }

@@ -143,6 +143,14 @@ class _NotificationPreferencesScreenState
                 onChanged: (value) =>
                     _save(preferences.copyWith(studies: value)),
               ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Grupos'),
+                subtitle: const Text('Convites de grupo e avisos de grupos.'),
+                value: preferences.groups,
+                onChanged: (value) =>
+                    _save(preferences.copyWith(groups: value)),
+              ),
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Categorias desligadas nao geram push nem item na central. '

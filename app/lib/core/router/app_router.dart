@@ -25,8 +25,8 @@ import '../../features/feed/presentation/post_detail_screen.dart';
 import '../../features/groups/presentation/group_create_screen.dart';
 import '../../features/groups/presentation/group_manage_screen.dart';
 import '../../features/groups/presentation/group_profile_screen.dart';
+import '../../features/groups/presentation/group_invites_received_screen.dart';
 import '../../features/groups/presentation/groups_home_screen.dart';
-import '../../features/groups/presentation/join_group_screen.dart';
 import '../../features/help/presentation/help_screen.dart';
 import '../../features/matches/presentation/matches_screen.dart';
 import '../../features/notifications/presentation/notification_preferences_screen.dart';
@@ -157,10 +157,8 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
     GoRoute(
-      path: '/join/:token',
-      builder: (_, state) => JoinGroupScreen(
-        token: state.pathParameters['token'] ?? '',
-      ),
+      path: '/invites',
+      builder: (_, _) => const GroupInvitesReceivedScreen(),
     ),
     GoRoute(
       path: '/groups/create',

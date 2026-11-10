@@ -90,6 +90,8 @@ class GroupInvite {
     required this.maxUses,
     required this.usedCount,
     this.revoked = false,
+    this.targetUserId,
+    this.targetName,
   });
 
   final String id;
@@ -97,6 +99,8 @@ class GroupInvite {
   final int maxUses;
   final int usedCount;
   final bool revoked;
+  final String? targetUserId;
+  final String? targetName;
 
   GroupInviteStatus get status {
     if (revoked) return GroupInviteStatus.revoked;
@@ -104,6 +108,35 @@ class GroupInvite {
     if (expiresAt.isBefore(DateTime.now())) return GroupInviteStatus.expired;
     return GroupInviteStatus.active;
   }
+}
+
+class GroupFollower {
+  const GroupFollower({required this.userId, required this.name});
+
+  final String userId;
+  final String name;
+}
+
+class GroupInvitation {
+  const GroupInvitation({
+    required this.inviteId,
+    required this.groupId,
+    required this.groupName,
+    required this.groupCategory,
+    required this.groupOfficial,
+    required this.inviterName,
+    required this.expiresAt,
+    required this.createdAt,
+  });
+
+  final String inviteId;
+  final String groupId;
+  final String groupName;
+  final String groupCategory;
+  final bool groupOfficial;
+  final String inviterName;
+  final DateTime expiresAt;
+  final DateTime createdAt;
 }
 
 class GroupDetail {

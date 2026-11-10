@@ -33,8 +33,13 @@ final groupInvitesProvider = FutureProvider.autoDispose
     );
 
 final groupFollowersProvider = FutureProvider.autoDispose
-    .family<List<String>, String>(
+    .family<List<GroupFollower>, String>(
       (ref, id) => ref.read(groupRepositoryProvider).fetchFollowers(id),
+    );
+
+final myGroupInvitesProvider =
+    FutureProvider.autoDispose<List<GroupInvitation>>(
+      (ref) => ref.read(groupRepositoryProvider).fetchMyInvites(),
     );
 
 final groupDirectoryProvider = FutureProvider.autoDispose

@@ -276,21 +276,43 @@ class GroupRepository {
   Future<List<GroupInvite>> fetchInvites(String groupId) async {
     final rows = await _client
         .from('group_invites')
-        .select('id, expires_at, max_uses, used_count, revoked_at')
+        .select('id, expires_at, max_uses, used_count, revoked_at, target_user_id')
         .eq('group_id', groupId)
         .order('created_at', ascending: false);
-    return (rows as List).map((r) {
+    final items = (rows as List).cast<Map<String, dynamic>>();
+
+    final targetIds = items
+        .where((r) => r['target_user_id'] != null)
+        .map((r) => r['target_user_id'] as String)
+        .toSet()
+        .toList();
+    final names = <String, String>{};
+    if (targetIds.isNotEmpty) {
+      final profiles = await _client
+          .from('profiles_public')
+          .select('id, display_name')
+          .inFilter('id', targetIds);
+      for (final p in (profiles as List)) {
+        names[p['id'] as String] =
+            (p['display_name'] as String?) ?? 'Estudante UFV';
+      }
+    }
+
+    return items.map((r) {
+      final targetId = r['target_user_id'] as String?;
       return GroupInvite(
         id: r['id'] as String,
         expiresAt: DateTime.parse(r['expires_at'] as String),
         maxUses: r['max_uses'] as int,
         usedCount: r['used_count'] as int,
         revoked: r['revoked_at'] != null,
+        targetUserId: targetId,
+        targetName: targetId == null ? null : (names[targetId] ?? 'Estudante UFV'),
       );
     }).toList();
   }
 
-  Future<List<String>> fetchFollowers(String groupId) async {
+  Future<List<GroupFollower>> fetchFollowers(String groupId) async {
     final rows = await _client
         .from('group_followers')
         .select('user_id')
@@ -305,7 +327,14 @@ class GroupRepository {
     for (final p in (profileRows as List)) {
       names[p['id'] as String] = (p['display_name'] as String?) ?? 'Estudante UFV';
     }
-    return ids.map((id) => names[id] ?? 'Estudante UFV').toList();
+    return ids
+        .map(
+          (id) => GroupFollower(
+            userId: id,
+            name: names[id] ?? 'Estudante UFV',
+          ),
+        )
+        .toList();
   }
 
   Future<List<GroupSummary>> fetchDirectory({String? search}) async {
@@ -446,12 +475,11 @@ class GroupRepository {
     });
   }
 
-  Future<String> redeemInvite(String token) async {
-    final res = await _client.rpc(
-      'redeem_group_invite',
-      params: {'p_token': token},
-    );
-    return res as String;
+  Future<void> removeFollower(String groupId, String userId) async {
+    await _client.rpc('remove_group_follower', params: {
+      'p_group_id': groupId,
+      'p_user_id': userId,
+    });
   }
 
   Future<void> deleteGroup(String groupId) async {
@@ -480,19 +508,42 @@ class GroupRepository {
     return res == true;
   }
 
-  Future<({String id, String token, DateTime expiresAt, int maxUses})>
-      createInvite(String groupId, {Duration validFor = const Duration(days: 7), int maxUses = 1}) async {
-    final res = await _client.rpc('create_group_invite', params: {
-      'p_group_id': groupId,
-      'p_expires_at': DateTime.now().toUtc().add(validFor).toIso8601String(),
-      'p_max_uses': maxUses,
-    });
-    final map = (res as Map).cast<String, dynamic>();
-    return (
-      id: map['id'] as String,
-      token: map['token'] as String,
-      expiresAt: DateTime.parse(map['expires_at'] as String),
-      maxUses: map['max_uses'] as int,
+  Future<String> inviteConnection(String groupId, String userId) async {
+    final res = await _client.rpc(
+      'create_group_invite_for_user',
+      params: {'p_group_id': groupId, 'p_target_user_id': userId},
+    );
+    return res as String;
+  }
+
+  Future<List<GroupInvitation>> fetchMyInvites() async {
+    final rows = await _client.rpc('my_group_invites') as List;
+    return rows.map((r) {
+      return GroupInvitation(
+        inviteId: r['invite_id'] as String,
+        groupId: r['group_id'] as String,
+        groupName: r['group_name'] as String,
+        groupCategory: (r['group_category'] as String?) ?? 'Outros',
+        groupOfficial: r['group_official'] == true,
+        inviterName: (r['inviter_name'] as String?) ?? 'Alguém',
+        expiresAt: DateTime.parse(r['expires_at'] as String),
+        createdAt: DateTime.parse(r['created_at'] as String),
+      );
+    }).toList();
+  }
+
+  Future<String> acceptInvite(String inviteId) async {
+    final res = await _client.rpc(
+      'accept_group_invite',
+      params: {'p_invite_id': inviteId},
+    );
+    return res as String;
+  }
+
+  Future<void> declineInvite(String inviteId) async {
+    await _client.rpc(
+      'decline_group_invite',
+      params: {'p_invite_id': inviteId},
     );
   }
 

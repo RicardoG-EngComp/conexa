@@ -16,6 +16,9 @@ class GroupsHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final groupsAsync = ref.watch(myGroupsProvider);
+    final invites =
+        ref.watch(myGroupInvitesProvider).asData?.value ??
+        const <GroupInvitation>[];
 
     return Scaffold(
       body: SafeArea(
@@ -43,26 +46,59 @@ class GroupsHomeScreen extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.go('/discover'),
-                      icon: const Icon(Icons.travel_explore, size: 18),
-                      label: const Text('Descobrir grupos'),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _showInviteDialog(context),
-                      icon: const Icon(Icons.key_outlined, size: 18),
-                      label: const Text('Tenho um convite'),
-                    ),
-                  ),
-                ],
+              child: OutlinedButton.icon(
+                onPressed: () => context.go('/discover'),
+                icon: const Icon(Icons.travel_explore, size: 18),
+                label: const Text('Descobrir grupos'),
               ),
             ),
+            if (invites.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.sm,
+                  AppSpacing.lg,
+                  0,
+                ),
+                child: InkWell(
+                  onTap: () => context.push('/invites'),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  child: Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.teal.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(
+                        color: AppColors.teal.withValues(alpha: 0.24),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.mail_outline,
+                          color: AppColors.teal,
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            invites.length == 1
+                                ? 'VocÃª tem 1 convite de grupo'
+                                : 'VocÃª tem ${invites.length} convites de grupo',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: AppColors.teal,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right,
+                          size: 20,
+                          color: AppColors.teal,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             const SizedBox(height: AppSpacing.sm),
             Expanded(
               child: RefreshIndicator(
@@ -89,13 +125,13 @@ class GroupsHomeScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Text(
-                            'Você ainda não participa de grupos.',
+                            'VocÃª ainda nÃ£o participa de grupos.',
                             textAlign: TextAlign.center,
                             style: theme.textTheme.titleMedium,
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            'Crie um grupo ou entre com um convite para começar.',
+                            'Crie um grupo ou entre com um convite para comeÃ§ar.',
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: AppColors.muted,
@@ -134,52 +170,6 @@ class GroupsHomeScreen extends ConsumerWidget {
         label: const Text('Criar grupo'),
       ),
     );
-  }
-
-  Future<void> _showInviteDialog(BuildContext context) async {
-    final controller = TextEditingController();
-    final token = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Tenho um convite'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Cole o link do convite recebido ou o código.',
-              style: TextStyle(color: AppColors.muted),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Link ou código do convite',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final input = controller.text.trim();
-              final match = RegExp(r'/join/([A-Za-z0-9]+)').firstMatch(input);
-              final value = match?.group(1) ?? input;
-              if (value.isEmpty) return;
-              Navigator.pop(ctx, value);
-            },
-            child: const Text('Continuar'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (token == null || token.isEmpty || !context.mounted) return;
-    context.push('/join/$token');
   }
 }
 

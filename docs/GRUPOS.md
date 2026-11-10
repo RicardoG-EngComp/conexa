@@ -113,14 +113,27 @@ Regras fixas no servidor:
 
 ### Convites
 
-- Token secreto: o banco guarda **apenas o hash sha256**; o link
-  (`conexa.app/join/<token>`) é devolvido **uma única vez** na criação.
-- `create_group_invite` valida `manage_invites`, validade futura e limite
-  de usos (1 a 100).
-- `redeem_group_invite` bloqueia (com `for update`, sem corrida): token
-  inválido, expirado, revogado ou esgotado; conta ativa e verificada com
-  diretrizes aceitas.
-- `revoke_group_invite` anula o link imediatamente para qualquer pessoa.
+Convites são **100% dentro do app** — não existe link, código ou cópia:
+
+- `create_group_invite_for_user(group_id, target_user_id)` — exige
+  `manage_invites`, valida que o convidado é uma **conexão aceita**
+  (`is_connection`), cria convite de **1 uso** (validade 7 dias) e envia
+  **notificação in-app** (`group_invite`, rota `/invites`).
+- O convidado vê o convite em **Grupos → Convites recebidos**
+  (`my_group_invites`) e pode **Entrar** (`accept_group_invite`) ou
+  **Recusar** (`decline_group_invite`). O aceite valida: destinatário correto,
+  não revogado/expirado/esgotado, conta ativa, verificada e diretrizes aceitas.
+- `revoke_group_invite` anula o convite imediatamente.
+- Convites antigos por link aparecem como “legado” apenas para revogação;
+  nenhuma rota de link é exposta pelo app.
+
+### Membros e seguidores
+
+- `remove_group_member` retira o membro (não remove o dono).
+- `remove_group_follower(group_id, user_id)` retira um seguidor; ambos exigem
+  `manage_members` e ficam registrados na auditoria do grupo.
+- O dono pode **excluir o grupo** (`delete_group`), com cascata em membros,
+  cargos, convites, seguidores, publicações do grupo e auditoria.
 
 ### Moderação dentro do grupo
 

@@ -150,8 +150,10 @@ class _GroupProfileScreenState extends ConsumerState<GroupProfileScreen> {
                         onChanged: _refresh,
                       ),
                       _FollowersTab(
+                        groupId: widget.groupId,
                         detail: detail,
                         followers: followers.asData?.value ?? const [],
+                        onChanged: _refresh,
                       ),
                       GroupInvitesTab(
                         groupId: widget.groupId,
@@ -228,7 +230,7 @@ class _Header extends StatelessWidget {
                         _MiniTag(label: detail.campus),
                         _MiniTag(
                           label: detail.visibility == 'public'
-                              ? 'Público'
+                              ? 'PÃºblico'
                               : 'Privado',
                           icon: detail.visibility == 'public'
                               ? Icons.public
@@ -255,7 +257,7 @@ class _Header extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             const _InfoLine(
               icon: Icons.hourglass_top,
-              text: 'Aguardando aprovação da moderação para receber o selo.',
+              text: 'Aguardando aprovaÃ§Ã£o da moderaÃ§Ã£o para receber o selo.',
             ),
           ],
           const SizedBox(height: AppSpacing.md),
@@ -314,15 +316,62 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _FollowersTab extends StatelessWidget {
-  const _FollowersTab({required this.detail, required this.followers});
+class _FollowersTab extends ConsumerWidget {
+  const _FollowersTab({
+    required this.groupId,
+    required this.detail,
+    required this.followers,
+    required this.onChanged,
+  });
 
+  final String groupId;
   final GroupDetail detail;
-  final List<String> followers;
+  final List<GroupFollower> followers;
+  final VoidCallback onChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final canRemove = detail.canManageMembers;
+
+    Future<void> remove(GroupFollower follower) async {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Remover seguidor?'),
+          content: Text('${follower.name} deixa de seguir o grupo.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Remover'),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true || !context.mounted) return;
+      try {
+        await ref
+            .read(groupRepositoryProvider)
+            .removeFollower(groupId, follower.userId);
+        onChanged();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Seguidor removido.')),
+          );
+        }
+      } catch (_) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Não foi possível remover.')),
+          );
+        }
+      }
+    }
+
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -334,24 +383,37 @@ class _FollowersTab extends StatelessWidget {
         else if (followers.isEmpty)
           Text(
             'Ninguém segue este grupo ainda.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.muted,
+            ),
           )
         else
-          for (final name in followers)
+          for (final follower in followers)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: GroupAvatar(name: name, radius: 17),
-              title: Text(name, style: theme.textTheme.titleSmall),
+              leading: GroupAvatar(name: follower.name, radius: 17),
+              title: Text(follower.name, style: theme.textTheme.titleSmall),
               subtitle: Text(
                 'Seguidor',
-                style: theme.textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.muted,
+                ),
               ),
+              trailing: canRemove
+                  ? IconButton(
+                      tooltip: 'Remover seguidor',
+                      icon: const Icon(
+                        Icons.person_remove_outlined,
+                        size: 20,
+                      ),
+                      onPressed: () => remove(follower),
+                    )
+                  : null,
             ),
       ],
     );
   }
 }
-
 class _MiniTag extends StatelessWidget {
   const _MiniTag({required this.label, this.icon});
 

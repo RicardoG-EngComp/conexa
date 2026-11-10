@@ -185,6 +185,12 @@ class GroupMembersTab extends ConsumerWidget {
                     ],
                   ),
                 ),
+                if (member.userId != meId && detail.canManageMembers)
+                  IconButton(
+                    tooltip: 'Remover membro',
+                    icon: const Icon(Icons.person_remove_outlined, size: 20),
+                    onPressed: () => removeMember(member),
+                  ),
                 if (member.userId != meId &&
                     (detail.canManageRoles || detail.canManageMembers))
                   PopupMenuButton<String>(
