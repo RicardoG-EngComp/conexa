@@ -20,6 +20,12 @@ jobs:
         run: flutter pub get
         working-directory: app
 
+      - name: Create .env for asset validation
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+        working-directory: app
+
       - name: Analyze
         run: flutter analyze --no-fatal-warnings
         working-directory: app
