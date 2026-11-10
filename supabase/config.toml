@@ -1,0 +1,3 @@
+# Configuracao do projeto Conexa para o Supabase CLI.
+# Busca e detalhes de integração: docs/GRUPOS.md.
+project_id = "conexa"
