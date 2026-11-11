@@ -89,10 +89,13 @@ class ReportRepository {
         .eq('id', reportId);
 
     if (action == 'suspend' || action == 'ban') {
-      await _client
-          .from('profiles')
-          .update({'account_status': action == 'ban' ? 'banned' : 'suspended'})
-          .eq('id', reportedUserId);
+      await _client.rpc(
+        'admin_set_account_status',
+        params: {
+          'p_user_id': reportedUserId,
+          'p_status': action == 'ban' ? 'banned' : 'suspended',
+        },
+      );
     }
 
     await _client.from('audit_log').insert({

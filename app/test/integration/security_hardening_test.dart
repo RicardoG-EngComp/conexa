@@ -130,11 +130,13 @@ void main() {
         }),
       );
 
-      await client.from('connections').insert({
-        'requester_id': userA,
-        'addressee_id': userB,
-        'status': 'pending',
-      });
+      await expectThrows(
+        () => client.from('connections').insert({
+          'requester_id': userA,
+          'addressee_id': userB,
+          'status': 'pending',
+        }),
+      );
       await deleteConnection(client, userA, userB);
       await client.auth.signOut();
     },
