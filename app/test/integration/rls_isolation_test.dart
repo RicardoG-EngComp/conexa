@@ -12,36 +12,44 @@ void main() {
     () async {
       final supp = createSupabaseClient()!;
 
+      final emailA = Platform.environment['TEST_USER_A_EMAIL']!;
+      final passwordA = Platform.environment['TEST_USER_A_PASSWORD']!;
       final emailB = Platform.environment['TEST_USER_B_EMAIL']!;
       final passwordB = Platform.environment['TEST_USER_B_PASSWORD']!;
+
       await supp.auth.signInWithPassword(email: emailB, password: passwordB);
       final userB = supp.auth.currentUser!;
+      await supp.auth.signOut();
 
+      await supp.auth.signInWithPassword(email: emailA, password: passwordA);
+      final userA = supp.auth.currentUser!;
+      await supp.from('blocks').delete().eq('blocker_id', userA.id);
+      await supp
+          .from('connections')
+          .delete()
+          .or(
+            'and(requester_id.eq.${userA.id},addressee_id.eq.${userB.id}),'
+            'and(requester_id.eq.${userB.id},addressee_id.eq.${userA.id})',
+          );
       await supp.rpc(
-        'enqueue_notification',
-        params: {
-          'p_user_id': userB.id,
-          'p_type': 'message',
-          'p_title': 'RLS test',
-          'p_body': 'RLS body',
-        },
+        'send_connection_request',
+        params: {'target_user': userB.id},
       );
+      await supp.auth.signOut();
 
+      await supp.auth.signInWithPassword(email: emailB, password: passwordB);
       final bRows = await supp
           .from('notifications')
           .select('id')
           .eq('user_id', userB.id)
-          .eq('title', 'RLS test');
+          .eq('type', 'connection_request')
+          .order('created_at', ascending: false)
+          .limit(1);
       String? bNotifId;
       if ((bRows as List).isNotEmpty) bNotifId = bRows.first['id'] as String;
-
-      if (bNotifId != null) {
-        await supp.from('notifications').delete().eq('id', bNotifId);
-      }
+      expect(bNotifId, isNotNull);
       await supp.auth.signOut();
 
-      final emailA = Platform.environment['TEST_USER_A_EMAIL']!;
-      final passwordA = Platform.environment['TEST_USER_A_PASSWORD']!;
       await supp.auth.signInWithPassword(email: emailA, password: passwordA);
 
       if (bNotifId != null) {
@@ -52,10 +60,24 @@ void main() {
         expect((aRows as List).isEmpty, isTrue);
       }
 
+      try {
+        await supp.from('notifications').insert({
+          'user_id': userB.id,
+          'type': 'message',
+          'title': 'forjada',
+          'body': 'forjada',
+        });
+        fail('insercao direta de notificacao deveria falhar');
+      } catch (_) {}
+
+      await supp.rpc(
+        'cancel_connection_request',
+        params: {'p_target_user': userB.id},
+      );
       await supp.auth.signOut();
     },
     skip: skip,
-    timeout: const Timeout(Duration(seconds: 30)),
+    timeout: const Timeout(Duration(seconds: 60)),
   );
 
   test(

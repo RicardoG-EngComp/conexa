@@ -18,7 +18,58 @@ SupabaseClient? createSupabaseClient() {
   return SupabaseClient(url, key);
 }
 
-/// Login com tolerancia ao rate limit de autenticacao (429).
+/// Remove qualquer conexao entre dois usuarios (o chamador precisa ser um deles).
+Future<void> deleteConnectionBetween(
+  SupabaseClient client,
+  String a,
+  String b,
+) async {
+  try {
+    await client
+        .from('connections')
+        .delete()
+        .or(
+          'and(requester_id.eq.$a,addressee_id.eq.$b),'
+          'and(requester_id.eq.$b,addressee_id.eq.$a)',
+        );
+  } catch (_) {}
+}
+
+/// Conecta os dois usuarios, cria convite direcionado e faz o convidado entrar.
+/// Ao final remove a conexao (convites in-app exigem conexao aceita).
+Future<void> inviteUserToGroup(
+  SupabaseClient client, {
+  required String groupId,
+  required String inviterId,
+  required String targetUserId,
+  required Future<void> Function() signInInviter,
+  required Future<void> Function() signInTarget,
+}) async {
+  await signInInviter();
+  await deleteConnectionBetween(client, inviterId, targetUserId);
+  await client.rpc(
+    'send_connection_request',
+    params: {'target_user': targetUserId},
+  );
+  await signInTarget();
+  await client.rpc(
+    'respond_connection_request',
+    params: {'requester': inviterId, 'accept': true},
+  );
+
+  await signInInviter();
+  final inviteId = await client.rpc(
+    'create_group_invite_for_user',
+    params: {'p_group_id': groupId, 'p_target_user_id': targetUserId},
+  ) as String;
+
+  await signInTarget();
+  await client.rpc('accept_group_invite', params: {'p_invite_id': inviteId});
+
+  await signInInviter();
+  await deleteConnectionBetween(client, inviterId, targetUserId);
+}
+
 DateTime? _lastSignInAt;
 
 Future<void> signInWithRetry(

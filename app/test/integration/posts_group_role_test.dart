@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:conexa/core/utils/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -86,24 +86,6 @@ void main() {
     return res;
   }
 
-  Future<Map<String, dynamic>> createInvite(
-    SupabaseClient client,
-    String groupId,
-  ) async {
-    final res = await client.rpc(
-      'create_group_invite',
-      params: {
-        'p_group_id': groupId,
-        'p_expires_at': DateTime.now()
-            .toUtc()
-            .add(const Duration(hours: 1))
-            .toIso8601String(),
-        'p_max_uses': 1,
-      },
-    );
-    return (res as Map).cast<String, dynamic>();
-  }
-
   Future<void> expectError(
     Future<dynamic> Function() action,
     String fragment,
@@ -123,6 +105,7 @@ void main() {
       final ts = DateTime.now().millisecondsSinceEpoch;
 
       await signInA(client);
+      final userAId = client.auth.currentUser!.id;
 
       await cleanupZtestGroups(client);
       final groupId = await createGroup(client, 'ztest-posts selo $ts');
@@ -138,12 +121,17 @@ void main() {
       expect(asGroup['role_name_snapshot'], 'Dono');
       expect(asGroup['posted_as_group'], isTrue);
 
-      final invite = await createInvite(client, groupId);
       await signInB(client);
-      await client.rpc(
-        'redeem_group_invite',
-        params: {'p_token': invite['token']},
+      final userBId = client.auth.currentUser!.id;
+      await inviteUserToGroup(
+        client,
+        groupId: groupId,
+        inviterId: userAId,
+        targetUserId: userBId,
+        signInInviter: () => signInA(client),
+        signInTarget: () => signInB(client),
       );
+      await signInB(client);
       final membro = await findRole(client, groupId, name: 'Membro');
 
       await expectError(
@@ -210,7 +198,10 @@ void main() {
       await signInA(client);
 
       await cleanupZtestGroups(client);
-      final privateGroup = await createGroup(client, 'ztest-posts privado selo $ts');
+      final privateGroup = await createGroup(
+        client,
+        'ztest-posts privado selo $ts',
+      );
       final dono = await findRole(client, privateGroup, isSystem: true);
 
       await expectError(
@@ -235,6 +226,7 @@ void main() {
       final ts = DateTime.now().millisecondsSinceEpoch;
 
       await signInA(client);
+      final userAId = client.auth.currentUser!.id;
 
       await cleanupZtestGroups(client);
       final groupId = await createGroup(client, 'ztest-posts snapshot $ts');
@@ -248,13 +240,16 @@ void main() {
         },
       ) as String;
 
-      final invite = await createInvite(client, groupId);
       await signInB(client);
-      await client.rpc(
-        'redeem_group_invite',
-        params: {'p_token': invite['token']},
-      );
       final userBId = client.auth.currentUser!.id;
+      await inviteUserToGroup(
+        client,
+        groupId: groupId,
+        inviterId: userAId,
+        targetUserId: userBId,
+        signInInviter: () => signInA(client),
+        signInTarget: () => signInB(client),
+      );
 
       await signInA(client);
       await client.rpc(

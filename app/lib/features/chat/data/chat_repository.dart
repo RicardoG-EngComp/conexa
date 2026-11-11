@@ -215,27 +215,16 @@ class ChatRepository {
   }
 
   Future<void> acceptRequest(String conversationId) async {
-    final rows = await _client
-        .from('conversations')
-        .update({'status': 'accepted'})
-        .eq('id', conversationId)
-        .select('id');
-    if ((rows as List).isEmpty) {
-      throw StateError('request could not be accepted');
-    }
+    await _client.rpc(
+      'respond_message_request',
+      params: {'p_conversation_id': conversationId, 'p_accept': true},
+    );
   }
 
   Future<void> declineRequest(String conversationId) async {
-    final rows = await _client
-        .from('conversations')
-        .update({
-          'status': 'declined',
-          'declined_at': DateTime.now().toUtc().toIso8601String(),
-        })
-        .eq('id', conversationId)
-        .select('id');
-    if ((rows as List).isEmpty) {
-      throw StateError('request could not be declined');
-    }
+    await _client.rpc(
+      'respond_message_request',
+      params: {'p_conversation_id': conversationId, 'p_accept': false},
+    );
   }
 }

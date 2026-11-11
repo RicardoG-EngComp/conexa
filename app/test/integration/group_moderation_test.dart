@@ -61,24 +61,6 @@ void main() {
     );
   }
 
-  Future<Map<String, dynamic>> createInvite(
-    SupabaseClient client,
-    String groupId,
-  ) async {
-    final res = await client.rpc(
-      'create_group_invite',
-      params: {
-        'p_group_id': groupId,
-        'p_expires_at': DateTime.now()
-            .toUtc()
-            .add(const Duration(hours: 1))
-            .toIso8601String(),
-        'p_max_uses': 1,
-      },
-    );
-    return (res as Map).cast<String, dynamic>();
-  }
-
   Future<String> createGroupPost(
     SupabaseClient client,
     String groupId,
@@ -142,6 +124,7 @@ void main() {
       final ts = DateTime.now().millisecondsSinceEpoch;
 
       await signInA(client);
+      final userAId = client.auth.currentUser!.id;
       await cleanupZtestGroups(client);
       final groupId = await createGroup(client, 'ztest-mod moderacao $ts');
       final dono = await findRole(client, groupId, isSystem: true);
@@ -153,13 +136,17 @@ void main() {
       );
       final commentId = await createComment(client, postId);
 
-      final invite = await createInvite(client, groupId);
       await signInB(client);
-      await client.rpc(
-        'redeem_group_invite',
-        params: {'p_token': invite['token']},
-      );
       final userBId = client.auth.currentUser!.id;
+      await inviteUserToGroup(
+        client,
+        groupId: groupId,
+        inviterId: userAId,
+        targetUserId: userBId,
+        signInInviter: () => signInA(client),
+        signInTarget: () => signInB(client),
+      );
+      await signInB(client);
 
       await expectError(
         () => client.rpc(
@@ -309,13 +296,17 @@ void main() {
         dono['id'] as String,
       );
 
-      final invite = await createInvite(client, groupId);
       await signInB(client);
-      await client.rpc(
-        'redeem_group_invite',
-        params: {'p_token': invite['token']},
-      );
       final userBId = client.auth.currentUser!.id;
+      await inviteUserToGroup(
+        client,
+        groupId: groupId,
+        inviterId: userAId,
+        targetUserId: userBId,
+        signInInviter: () => signInA(client),
+        signInTarget: () => signInB(client),
+      );
+      await signInB(client);
 
       final visible = await client.from('posts').select('id').eq('id', postId);
       expect((visible as List).length, 1);

@@ -47,23 +47,6 @@ void main() {
     return (res as Map)['id'] as String;
   }
 
-  Future<Map<String, dynamic>> createInvite(
-    SupabaseClient client,
-    String groupId, {
-    Duration validFor = const Duration(hours: 1),
-    int maxUses = 1,
-  }) async {
-    final res = await client.rpc(
-      'create_group_invite',
-      params: {
-        'p_group_id': groupId,
-        'p_expires_at': DateTime.now().toUtc().add(validFor).toIso8601String(),
-        'p_max_uses': maxUses,
-      },
-    );
-    return (res as Map).cast<String, dynamic>();
-  }
-
   Future<void> expectRpcError(
     Future<dynamic> Function() action,
     String fragment,
@@ -133,54 +116,96 @@ void main() {
       await cleanupZtestGroups(client);
       final groupId = await createGroup(client, 'ztest-rls convites $ts');
 
-      final valid = await createInvite(client, groupId, maxUses: 2);
-      final validToken = valid['token'] as String;
-
-      final revoked = await createInvite(client, groupId);
-      final revokedId = revoked['id'] as String;
-      final revokedToken = revoked['token'] as String;
-      await client.rpc(
-        'revoke_group_invite',
-        params: {'p_invite_id': revokedId},
-      );
-
-      final soon = await createInvite(
-        client,
-        groupId,
-        validFor: const Duration(seconds: 15),
-      );
-      final soonToken = soon['token'] as String;
-
       await signInB(client);
+      final userB = client.auth.currentUser!.id;
+      await signInA(client);
+      final userA = client.auth.currentUser!.id;
 
       await expectRpcError(
         () => client.rpc(
-          'redeem_group_invite',
-          params: {'p_token': revokedToken},
+          'create_group_invite_for_user',
+          params: {'p_group_id': groupId, 'p_target_user_id': userB},
         ),
-        'convite revogado',
+        'sem_conexao',
       );
 
-      await Future<void>.delayed(const Duration(seconds: 17));
-      await expectRpcError(
-        () => client.rpc('redeem_group_invite', params: {'p_token': soonToken}),
-        'convite expirado',
+      await client.rpc(
+        'send_connection_request',
+        params: {'target_user': userB},
+      );
+      await signInB(client);
+      await client.rpc(
+        'respond_connection_request',
+        params: {'requester': userA, 'accept': true},
       );
 
-      final joined = await client.rpc(
-        'redeem_group_invite',
-        params: {'p_token': validToken},
-      );
-      expect(joined, isNotNull);
+      try {
+        await signInA(client);
+        final revokedId = await client.rpc(
+          'create_group_invite_for_user',
+          params: {'p_group_id': groupId, 'p_target_user_id': userB},
+        ) as String;
+        await client.rpc(
+          'revoke_group_invite',
+          params: {'p_invite_id': revokedId},
+        );
 
-      final memberRows = await client
-          .from('group_members')
-          .select('status')
-          .eq('group_id', groupId)
-          .eq('user_id', client.auth.currentUser!.id);
-      expect((memberRows as List).length, 1);
+        final soonId = await client.rpc(
+          'create_group_invite_for_user',
+          params: {
+            'p_group_id': groupId,
+            'p_target_user_id': userB,
+            'p_expires_at': DateTime.now()
+                .toUtc()
+                .add(const Duration(seconds: 15))
+                .toIso8601String(),
+          },
+        ) as String;
 
-      await client.auth.signOut();
+        await signInB(client);
+        await Future<void>.delayed(const Duration(seconds: 16));
+        await expectRpcError(
+          () => client.rpc(
+            'accept_group_invite',
+            params: {'p_invite_id': revokedId},
+          ),
+          'convite revogado',
+        );
+        await expectRpcError(
+          () => client.rpc(
+            'accept_group_invite',
+            params: {'p_invite_id': soonId},
+          ),
+          'convite expirado',
+        );
+
+        await signInA(client);
+        final validId = await client.rpc(
+          'create_group_invite_for_user',
+          params: {'p_group_id': groupId, 'p_target_user_id': userB},
+        ) as String;
+
+        await signInB(client);
+        final joined = await client.rpc(
+          'accept_group_invite',
+          params: {'p_invite_id': validId},
+        );
+        expect(joined, groupId);
+
+        final memberRows = await client
+            .from('group_members')
+            .select('status')
+            .eq('group_id', groupId)
+            .eq('user_id', userB);
+        expect((memberRows as List).length, 1);
+      } finally {
+        await signInA(client);
+        await deleteConnectionBetween(client, userA, userB);
+        try {
+          await client.rpc('delete_group', params: {'p_group_id': groupId});
+        } catch (_) {}
+        await client.auth.signOut();
+      }
     },
     skip: skip,
     timeout: const Timeout(Duration(seconds: 60)),
@@ -218,12 +243,17 @@ void main() {
         'nao_pode_se_atribuir',
       );
 
-      final invite = await createInvite(client, groupId);
-      final token = invite['token'] as String;
-
       await signInB(client);
-      await client.rpc('redeem_group_invite', params: {'p_token': token});
       final userBId = client.auth.currentUser!.id;
+      await inviteUserToGroup(
+        client,
+        groupId: groupId,
+        inviterId: userAId,
+        targetUserId: userBId,
+        signInInviter: () => signInA(client),
+        signInTarget: () => signInB(client),
+      );
+      await signInB(client);
 
       final bMembroId =
           (await client
