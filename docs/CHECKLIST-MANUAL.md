@@ -255,6 +255,8 @@
 **O que validar:** regras de grupo e feed funcionam para dois perfis de
 usuário (membro vs. não membro/gestor) e bloqueios valem em grupo.
 
+> Referência técnica, histórico e invariantes: `docs/BACKEND-INVARIANTES.md`.
+
 | Item | ✅/❌ | Comentário | Evidência |
 |---|---|---|---|
 | Feed mostra só Para Você / Conexão (sem compositor fixo) | | | |

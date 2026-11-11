@@ -42,6 +42,7 @@ universidades federais.
 | [PLAY-STORE-BETA](docs/PLAY-STORE-BETA.md) | Checklist da Play, ficha, data safety e testadores |
 | [ESTUDOS-MVP](docs/ESTUDOS-MVP.md) | Escopo do MVP de estudos |
 | [ROADMAP-BLOCOS](docs/ROADMAP-BLOCOS.md) | Construção organizada em blocos |
+| [BACKEND-INVARIANTES](docs/BACKEND-INVARIANTES.md) | **Leitura obrigatória** antes de alterar o backend: invariantes, histórico e o que não quebrar |
 | [MAPA-DE-TELAS](docs/MAPA-DE-TELAS.md) | Telas e wireframes |
 | [ESCOPO-MVP](docs/ESCOPO-MVP.md) | Escopo funcional e técnico |
 | [FLUXO-VERIFICACAO](docs/FLUXO-VERIFICACAO.md) | Verificação de idade e identidade |

@@ -1,7 +1,10 @@
 # Grupos e Feed — regras da versão 1.0.14
 
-> Documento interno de referência. Descreve as regras que valen no servidor
+> Documento interno de referência. Descreve as regras que valem no servidor
 > (RLS, triggers e RPCs), não apenas na interface.
+>
+> Para o histórico completo e a lista do que **não pode ser alterado**, consulte
+> [`BACKEND-INVARIANTES.md`](BACKEND-INVARIANTES.md).
 
 ## Princípio
 
