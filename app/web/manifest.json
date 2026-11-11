@@ -1,11 +1,11 @@
 {
-    "name": "match",
-    "short_name": "match",
+    "name": "Conexa",
+    "short_name": "Conexa",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Comunidade universitária, estudos e vida do campus.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

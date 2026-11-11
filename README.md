@@ -1,7 +1,4 @@
-﻿# Conexa (nome provisório)
-
-> **Nome provisório.** O codinome anterior era "Tinder de Republicas"; o produto
-> agora se chama **Conexa**. O nome definitivo ainda será validado.
+﻿# Conexa
 
 O Conexa é a **comunidade universitária em um só lugar**: rede social, estudos e
 vida do campus, começando pela UFV como case e depois expandindo para as
