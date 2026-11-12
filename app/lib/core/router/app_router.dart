@@ -28,7 +28,7 @@ import '../../features/groups/presentation/group_profile_screen.dart';
 import '../../features/groups/presentation/group_invites_received_screen.dart';
 import '../../features/groups/presentation/groups_home_screen.dart';
 import '../../features/help/presentation/help_screen.dart';
-import '../../features/matches/presentation/matches_screen.dart';
+import '../../features/curtidas/presentation/curtidas_screen.dart';
 import '../../features/notifications/presentation/notification_preferences_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/onboarding/presentation/consent_screen.dart';
@@ -125,7 +125,7 @@ final GoRouter appRouter = GoRouter(
         GoRoute(path: '/feed', builder: (_, _) => const FeedScreen()),
         GoRoute(path: '/discover', builder: (_, _) => const DiscoverScreen()),
         GoRoute(path: '/groups', builder: (_, _) => const GroupsHomeScreen()),
-        GoRoute(path: '/matches', builder: (_, _) => const MatchesScreen()),
+        GoRoute(path: '/curtidas', builder: (_, _) => const CurtidasScreen()),
         GoRoute(
           path: '/chats',
           builder: (_, state) {

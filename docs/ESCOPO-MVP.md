@@ -23,13 +23,13 @@ amigável ou sexual.
 - Controles de visibilidade.
 - Exclusão de conta e de dados.
 
-### 3. Descoberta e match
+### 3. Descoberta e conexões
 - Feed de perfis por afinidade.
-- Ação de curtir/descartar e match mútuo.
+- Ação de curtir/descartar e conexão mútua.
 - Filtros básicos gratuitos; filtros avançados na assinatura.
 
 ### 4. Chat
-- Mensagens entre matches.
+- Mensagens entre conexões.
 - Proteção antissedilidade para não-conexões.
 - Denúncia e bloqueio imediatos.
 - Moderação com IA no dispositivo + revisão humana.
@@ -75,7 +75,7 @@ amigável ou sexual.
 
 ## Fluxo de dados (alto nível)
 ```
-App -> API (auth, perfis, match, chat)
+App -> API (auth, perfis, conexões, chat)
     -> Postgres (dados pseudonimizados)
     -> Storage de mídia (criptografado)
     -> IA on-device (liveness, moderação, assistente)

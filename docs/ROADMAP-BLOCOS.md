@@ -27,7 +27,7 @@
 ### B2 — Perfil & Onboarding
 **Status:** ✅ Perfil, fotos, prompts, favoritos, perfil público.
 
-### B3 — Descoberta & Match
+### B3 — Descoberta & Conexões
 **Status:** ✅ Feed social (abas Para Você/Conexão com relevância transparente,
 FAB, publicação com tópicos/cargo, citações e respostas de até 3 níveis),
 descobrir, conexões e bloqueios. Grupos para o campus (1.0.14): schema, RLS,

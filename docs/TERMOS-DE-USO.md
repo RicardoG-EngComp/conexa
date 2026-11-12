@@ -66,7 +66,7 @@ Voce pode excluir a conta pelo app ou pela
 ## 10. Limitacoes
 
 O Conexa e uma plataforma de conexao e comunidade; nao garante resultados,
-matches ou aprovacoes. Voce e responsavel pelas interacoes e pelo conteudo.
+conexões ou aprovacoes. Voce e responsavel pelas interacoes e pelo conteudo.
 
 ## 11. Contato
 
