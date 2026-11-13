@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../features/admin/presentation/admin_feedback_screen.dart';
 import '../../features/admin/presentation/admin_groups_screen.dart';
 import '../../features/admin/presentation/admin_notifications_screen.dart';
 import '../../features/admin/presentation/admin_screen.dart';
@@ -27,6 +28,9 @@ import '../../features/groups/presentation/group_manage_screen.dart';
 import '../../features/groups/presentation/group_profile_screen.dart';
 import '../../features/groups/presentation/group_invites_received_screen.dart';
 import '../../features/groups/presentation/groups_home_screen.dart';
+import '../../features/feedback/presentation/bug_report_screen.dart';
+import '../../features/feedback/presentation/feedback_screen.dart';
+import '../../features/feedback/presentation/suggestion_screen.dart';
 import '../../features/help/presentation/help_screen.dart';
 import '../../features/curtidas/presentation/curtidas_screen.dart';
 import '../../features/notifications/presentation/notification_preferences_screen.dart';
@@ -166,15 +170,13 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/groups/:id',
-      builder: (_, state) => GroupProfileScreen(
-        groupId: state.pathParameters['id'] ?? '',
-      ),
+      builder: (_, state) =>
+          GroupProfileScreen(groupId: state.pathParameters['id'] ?? ''),
     ),
     GoRoute(
       path: '/groups/:id/manage',
-      builder: (_, state) => GroupManageScreen(
-        groupId: state.pathParameters['id'] ?? '',
-      ),
+      builder: (_, state) =>
+          GroupManageScreen(groupId: state.pathParameters['id'] ?? ''),
     ),
     GoRoute(
       path: '/chats/:id',
@@ -211,6 +213,10 @@ final GoRouter appRouter = GoRouter(
       builder: (_, _) => const AdminNotificationsScreen(),
     ),
     GoRoute(
+      path: '/admin/feedback',
+      builder: (_, _) => const AdminFeedbackScreen(),
+    ),
+    GoRoute(
       path: '/studies/discipline/:id',
       builder: (_, state) =>
           StudyDisciplineScreen(disciplineId: state.pathParameters['id'] ?? ''),
@@ -241,6 +247,12 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(path: '/tutorial', builder: (_, _) => const TutorialScreen()),
     GoRoute(path: '/help', builder: (_, _) => const HelpScreen()),
+    GoRoute(path: '/feedback', builder: (_, _) => const FeedbackScreen()),
+    GoRoute(path: '/feedback/bug', builder: (_, _) => const BugReportScreen()),
+    GoRoute(
+      path: '/feedback/suggestion',
+      builder: (_, _) => const SuggestionScreen(),
+    ),
     GoRoute(
       path: '/profile-checklist',
       builder: (_, _) => const ProfileChecklistScreen(),

@@ -41,11 +41,17 @@ E estritamente proibido:
 Voce mantem os direitos sobre o seu conteudo e concede ao Conexa licenca limitada
 para exibi-lo na plataforma. Voce declara ter direito sobre o que publica.
 
+Isso inclui o conteudo enviado pelo canal de feedback (bugs e sugestoes). Nao
+envie dados sensiveis, conteudo ilegal ou material de terceiros sem autorizacao.
+
 ## 6. Moderacao e denuncias
 
 Podemos remover conteudo e suspender ou banir contas que violem estes Termos.
 Denuncias graves podem ocultar o conteudo ate revisao. O usuario pode bloquear e
 denunciar. Casos de risco podem ser encaminhados as autoridades.
+
+O canal de feedback nao substitui a denuncia: use a denuncia para violacoes das
+diretrizes e o feedback para problemas do app ou ideias de melhoria.
 
 ## 7. Integridade academica
 

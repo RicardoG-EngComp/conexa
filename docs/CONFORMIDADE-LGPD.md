@@ -21,15 +21,18 @@
 - [ ] Consentimento **específico e destacado** para biometria e vida sexual.
 - [ ] Consentimentos granulares e versionados.
 - [ ] Registro de aceite (data, versão, IP).
+- [ ] Base legal do canal de feedback (legítimo interesse) registrada na ROPA.
 
 ## 3. Direitos do titular
 - [ ] Acesso, correção, exclusão, portabilidade e revogação no app.
+- [ ] Feedback e prints do titular incluídos na exclusão de conta.
 - [ ] Prazo e fluxo de resposta documentados.
 
 ## 4. Segurança
 - [ ] TLS + criptografia em repouso.
 - [ ] Pseudonimização de identificadores.
 - [ ] Controle de acesso e logs de auditoria.
+- [ ] Prints de feedback em bucket privado (dono/admin), com limite de tamanho e tipo.
 - [ ] Teste de segurança antes do lançamento.
 
 ## 5. Terceiros / operadores

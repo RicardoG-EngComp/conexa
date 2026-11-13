@@ -30,7 +30,14 @@ Deno.serve(async (req) => {
 
     const userId = userData.user.id;
 
-    for (const bucket of ["profile-media", "verification-docs", "stickers"]) {
+    for (
+      const bucket of [
+        "profile-media",
+        "verification-docs",
+        "feedback-media",
+        "stickers",
+      ]
+    ) {
       const paths = await listAll(admin, bucket, userId);
       for (let i = 0; i < paths.length; i += 100) {
         const chunk = paths.slice(i, i + 100);

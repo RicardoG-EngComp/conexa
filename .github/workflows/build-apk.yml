@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       version_name:
-        description: 'Versao (ex: 1.0.14)'
+        description: 'Versao (ex: 1.0.15)'
         required: true
-        default: '1.0.14'
+        default: '1.0.15'
       version_build:
-        description: 'Build number (ex: 14)'
+        description: 'Build number (ex: 19)'
         required: true
-        default: '14'
+        default: '19'
 
 permissions:
   contents: read

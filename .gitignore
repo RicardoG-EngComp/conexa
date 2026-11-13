@@ -81,3 +81,8 @@ venv/
 *.exe
 *.test
 *.out
+
+# Feedback exportado (contem dados de usuarios)
+/feedback/Bugs.md
+/feedback/Sugestoes.md
+/feedback/anexos/

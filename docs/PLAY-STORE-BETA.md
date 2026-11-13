@@ -28,7 +28,9 @@ O teste interno nao conta para producao. O beta pode ter centenas de pessoas;
 - Gratuito; sem anuncios.
 - Publico-alvo 18+; **Restrict Minor Access** ativado.
 - Assinatura: Play App Signing.
-- `versionCode`: 10 (`1.0.9+10`).
+- `versionCode`: 19 (`1.0.15+19`) na build beta atual.
+  O upload na Play ainda não foi feito; a distribuição do beta é pelo App
+  Distribution (ver `docs/RELEASES.md`).
 
 ## Bloqueios antes do upload
 
@@ -65,11 +67,11 @@ Beta fechado para estudantes da UFV.
 
 > Ativar GitHub Pages em Settings > Pages, pasta `/docs`, antes de submeter.
 
-> **Build Play:** a build 1.0.9 inclui o SDK do Firebase App Distribution, que é
-> exclusivo do beta. Antes de publicar na Play, remover o plugin
-> `firebase_app_distribution`, o `google-services.json` e o serviço de update
-> do beta; a Play usa In-App Updates. O SDK não adicionou permissões extras ao
-> APK atual (somente INTERNET).
+> **Build Play:** a build beta atual (1.0.15+19) inclui o SDK do Firebase App
+> Distribution, que é exclusivo do beta. Antes de publicar na Play, remover o
+> plugin `firebase_app_distribution`, o `google-services.json` e o serviço de
+> update do beta; a Play usa In-App Updates. O SDK não adicionou permissões
+> extras ao APK atual (somente INTERNET).
 
 ## Data safety (rascunho)
 
@@ -79,6 +81,7 @@ Coletado:
 - Fotos de perfil.
 - Mensagens e conexoes.
 - Denuncias e dados de uso/seguranca.
+- Feedbacks (bugs e sugestoes) e prints opcionais.
 
 Nao coletado no beta:
 - Localizacao.
@@ -122,7 +125,7 @@ depois. Nunca commite as senhas.
 ## AAB
 
 ```powershell
-flutter build appbundle --release --build-name=1.0.9 --build-number=10
+flutter build appbundle --release --build-name=1.0.15 --build-number=19
 ```
 
 Saida: `app/build/app/outputs/bundle/release/app-release.aab`.

@@ -40,6 +40,11 @@ class AdminScreen extends ConsumerWidget {
             icon: const Icon(Icons.notifications_active_outlined),
             onPressed: () => context.push('/admin/notifications'),
           ),
+          IconButton(
+            tooltip: 'Feedback',
+            icon: const Icon(Icons.feedback_outlined),
+            onPressed: () => context.push('/admin/feedback'),
+          ),
         ],
       ),
       body: SafeArea(

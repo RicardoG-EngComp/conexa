@@ -29,6 +29,10 @@ Categorias no app:
 Toda denuncia grave pode ocultar automaticamente o conteudo/perfil ate a
 revisao do admin.
 
+O canal de **feedback** (bugs e sugestoes) nao substitui a denuncia. Use a
+denuncia para conteudo que viole as diretrizes; use o feedback para problemas do
+app e ideias de melhoria.
+
 ## Aplicacao
 
 1. Conteudo proibido e bloqueado no servidor no momento da publicacao.
@@ -70,4 +74,6 @@ revisao do admin.
 
 - Denuncias e evidencias: pelo tempo necessario para seguranca e obrigacoes
   legais, com acesso restrito.
+- Feedbacks e prints: vinculados a conta; apagados na exclusao. Podem ser
+  removidos antes disso para moderacao ou limpeza.
 - Dados de conta: excluidos a pedido, salvo obrigacoes legais.

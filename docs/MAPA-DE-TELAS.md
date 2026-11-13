@@ -426,6 +426,68 @@ copiar link 1x -> status -> revogar
 
 ---
 
+## 1.0.15 - Feedback
+
+Rotas: `/feedback`, `/feedback/bug`, `/feedback/suggestion` e `/admin/feedback`.
+Entradas: Ajuda, Ajustes e ícone na Administração.
+
+### FB.1 Feedback (home)
+```
++----------------------------------+
+| <  Feedback                      |
+| Ajude a melhorar o Conexa        |
+| [ Reportar um problema      > ]  |
+| [ Enviar uma sugestão       > ]  |
+|                                  |
+| Meus envios                      |
+| BUG-000123  [Recebido]           |
+| Enviado agora                    |
++----------------------------------+
+```
+
+### FB.2 Reportar problema
+```
++----------------------------------+
+| <  Reportar problema             |
+| Título                           |
+| O que aconteceu?                 |
+| > Detalhes opcionais             |
+|   Passos / esperado / acontecido |
+|   Aparelho e sistema             |
+| [ Anexar print (opcional) ]      |
+| [ Enviar relato ]                |
++----------------------------------+
+```
+
+### FB.3 Enviar sugestão
+```
++----------------------------------+
+| <  Enviar sugestão               |
+| Título                           |
+| Descreva a sugestão              |
+| > Detalhes opcionais             |
+|   Problema / proposta / impacto  |
+| [ Enviar sugestão ]              |
++----------------------------------+
+```
+
+### FB.4 Feedback no admin
+```
++----------------------------------+
+| <  Feedback                      |
+| [ Bugs ] [ Sugestões ]           |
+| (Abertos)(Em andamento)(Encerr.) |
+| +----------------------------+   |
+| | Título                     |   |
+| | BUG-000123 · status · tempo|   |
+| +----------------------------+   |
+| toque -> detalhe + print +       |
+|          mudança de status       |
++----------------------------------+
+```
+
+---
+
 ## Ordem de construção das telas
 1. **B1:** 1–6 (18+, conta, consentimento, verificação).
 2. **B2:** 7–10 + 18 (perfil, estilo de relação, preferências, configurações).

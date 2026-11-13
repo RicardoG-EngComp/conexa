@@ -3,7 +3,7 @@
 > Versao publica: [`privacy.html`](privacy.html). Revisao juridica pendente antes
 > da producao.
 
-**Ultima atualizacao:** 4 de novembro de 2026.
+**Ultima atualizacao:** 12 de novembro de 2026.
 **Contato do responsavel:** conexa.projeto@gmail.com.
 
 ## 1. Quem somos
@@ -16,6 +16,8 @@ O Conexa e um aplicativo para a comunidade universitaria, destinado a maiores de
 - Cadastro: email, data de nascimento e senha (armazenada pelo provedor de auth).
 - Perfil: nome, curso, campus, bio, prompts, fotos e interesses.
 - Uso: posts, comentarios, curtidas, conexoes, mensagens, denuncias.
+- Feedback: relatos de bugs e sugestoes, com versao do app, plataforma e print
+  opcional da tela.
 - Tecnicos: registros de acesso, dispositivo e falhas.
 
 No beta, **nao coletamos localizacao, biometria nem dados financeiros**. Nao
@@ -27,6 +29,8 @@ vendemos dados e nao usamos publicidade comportamental.
 - Verificar vinculo universatario e idade (consentimento/obrigacao legal).
 - Seguranca, moderacao e prevencao de fraude (legitimo interesse/obrigacao legal).
 - Suporte e melhoria (legitimo interesse).
+- Atender feedbacks, corrigir falhas e avaliar sugestoes de melhoria
+  (legitimo interesse).
 
 ## 4. Compartilhamento
 
@@ -39,6 +43,10 @@ exigido por lei ou para proteger direitos e seguranca.
 Dados mantidos enquanto a conta estiver ativa. Na exclusao, apagamos os dados
 associados, salvo registros de seguranca, moderacao ou obrigacao legal. Backups
 podem levar ate 30 dias para expirar.
+
+Feedbacks e prints ficam vinculados a conta e sao apagados com ela. A equipe pode
+remover um feedback antes disso para moderacao ou limpeza. Os prints ficam em
+armazenamento privado, acessivel apenas ao autor e a administradores.
 
 ## 6. Direitos
 

@@ -86,6 +86,15 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: const Text('Duvidas, politicas e contato.'),
               onTap: () => context.push('/help'),
             ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.feedback_outlined),
+              title: const Text('Feedback e sugestões'),
+              subtitle: const Text(
+                'Relate um problema ou sugira uma melhoria.',
+              ),
+              onTap: () => context.push('/feedback'),
+            ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               secondary: const Icon(Icons.lock_outline),

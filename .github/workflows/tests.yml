@@ -42,6 +42,8 @@ jobs:
           TEST_USER_A_PASSWORD: ${{ secrets.TEST_USER_A_PASSWORD }}
           TEST_USER_B_EMAIL: ${{ secrets.TEST_USER_B_EMAIL }}
           TEST_USER_B_PASSWORD: ${{ secrets.TEST_USER_B_PASSWORD }}
+          TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+          TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
           WEBHOOK_SECRET: ${{ secrets.NOTIFICATION_WEBHOOK_SECRET }}
           NOTIFICATION_FUNCTION_URL: ${{ secrets.NOTIFICATION_FUNCTION_URL }}
         run: flutter test test/integration --reporter expanded

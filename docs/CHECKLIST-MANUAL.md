@@ -294,6 +294,37 @@ Referência técnica completa em `docs/GRUPOS.md`.
 
 ---
 
+## 12. Feedback (1.0.15)
+
+**O que validar:** envio de bug/sugestão, print opcional, protocolo, isolamento
+entre usuários, limite diário, triagem admin e exportação.
+
+> Referência: `docs/BACKEND-INVARIANTES.md` (seção 4.12) e `feedback/README.md`.
+
+| Item | ✅/❌ | Comentário | Evidência |
+|---|---|---|---|
+| Entrada em Ajuda e Ajustes abre `/feedback` | | | |
+| Bug envia com título/descrição e mostra protocolo | | | |
+| Bug com print anexa e o admin consegue abrir | | | |
+| Sugestão envia e mostra protocolo | | | |
+| “Meus envios” mostra status e atualiza | | | |
+| B não vê feedback de A | | | |
+| Usuário comum não muda status | | | |
+| Admin vê abas, filtros, detalhe e muda status | | | |
+| 21º envio do mesmo tipo em 24h é recusado | | | |
+| Exportação gera `Bugs.md`/`Sugestoes.md` sem autor | | | |
+
+**Passos:**
+1. Abra Ajuda > Feedback e envie um bug com print. Anote o protocolo.
+2. Envie uma sugestão e confira “Meus envios”.
+3. Entre com outra conta e confirme que não vê os envios da primeira.
+4. No admin, abra Administração > Feedback, filtre e mude o status.
+5. Volte à conta do autor e confirme o novo status.
+6. (Opcional) Rode `automation/export-feedback.ps1` e confira os dois `.md`.
+7. Limpe os feedbacks de teste pelo admin.
+
+---
+
 ## Resumo da rodada
 
 | Cenário | ✅/❌ | Testador | Data | Versão |
@@ -309,6 +340,7 @@ Referência técnica completa em `docs/GRUPOS.md`.
 | 9. App force-stopped | | | | |
 | 10. Instalação limpa | | | | |
 | 11. RLS de grupos e feed | | | | |
+| 12. Feedback | | | | |
 
 **Versão testada:** _______________
 **Data da rodada:** _______________

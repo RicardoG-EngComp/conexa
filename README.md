@@ -28,6 +28,7 @@ universidades federais.
 - B9 (admin + denúncias) ✅
 - Play Store / beta fechado: em preparação.
 - MVP de Estudos (fase 1): ✅ catálogo, materiais, upload com aprovação e moderação.
+- Canal de feedback (1.0.15): ✅ bugs e sugestões no app, triagem admin e exportação para agentes.
 - Próximo: Q&A e grupos de estudo (fase 2).
 
 ## Documentos
@@ -46,6 +47,8 @@ universidades federais.
 | [CONFORMIDADE-LGPD](docs/CONFORMIDADE-LGPD.md) | Checklist de conformidade |
 | [POLITICA-PRIVACIDADE](docs/POLITICA-PRIVACIDADE.md) | Política de privacidade |
 | [TERMOS-DE-USO](docs/TERMOS-DE-USO.md) | Termos de uso |
+| [RELEASES](docs/RELEASES.md) | Versões distribuídas no App Distribution, build, hash e notas |
+| [Feedback](feedback/README.md) | Fluxo de bugs/sugestões, exportação e agentes |
 
 ## Privacidade e moderação
 
@@ -77,6 +80,13 @@ flutter run -d android
 3. As migrations ficam em `supabase/migrations/`.
 
 > `.env` nunca vai para o Git. A `service_role` nunca vai no app.
+
+## Feedback
+
+Bugs e sugestões ficam no Supabase e podem ser exportados para `feedback/` com
+`automation/export-feedback.ps1`. O fluxo manual, os comandos dos agentes e o
+contrato das análises estão em [feedback/README.md](feedback/README.md). As
+versões distribuídas ficam em [docs/RELEASES.md](docs/RELEASES.md).
 
 ## Princípios
 

@@ -20,7 +20,8 @@ Princípios:
 |---|---|---|---|
 | Base beta 1.0.12 | Concluída | O essencial funciona | Feed, descoberta, conexões, conversas, estudos fase 1, moderação e badges |
 | 1.0.13 — usabilidade essencial | Push reais validados; encerramento após revisões finais | Não deixar o usuário perdido ou sem retorno | Notificações, central, tutorial, checklist, ajuda, busca e acessibilidade |
-| Feed e Grupos | Próxima | Copiar a estrutura de feed com duas abas e criar grupos com cargos | Para Você/Conexão, FAB de publicar, posts citados, respostas encadeadas e grupos com convites/cargos |
+| Feed e Grupos | Concluída (1.0.14) | Copiar a estrutura de feed com duas abas e criar grupos com cargos | Para Você/Conexão, FAB de publicar, posts citados, respostas encadeadas e grupos com convites/cargos |
+| Canal de feedback | Concluída (1.0.15) | Ouvir os testadores e transformar relatos em melhoria | Bugs e sugestões no app, print opcional, protocolo, triagem admin, exportação e agentes de análise |
 | Estudos fase 2 | Planejada | Aprofundar o valor de estudo | Q&A, grupos, materiais salvos, avaliações e status de aprovação |
 | Vida no campus | Planejada | Ir além da comunidade | Eventos, serviços, avisos, professores/servidores e alumni |
 | Contínuo — confiança | Contínuo | Segurança e transparência | Status de denúncias, privacidade, bloqueios, preferências e moderação |
@@ -135,6 +136,51 @@ Também:
 
 Teste real de push já validado pelas duas contas. Os itens finais de encerramento são as revisões de acessibilidade, estados vazios e atualização da central ao voltar do segundo plano.
 
+## 1.0.15 — Canal de feedback
+
+Objetivo: ouvir os testadores e transformar relatos em correções e melhorias,
+sem abrir mão das regras de segurança.
+
+### App
+
+- Entrada em **Ajuda** e **Ajustes**.
+- Formulário de bug com título, descrição, passos, esperado, acontecido e
+  aparelho/sistema.
+- Print opcional (JPEG comprimido, até 5 MB).
+- Formulário de sugestão com problema, proposta e impacto.
+- Protocolo visível (`BUG-000123` / `SUG-000045`).
+- “Meus envios” com o status de cada item.
+
+### Backend
+
+- Tabelas `bug_reports` e `suggestions`.
+- RLS: usuário só vê o próprio feedback; status e exclusão só admin.
+- Campos do sistema e protocolo definidos no servidor.
+- Limite de 20 envios por dia por tipo.
+- Bucket privado `feedback-media` (dono/admin, tipo e tamanho limitados).
+- RPC `export_feedback`, restrita a admin e sem identidade do autor.
+- Exclusão de conta apaga feedbacks e prints.
+
+### Admin
+
+- Tela `/admin/feedback` com abas, filtros, detalhe, print e mudança de status.
+
+### Operação
+
+- `automation/export-feedback.ps1` gera `feedback/Bugs.md` e
+  `feedback/Sugestoes.md` (e prints com `-IncludeScreenshots`).
+- Três agentes: triagem de bugs, revisão de sugestões e implementação com
+  aprovação humana.
+
+### Critérios de aceite
+
+- Usuário envia bug/sugestão e recebe protocolo.
+- Nenhum usuário lê, edita ou apaga feedback de outro.
+- Admin triagem e muda status.
+- Exportação funciona e não expõe o autor.
+- `flutter analyze` limpo e testes de integração passando.
+- Build 1.0.15+19 distribuída no App Distribution.
+
 ## Matriz de testes
 
 | Cenário | Resultado esperado |
@@ -171,8 +217,8 @@ Teste real de push já validado pelas duas contas. Os itens finais de encerramen
 
 ## Não objetivos da 1.0.13
 
-- Q&A e grupos de estudo (1.0.14).
-- Eventos e serviços do campus (1.0.15).
+- Q&A e grupos de estudo (fase 2 de estudos).
+- Eventos e serviços do campus (1.0.16).
 - Play Store e cobrança.
 - Central de notificações com conteúdo de mensagem.
 - Notificações por email.

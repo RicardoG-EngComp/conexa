@@ -56,6 +56,16 @@ class HelpScreen extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/profile-checklist'),
           ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.feedback_outlined),
+            title: const Text('Feedback e sugestões'),
+            subtitle: const Text(
+              'Relate um problema ou sugira uma melhoria no aplicativo.',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/feedback'),
+          ),
           const Divider(height: AppSpacing.xl),
           Text('Duvidas frequentes', style: theme.textTheme.titleSmall),
           const SizedBox(height: AppSpacing.sm),
