@@ -54,6 +54,11 @@ npx -y firebase-tools appdistribution:distribute "app/build/app/outputs/flutter-
   --release-notes "Midia mais rapida e leve: fotos em WebP, miniaturas e cache. Fotos e materiais novos usam armazenamento R2 privado. Fotos e PDFs antigos continuam funcionando."
 ```
 
+### Links úteis
+
+- Console: https://console.firebase.google.com/project/conexa-20a9b/appdistribution/app/android:com.ricardogengcomp.conexa/releases/5u3nntg0nt900
+- Testadores: https://appdistribution.firebase.google.com/testerapps/1:4747139353:android:fdd0d000d5a7803aafcd88/releases/5u3nntg0nt900
+
 ### Rollback
 
 Reenvie o APK `1.0.15+19` ao mesmo grupo. O backend mantém fallback para
