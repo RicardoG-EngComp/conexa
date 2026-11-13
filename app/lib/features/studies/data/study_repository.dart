@@ -2,12 +2,16 @@ import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/media/image_processor.dart';
+import '../../../core/media/media_service.dart';
+import '../../../core/utils/uuid.dart';
 import 'study_models.dart';
 
 class StudyRepository {
-  StudyRepository(this._client);
+  StudyRepository(this._client, this._media);
 
   final SupabaseClient _client;
+  final MediaService _media;
 
   static const String uploadConsentVersion = '2026-11-upload';
 
@@ -66,9 +70,7 @@ class StudyRepository {
     return enriched.isEmpty ? null : enriched.first;
   }
 
-  Future<List<StudyMaterial>> _attachMeta(
-    List<StudyMaterial> materials,
-  ) async {
+  Future<List<StudyMaterial>> _attachMeta(List<StudyMaterial> materials) async {
     if (materials.isEmpty) return materials;
 
     final ids = materials.map((m) => m.id).toList();
@@ -123,19 +125,50 @@ class StudyRepository {
 
   Future<String> uploadFile({
     required Uint8List bytes,
-    required String extension,
     required String contentType,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('sem sessao');
-    final name = '${DateTime.now().microsecondsSinceEpoch}.$extension';
-    final path = '${user.id}/$name';
-    await _client.storage.from('study-media').uploadBinary(
-      path,
-      bytes,
-      fileOptions: FileOptions(contentType: contentType, upsert: false),
+
+    final assetId = uuidV4();
+
+    if (contentType == 'application/pdf') {
+      final full = await _media.uploadImage(
+        bytes: bytes,
+        kind: 'study_pdf',
+        variant: 'full',
+        contentType: 'application/pdf',
+        assetId: assetId,
+      );
+      return full.key;
+    }
+
+    final processed = await ImageProcessor.studyImage(bytes);
+    final full = await _media.uploadImage(
+      bytes: processed.full,
+      kind: 'study_image',
+      variant: 'full',
+      contentType: 'image/webp',
+      assetId: assetId,
+      width: processed.width,
+      height: processed.height,
     );
-    return path;
+
+    try {
+      await _media.uploadImage(
+        bytes: processed.thumb,
+        kind: 'study_image',
+        variant: 'thumb',
+        contentType: 'image/webp',
+        assetId: assetId,
+        width: processed.thumbWidth,
+        height: processed.thumbHeight,
+      );
+    } catch (_) {
+      // A imagem cheia continua utilizavel.
+    }
+
+    return full.key;
   }
 
   Future<void> createLinkMaterial({

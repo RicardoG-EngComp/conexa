@@ -1,5 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+import { getR2Config, presignGet } from "../_shared/r2.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -62,6 +64,28 @@ Deno.serve(async (req) => {
       return json({ error: "file missing" }, 404);
     }
 
+    const { data: mediaRow, error: mediaError } = await admin
+      .from("media_objects")
+      .select("id")
+      .eq("scope", "study")
+      .eq("object_key", material.storage_path)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (mediaError) return json({ error: mediaError.message }, 500);
+
+    if (mediaRow) {
+      const config = getR2Config();
+      const url = await presignGet(
+        config,
+        config.buckets.study,
+        material.storage_path,
+        3600,
+      );
+      return json({ url, backend: "r2" });
+    }
+
+    // Compatibilidade com materiais antigos no bucket study-media.
     const { data: signed, error: signError } = await admin.storage
       .from("study-media")
       .createSignedUrl(material.storage_path, 3600);
@@ -70,7 +94,7 @@ Deno.serve(async (req) => {
       return json({ error: signError?.message ?? "sign failed" }, 500);
     }
 
-    return json({ url: signed.signedUrl });
+    return json({ url: signed.signedUrl, backend: "supabase" });
   } catch (error) {
     return json({ error: String(error) }, 500);
   }

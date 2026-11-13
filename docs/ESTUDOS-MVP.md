@@ -17,8 +17,8 @@ Direto; competir por contexto, confianca e comunidade.
 - Conteudo misto: professores/monitores + alunos, com curadoria.
 - Moderacao de texto e arquivos; denuncias; DMCA.
 - Upload restrito a convidados do piloto, com aprovacao previa.
-- Armazenamento: bucket privado `study-media` no Supabase no piloto; R2 quando
-  o bucket/token forem configurados.
+- Armazenamento: bucket privado `conexa-study` no R2, com URLs assinadas por
+  1h e limite de 10 MB por arquivo. `study-media` fica apenas como legado vazio.
 
 ## Fora do escopo (fase 1)
 

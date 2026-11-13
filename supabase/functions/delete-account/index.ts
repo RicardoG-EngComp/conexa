@@ -1,5 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+import { deleteObject, getR2Config, listPrefix } from "../_shared/r2.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -29,10 +31,33 @@ Deno.serve(async (req) => {
     if (userError || !userData.user) return json({ error: "invalid auth" }, 401);
 
     const userId = userData.user.id;
+    const r2 = getR2Config();
+    const prefix = `${userId}/`;
+
+    for (const bucket of [r2.buckets.profile, r2.buckets.study]) {
+      const keys = await listPrefix(r2, bucket, prefix);
+      for (let i = 0; i < keys.length; i += 20) {
+        const chunk = keys.slice(i, i + 20);
+        const results = await Promise.all(
+          chunk.map((key) => deleteObject(r2, bucket, key)),
+        );
+        const failed = results.find((result) => !result.ok);
+        if (failed) {
+          throw new Error(`R2 delete failed (${failed.status})`);
+        }
+      }
+    }
+
+    const { error: mediaError } = await admin
+      .from("media_objects")
+      .delete()
+      .eq("owner_id", userId);
+    if (mediaError) return json({ error: mediaError.message }, 500);
 
     for (
       const bucket of [
         "profile-media",
+        "study-media",
         "verification-docs",
         "feedback-media",
         "stickers",

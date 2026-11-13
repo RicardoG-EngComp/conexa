@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/config/legal_urls.dart';
 import '../../../core/errors/moderation_errors.dart';
 import '../../../core/errors/moderation_ui.dart';
+import '../../../core/media/media_models.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../application/study_providers.dart';
@@ -30,7 +31,6 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
   String? _disciplineId;
   Uint8List? _bytes;
   String? _fileName;
-  String? _extension;
   String? _contentType;
   int _size = 0;
   bool _rights = false;
@@ -55,9 +55,7 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
     final isPdf = _kind == 'pdf';
     final files = await FilePicker.pickFiles(
       type: FileType.custom,
-      allowedExtensions: isPdf
-          ? ['pdf']
-          : ['jpg', 'jpeg', 'png', 'webp'],
+      allowedExtensions: isPdf ? ['pdf'] : ['jpg', 'jpeg', 'png', 'webp'],
     );
     if (files.isEmpty) return;
     final file = files.first;
@@ -68,8 +66,8 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
       setState(() => _error = 'Não foi possível ler o arquivo.');
       return;
     }
-    if (bytes.length > 20 * 1024 * 1024) {
-      setState(() => _error = 'O arquivo deve ter no máximo 20 MB.');
+    if (bytes.length > 10 * 1024 * 1024) {
+      setState(() => _error = 'O arquivo deve ter no máximo 10 MB.');
       return;
     }
     final ext = (file.extension ?? '').toLowerCase();
@@ -82,7 +80,6 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
     setState(() {
       _bytes = bytes;
       _fileName = file.name;
-      _extension = ext;
       _contentType = contentType;
       _size = bytes.length;
       _error = null;
@@ -102,7 +99,8 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
     }
     if (!_rights) {
       setState(
-        () => _error = 'Você precisa declarar que tem direitos sobre o material.',
+        () =>
+            _error = 'Você precisa declarar que tem direitos sobre o material.',
       );
       return;
     }
@@ -136,7 +134,6 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
       } else {
         final path = await repo.uploadFile(
           bytes: _bytes!,
-          extension: _extension!,
           contentType: _contentType!,
         );
         await repo.createFileMaterial(
@@ -153,9 +150,15 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Enviado para aprovação. Você verá quando for aprovado.'),
+          content: Text(
+            'Enviado para aprovação. Você verá quando for aprovado.',
+          ),
         ),
       );
+    } on MediaException catch (error) {
+      if (mounted) {
+        setState(() => _error = _mediaError(error.code));
+      }
     } catch (error) {
       if (mounted) {
         if (needsGuidelinesAcceptance(error)) {
@@ -172,6 +175,18 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  String _mediaError(String code) {
+    return switch (code) {
+      'quota_estudo_arquivos' => 'Limite de 20 arquivos por mês atingido.',
+      'quota_estudo_bytes' => 'Limite de 200 MB por mês atingido.',
+      'arquivo_muito_grande' => 'O arquivo deve ter no máximo 10 MB.',
+      'conteudo_nao_confere_com_tipo' => 'O formato do arquivo é inválido.',
+      'nao_uploader' => 'Sua conta não pode enviar materiais.',
+      'conta_inativa' => 'Sua conta não está ativa.',
+      _ => 'Não foi possível enviar o material.',
+    };
   }
 
   Future<void> _openCopyright() async {
@@ -205,8 +220,7 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
                 ),
               )
             : disciplinesAsync.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (_, _) =>
                     const Center(child: Text('Erro ao carregar disciplinas.')),
                 data: (disciplines) {

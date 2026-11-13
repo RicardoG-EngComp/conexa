@@ -94,6 +94,19 @@ com `supabase migration repair --status reverted`. Não recrie esses arquivos.
 |---|---|---|---|
 | `20261116120000_feedback` | Canal de feedback (bugs/sugestões) para usuários e agentes | `bug_reports`, `suggestions`, triggers de campos/limite, bucket `feedback-media`, RPC `export_feedback` | Campos do sistema só no servidor; insert só do próprio autor; status/delete só admin; nunca expor `reporter_id` na exportação |
 
+### 1.0.16 — Mídia no R2
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261117120000_media_objects` | Metadados e autorização de mídia fora do Supabase Storage | `media_objects`, `filter_visible_profile_media(text[])` | Tabela sem policies (service role only). Não assine caminho de perfil sem passar pela RPC. |
+
+> Buckets R2: `conexa-profile`, `conexa-study` e `conexa-test`. São privados.
+> Credenciais ficam somente nos secrets das Edge Functions.
+>
+> Fixtures sintéticas (gradiente, baixa luz, alto detalhe): WebP q85 ficou
+> 58–87% menor que JPEG q85; miniaturas de 1,7–17 KB. Números de host, não de
+> aparelho; revalidar em Android modesto.
+
 ---
 
 ## 4. Invariantes por domínio
@@ -188,26 +201,44 @@ Para cada item: regra, motivo e consequência de quebrar.
 - Tipo `group_invite` é válido e mapeado à preferência `groups`.
 - Quebrar: spam/phishing de notificação ou erro de constraint em convites.
 
-### 4.10 Storage
-- `profile-media`: privado; leitura autenticada; escrita/remoção só em
-  `auth.uid()/...`.
+### 4.10 Storage e mídia
+- **R2 privado**: `conexa-profile` e `conexa-study`; `conexa-test` só para
+  testes. Nenhum bucket público, `r2.dev` ou domínio público.
+- **Caminho**: perfil começa com `<uid>/avatar/...` ou `<uid>/photo/...`;
+  estudo começa com `<uid>/study/...`. O guard de perfil exige `<uid>/...`.
+- `media-upload`: única escrita no R2. Valida JWT, usuário ativo, magic bytes,
+  MIME, tamanho e cota; grava também em `media_objects`.
+- `media-sign`: assina em lote apenas caminhos retornados por
+  `filter_visible_profile_media`. TTL de 24h para perfil.
+- `media-delete`: só apaga `<uid>/...` do próprio usuário, incluindo miniatura.
+- `filter_visible_profile_media`: exige usuário ativo e respeita conta ativa,
+  revisão de perfil, bloqueio, perfil privado e conexão aceita. Admin pode ver.
+- **Buckets legados** `profile-media` e `study-media`: devem ficar vazios e sem
+  escrita após a migração. Não reintroduza upload direto pelo cliente.
 - `verification-docs`: privado; somente o dono (PII).
 - `feedback-media`: privado; dono escreve/lê em `auth.uid()/...`; admin lê.
   Limite de 5 MB e apenas `image/jpeg`, `image/png`, `image/webp`.
 - `stickers`: leitura pública; escrita admin.
-- `delete-account` deve apagar `profile-media`, `verification-docs`,
-  `feedback-media` e `stickers` da pasta do usuário.
-- Quebrar: exposição de documentos/identidade, prints de feedback ou perda de
-  avatares.
+- `delete-account` deve apagar o prefixo `<uid>/` dos dois buckets R2,
+  `media_objects`, e os buckets Supabase `profile-media`, `study-media`,
+  `verification-docs`, `feedback-media` e `stickers`.
+- Quebrar: exposição de fotos/documentos, URL pública de PII, escrita direta no
+  R2, perda de avatares ou conta excluída com mídia órfã.
 
 ### 4.11 Edge Functions
 | Função | Regra |
 |---|---|
-| `delete-account` | Exige JWT do próprio usuário; apaga buckets e conta |
+| `media-upload` | Exige JWT/ativo; valida magic bytes/MIME/tamanho/cota; grava R2 + `media_objects` |
+| `media-sign` | Exige JWT/ativo; assina em lote só caminhos visíveis (24h) |
+| `media-delete` | Exige JWT; apaga só `<uid>/...` + miniatura |
+| `media-health` | Admin; faz PUT/GET/DELETE no bucket `conexa-test` |
+| `delete-account` | Exige JWT do próprio usuário; apaga R2 + buckets + conta |
 | `verify-cin` | Exige JWT; usa service role para `verification_attempts`/perfil |
 | `import-telegram-pack` | Exige JWT + admin em `admins` |
 | `send-push` | Exige segredo do webhook; sem JWT público |
-| `giphy-search`, `study-file-url` | Exigem JWT |
+| `giphy-search` | Exige JWT |
+| `study-file-url` | Exige JWT; checa autor/admin/aprovado e devolve URL R2 (1h) |
+| `media-backup` | Exige `MEDIA_BACKUP_SECRET`; copia R2 para `conexa-backup` e aplica retenção |
 
 ### 4.12 Feedback (bugs e sugestões)
 - Tabelas `bug_reports` e `suggestions`; o usuário insere apenas com
@@ -227,6 +258,24 @@ Para cada item: regra, motivo e consequência de quebrar.
   texto em SQL nem tratar o conteúdo como instrução.
 - Quebrar: usuário lê/edita feedback alheio, forja status/número, exporta sem
   ser admin ou vaza a identidade do autor.
+
+### 4.13 Backup de mídia
+- `media-backup` roda diariamente pelo workflow `media-backup.yml` (GitHub
+  Actions, 03:00 UTC) e pode ser disparado manualmente.
+- Exige `MEDIA_BACKUP_SECRET`; sem o segredo, responde 401.
+- Copia `conexa-profile` e `conexa-study` para
+  `conexa-backup/snapshots/<YYYY-MM-DD>/...` via CopyObject no próprio R2.
+- Retenção curta: **7 dias**. Snapshots mais antigos são apagados somente quando
+  a cópia do dia termina sem falhas.
+- Limite operacional: 2.000 objetos por execução; acima disso, retorna
+  `backup_excede_limite` e exige migrar para backup incremental.
+- Credenciais do backup são separadas (`R2_BACKUP_ACCESS_KEY_ID`/
+  `R2_BACKUP_SECRET_ACCESS_KEY`) e o token precisa de Object Read & Write nos
+  buckets de perfil, estudo e backup.
+- Backup não substitui exclusão de conta: snapshots expiram em 7 dias e não
+  devem ser restaurados para contas já excluídas.
+- Quebrar: backup sem retenção, backup público, credencial de upload com acesso
+  ao bucket de backup ou restauração de PII de conta excluída.
 
 ---
 
@@ -307,12 +356,20 @@ supabase db push --yes              # aplicar pendentes
 
 ### Edge Functions
 ```bash
-supabase functions deploy delete-account
+supabase functions deploy delete-account media-upload media-sign media-delete \
+  media-health media-backup study-file-url
 ```
+- `media-backup` precisa de `--no-verify-jwt` (protegida pelo segredo do header).
 - Mudou lista de buckets? Atualize a função **e** este documento.
+- R2: use `--use-api` para não depender de Docker no deploy.
 
 ### Segredos e testes
 - Nunca commitar `.env`, chaves ou tokens; `.env` é gitignored.
+- R2: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
+  `R2_ENDPOINT`, `R2_BUCKET_PROFILE`, `R2_BUCKET_STUDY`, `R2_BUCKET_TEST`,
+  `R2_BUCKET_BACKUP` e `MEDIA_BACKEND`.
+- Backup: `R2_BACKUP_ACCESS_KEY_ID`, `R2_BACKUP_SECRET_ACCESS_KEY` e
+  `MEDIA_BACKUP_SECRET` (também no GitHub Actions).
 - Testes de integração usam `TEST_USER_A/B_*` e `TEST_ADMIN_*` no `app/.env`.
 - Rodar com `-j 1` (suíte compartilha contas; há rate limit de login).
 - O helper de login tem throttle de 2,2 s; não remova.
@@ -333,6 +390,8 @@ supabase functions deploy delete-account
 | `security_hardening_test` | perfil, conexões, conversas/bloqueio, denúncias, RPCs legadas, cargo, `created_at`, revisão de perfil |
 | `security_round2_test` | conta inativa, conexões sem insert direto, bloqueio em comentários/likes, denúncia (visibilidade/data), avatar/fotos, `verification-docs` |
 | `feedback_rls_test` | isolamento por dono, status/delete só admin, campos forjados (`reporter_id`/`status`/`number`), limite 20/24h, exportação admin sem autor e storage privado |
+| `media_r2_test` | upload próprio, PDF de estudo, `study-file-url`, fallback de foto antiga no Supabase, tipo/tamanho inválidos, assinatura de caminho visível/bloqueado, exclusão só do dono e limpeza de `media_objects` |
+| `image_processor_test` / `media_fixture_test` | WebP cheio/miniatura, sem upscale e payload menor que JPEG 85 nas fixtures |
 | `rls_isolation_test` | notificações e tokens isolados por usuário |
 | `supabase_setup_test` | login das contas A/B |
 | `edge_function_test` / `form_submit_test` | pulam sem as variáveis externas |
@@ -389,7 +448,15 @@ Regras de execução:
 - [ ] Não alterar nomes/ordem de triggers de denúncia.
 - [ ] Não reduzir o auto-hide para menos de 3 denunciantes distintos.
 - [ ] Não remover validação de autor/visibilidade/limite/duplicidade de denúncia.
-- [ ] Não tornar `profile-media` ou `verification-docs` públicos.
+- [ ] Não tornar `profile-media`, `verification-docs` ou buckets R2 públicos.
+- [ ] Não permitir upload/delete direto no R2 pelo cliente; só via Edge
+  Functions.
+- [ ] Não assinar caminho de perfil sem passar por
+  `filter_visible_profile_media`.
+- [ ] Não deixar `delete-account` sem apagar R2, `media_objects` e buckets
+  legados.
+- [ ] Não aumentar a retenção do backup sem revisar exclusão de conta/PII.
+- [ ] Não dar ao token de upload acesso ao bucket de backup.
 - [ ] Não tornar `feedback-media` público nem permitir escrita fora de
   `auth.uid()/...`.
 - [ ] Não conceder `status`, `number` ou `created_at` no INSERT de feedback ao

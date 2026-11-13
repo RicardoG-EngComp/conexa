@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/media/media_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
-import '../../profile/application/profile_providers.dart';
 import '../data/feed_models.dart';
 
 class FeedPostCard extends StatelessWidget {
@@ -52,7 +52,10 @@ class FeedPostCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Tópicos da publicação', style: theme.textTheme.titleLarge),
+                Text(
+                  'Tópicos da publicação',
+                  style: theme.textTheme.titleLarge,
+                ),
                 const SizedBox(height: AppSpacing.md),
                 Wrap(
                   spacing: AppSpacing.xs,
@@ -73,8 +76,9 @@ class FeedPostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final displayName =
-        post.postedAsGroup ? (post.groupName ?? post.authorName) : post.authorName;
+    final displayName = post.postedAsGroup
+        ? (post.groupName ?? post.authorName)
+        : post.authorName;
     final subtitle = post.postedAsGroup
         ? 'Em nome do grupo · por ${post.authorName}'
         : post.authorName;
@@ -203,10 +207,7 @@ class FeedPostCard extends StatelessWidget {
           ],
           if (post.roleNameSnapshot != null) ...[
             const SizedBox(height: AppSpacing.sm),
-            _RoleChip(
-              name: post.roleNameSnapshot!,
-              current: post.roleCurrent,
-            ),
+            _RoleChip(name: post.roleNameSnapshot!, current: post.roleCurrent),
           ],
           const SizedBox(height: AppSpacing.sm),
           Text(
@@ -269,7 +270,8 @@ class FeedPostCard extends StatelessWidget {
               children: [
                 if (post.courseMatch) const _RelevanceChip(label: 'Seu curso'),
                 if (post.campusMatch) const _RelevanceChip(label: 'Seu campus'),
-                if (post.interestMatch) const _RelevanceChip(label: 'Seu interesse'),
+                if (post.interestMatch)
+                  const _RelevanceChip(label: 'Seu interesse'),
               ],
             ),
           ],
@@ -305,7 +307,11 @@ class FeedPostCard extends StatelessWidget {
               ),
               TextButton.icon(
                 onPressed: onRepost,
-                icon: const Icon(Icons.repeat, size: 18, color: AppColors.muted),
+                icon: const Icon(
+                  Icons.repeat,
+                  size: 18,
+                  color: AppColors.muted,
+                ),
                 label: const Text('Republicar'),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.muted,
@@ -343,11 +349,6 @@ class _AuthorAvatar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const fallback = CircleAvatar(
-      radius: 19,
-      backgroundColor: AppColors.teal,
-      child: Icon(Icons.person, size: 20, color: Colors.white),
-    );
     if (path == null || path!.isEmpty) {
       return CircleAvatar(
         radius: 19,
@@ -358,10 +359,13 @@ class _AuthorAvatar extends ConsumerWidget {
         ),
       );
     }
-    final url = ref.watch(signedUrlProvider(path!));
-    final value = url.asData?.value;
-    if (value == null) return fallback;
-    return CircleAvatar(radius: 19, backgroundImage: NetworkImage(value));
+    return ClipOval(
+      child: SizedBox(
+        width: 38,
+        height: 38,
+        child: MediaImage(path: path!, width: 38, height: 38),
+      ),
+    );
   }
 }
 
@@ -459,7 +463,11 @@ class _QuotedCard extends StatelessWidget {
           : Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.lock_outline, size: 18, color: AppColors.muted),
+                const Icon(
+                  Icons.lock_outline,
+                  size: 18,
+                  color: AppColors.muted,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -520,7 +528,10 @@ class _TopicChip extends StatelessWidget {
         children: [
           Icon(_icon, size: 12, color: color),
           const SizedBox(width: 4),
-          Text(topic.label, style: theme.textTheme.labelSmall?.copyWith(color: color)),
+          Text(
+            topic.label,
+            style: theme.textTheme.labelSmall?.copyWith(color: color),
+          ),
         ],
       ),
     );

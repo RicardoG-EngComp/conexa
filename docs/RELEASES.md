@@ -4,6 +4,63 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
+## 1.0.16+20 — Mídia rápida no R2
+
+- **Data:** 13 de novembro de 2026.
+- **Versão:** `1.0.16` (versionCode `20`).
+- **Pacote:** `com.ricardogengcomp.conexa`.
+- **APK:** universal, 65,4 MB.
+- **SHA-256:** `5A86482AB53E2C4F20DD008925BAF0C7392AEF27D191A51998539A56C58789BF`.
+- **Grupo:** `ufv-beta` — UFV Beta (3 testadores).
+- **Banco:** migration `20261117120000_media_objects` aplicada no Supabase.
+- **Distribuição:** Firebase App Distribution.
+
+### O que entrou
+
+- Fotos de perfil e materiais de estudo agora usam Cloudflare R2 privado.
+- Upload em WebP: foto cheia 1280px e miniatura 480px; avatar 512px e 160px.
+- Compressão no aparelho em isolate, com orientação corrigida e EXIF removido.
+- Cache em disco de 500 objetos/30 dias, limpo no logout.
+- Feed com lista preguiçosa e imagens decodificadas no tamanho exibido.
+- Fotos antigas do Supabase continuam funcionando via fallback.
+- Estudos antigos e novos continuam abrindo via `study-file-url` com fallback.
+- Estrutura de backup diário do R2 com retenção de 7 dias.
+  - Requer o bucket `conexa-backup` e o token de backup configurados.
+
+### Notas usadas no App Distribution
+
+```text
+Midia mais rapida e leve: fotos em WebP, miniaturas e cache.
+Fotos e materiais novos usam armazenamento R2 privado.
+Fotos e PDFs antigos continuam funcionando.
+```
+
+### Como reproduzir o build
+
+```powershell
+cd app
+flutter build apk --release --build-name=1.0.16 --build-number=20
+```
+
+### Como distribuir (manual)
+
+Com o Firebase CLI autenticado na conta do projeto:
+
+```powershell
+npx -y firebase-tools appdistribution:distribute "app/build/app/outputs/flutter-apk/app-release.apk" `
+  --app "1:4747139353:android:fdd0d000d5a7803aafcd88" `
+  --project conexa-20a9b `
+  --groups ufv-beta `
+  --release-notes "Midia mais rapida e leve: fotos em WebP, miniaturas e cache. Fotos e materiais novos usam armazenamento R2 privado. Fotos e PDFs antigos continuam funcionando."
+```
+
+### Rollback
+
+Reenvie o APK `1.0.15+19` ao mesmo grupo. O backend mantém fallback para
+fotos e PDFs antigos no Supabase Storage.
+
+---
+
 ## 1.0.15+19 — Canal de feedback
 
 - **Data:** 13 de novembro de 2026.

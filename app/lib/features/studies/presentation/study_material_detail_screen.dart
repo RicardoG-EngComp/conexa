@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -47,9 +48,8 @@ class _MaterialContent extends ConsumerWidget {
 
   Future<void> _openUrl(BuildContext context, String? url) async {
     if (url == null || url.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Arquivo indisponível.')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Arquivo indisponível.')));
       return;
     }
     final opened = await launchUrl(
@@ -85,8 +85,8 @@ class _MaterialContent extends ConsumerWidget {
               material.status == 'pending'
                   ? 'Aguardando aprovação'
                   : material.status == 'rejected'
-                      ? 'Rejeitado'
-                      : 'Oculto',
+                  ? 'Rejeitado'
+                  : 'Oculto',
             ),
           ),
         ],
@@ -104,10 +104,19 @@ class _MaterialContent extends ConsumerWidget {
                 ? const Text('Imagem indisponível.')
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(AppRadius.md),
-                    child: Image.network(
-                      url,
+                    child: CachedNetworkImage(
+                      imageUrl: url,
+                      cacheKey: material.storagePath ?? url,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) =>
+                      memCacheWidth:
+                          (MediaQuery.sizeOf(context).width *
+                                  MediaQuery.devicePixelRatioOf(context))
+                              .round(),
+                      placeholder: (_, _) => const SizedBox(
+                        height: 180,
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                      errorWidget: (_, _, _) =>
                           const Text('Não foi possível carregar a imagem.'),
                     ),
                   ),
@@ -123,9 +132,7 @@ class _MaterialContent extends ConsumerWidget {
                     ? Icons.picture_as_pdf_outlined
                     : Icons.open_in_new,
               ),
-              label: Text(
-                material.kind == 'pdf' ? 'Abrir PDF' : 'Abrir link',
-              ),
+              label: Text(material.kind == 'pdf' ? 'Abrir PDF' : 'Abrir link'),
             ),
           ),
         const SizedBox(height: AppSpacing.xl),
@@ -134,7 +141,9 @@ class _MaterialContent extends ConsumerWidget {
             OutlinedButton.icon(
               onPressed: () async {
                 try {
-                  await ref.read(studyRepositoryProvider).toggleVote(
+                  await ref
+                      .read(studyRepositoryProvider)
+                      .toggleVote(
                         materialId: material.id,
                         voted: material.votedByMe,
                       );

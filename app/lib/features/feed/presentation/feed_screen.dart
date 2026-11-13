@@ -23,7 +23,9 @@ class FeedScreen extends ConsumerStatefulWidget {
 class _FeedScreenState extends ConsumerState<FeedScreen> {
   Future<void> _toggleLike(bool forYou, FeedPost post) async {
     try {
-      await ref.read(feedRepositoryProvider).toggleLike(post.id, post.likedByMe);
+      await ref
+          .read(feedRepositoryProvider)
+          .toggleLike(post.id, post.likedByMe);
       ref.invalidate(forYou ? feedForYouProvider : feedConnectionsProvider);
     } catch (_) {
       // silencioso no MVP
@@ -152,7 +154,8 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     final theme = Theme.of(context);
     final forYou = ref.watch(feedForYouProvider);
     final connections = ref.watch(feedConnectionsProvider);
-    final groups = ref.watch(myGroupsProvider).asData?.value ?? const <UserGroup>[];
+    final groups =
+        ref.watch(myGroupsProvider).asData?.value ?? const <UserGroup>[];
 
     return DefaultTabController(
       length: 2,
@@ -233,7 +236,10 @@ class _FeedTab extends ConsumerWidget {
       },
       child: feed.when(
         data: (posts) {
-          return ListView(
+          final headerCount = forYou ? 1 : 0;
+          final emptyCount = posts.isEmpty ? 1 : 0;
+
+          return ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.lg,
@@ -241,20 +247,28 @@ class _FeedTab extends ConsumerWidget {
               AppSpacing.lg,
               100,
             ),
-            children: [
-              if (forYou) ...[
-                const IncompleteProfileBanner(),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  'Ordenado pelo seu curso, campus, interesses e recência.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.muted,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-              ],
-              if (posts.isEmpty)
-                Padding(
+            itemCount: headerCount + emptyCount + posts.length,
+            itemBuilder: (context, index) {
+              if (forYou && index == 0) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const IncompleteProfileBanner(),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      'Ordenado pelo seu curso, campus, interesses e recência.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppColors.muted,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                );
+              }
+
+              final cursor = index - headerCount;
+              if (posts.isEmpty) {
+                return Padding(
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
                   child: Text(
                     forYou
@@ -264,9 +278,13 @@ class _FeedTab extends ConsumerWidget {
                       color: AppColors.muted,
                     ),
                   ),
-                ),
-              for (final post in posts) ...[
-                FeedPostCard(
+                );
+              }
+
+              final post = posts[cursor];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: FeedPostCard(
                   post: post,
                   showSource: !forYou,
                   showRelevance: forYou,
@@ -275,9 +293,8 @@ class _FeedTab extends ConsumerWidget {
                   onRepost: () => onRepost(post),
                   onReport: () => onReport(post),
                 ),
-                const SizedBox(height: AppSpacing.md),
-              ],
-            ],
+              );
+            },
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

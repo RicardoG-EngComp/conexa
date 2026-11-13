@@ -81,6 +81,24 @@ flutter run -d android
 
 > `.env` nunca vai para o Git. A `service_role` nunca vai no app.
 
+## Mídia (Cloudflare R2)
+
+- Buckets privados: `conexa-profile`, `conexa-study` e `conexa-test`.
+- Credenciais ficam somente nos secrets das Edge Functions; nunca no app.
+- Configure/rotacione com:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-r2.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-media-backup.ps1
+```
+
+- Backup diário em `conexa-backup`, retenção de 7 dias, disparado pelo workflow
+  `media-backup.yml`.
+
+- Uploads passam por `media-upload`; leitura de perfil por `media-sign`; estudos
+  por `study-file-url`. Detalhes em
+  [docs/BACKEND-INVARIANTES.md](docs/BACKEND-INVARIANTES.md).
+
 ## Feedback
 
 Bugs e sugestões ficam no Supabase e podem ser exportados para `feedback/` com

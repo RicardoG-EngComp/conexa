@@ -1,0 +1,31 @@
+name: Media Backup
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Call media-backup
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          MEDIA_BACKUP_SECRET: ${{ secrets.MEDIA_BACKUP_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${MEDIA_BACKUP_SECRET:-}" ]; then
+            echo "Missing SUPABASE_URL or MEDIA_BACKUP_SECRET"
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error \
+            --retry 3 --retry-delay 10 \
+            -X POST "${SUPABASE_URL%/}/functions/v1/media-backup" \
+            -H "x-backup-secret: ${MEDIA_BACKUP_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{}'

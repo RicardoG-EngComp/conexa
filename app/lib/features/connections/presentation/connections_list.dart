@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/media/media_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../chat/application/chat_providers.dart';
-import '../../profile/application/profile_providers.dart';
 import '../application/connection_providers.dart';
 import '../data/connection_models.dart';
 
@@ -204,9 +204,12 @@ class _ConnectionAvatar extends ConsumerWidget {
       child: Icon(Icons.person, color: Colors.white),
     );
     if (path == null || path!.isEmpty) return fallback;
-    final url = ref.watch(signedUrlProvider(path!));
-    final value = url.asData?.value;
-    if (value == null) return fallback;
-    return CircleAvatar(backgroundImage: NetworkImage(value));
+    return ClipOval(
+      child: SizedBox(
+        width: 40,
+        height: 40,
+        child: MediaImage(path: path!, width: 40, height: 40),
+      ),
+    );
   }
 }

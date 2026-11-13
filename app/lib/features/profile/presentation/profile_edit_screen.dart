@@ -1,14 +1,16 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/media/image_processor.dart';
+import '../../../core/media/media_image.dart';
+import '../../../core/media/media_models.dart';
+import '../../../core/media/media_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/uuid.dart';
 import '../../verification/application/verification_providers.dart';
 import '../application/profile_providers.dart';
 import '../data/ufv_courses.dart';
@@ -113,47 +115,54 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     }
   }
 
-  Future<Uint8List?> _compress(XFile file, {required int maxSize}) async {
-    final bytes = await file.readAsBytes();
-    final decoded = img.decodeImage(bytes);
-    if (decoded == null) return null;
-    final maxDim = decoded.width > decoded.height
-        ? decoded.width
-        : decoded.height;
-    final target = maxDim > maxSize ? maxSize : maxDim;
-    final resized = img.copyResize(
-      decoded,
-      width: decoded.width >= decoded.height ? target : null,
-      height: decoded.height > decoded.width ? target : null,
-    );
-    return Uint8List.fromList(img.encodeJpg(resized, quality: 85));
-  }
-
   Future<void> _pickAndUpload({required bool avatar}) async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
     final file = await _picker.pickImage(
       source: ImageSource.gallery,
-      maxWidth: 4000,
-      maxHeight: 4000,
-      imageQuality: 95,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      imageQuality: 90,
     );
     if (file == null) return;
 
     setState(() => _saving = true);
     try {
-      final bytes = await _compress(file, maxSize: avatar ? 512 : 2048);
-      if (bytes == null) throw Exception('imagem invalida');
+      final processed = await ImageProcessor.profileImage(
+        await file.readAsBytes(),
+        avatar: avatar,
+      );
+      final assetId = uuidV4();
+      final kind = avatar ? 'avatar' : 'photo';
+      final media = ref.read(mediaServiceProvider);
 
-      final name =
-          '${avatar ? 'avatar' : 'photo'}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final path = '${user.id}/$name';
-      await ref
-          .read(profileRepositoryProvider)
-          .uploadImage(path: path, bytes: bytes);
+      final full = await media.uploadImage(
+        bytes: processed.full,
+        kind: kind,
+        variant: 'full',
+        contentType: 'image/webp',
+        assetId: assetId,
+        width: processed.width,
+        height: processed.height,
+      );
+
+      try {
+        await media.uploadImage(
+          bytes: processed.thumb,
+          kind: kind,
+          variant: 'thumb',
+          contentType: 'image/webp',
+          assetId: assetId,
+          width: processed.thumbWidth,
+          height: processed.thumbHeight,
+        );
+      } catch (_) {
+        // A foto cheia continua utilizavel; a lista cai no fallback.
+      }
 
       if (!mounted) return;
+      final path = full.key;
       if (avatar) {
         final old = _avatarPath;
         setState(() => _avatarPath = path);
@@ -162,12 +171,14 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         });
         ref.invalidate(profileProvider);
         if (old != null && old != path) {
-          await ref.read(profileRepositoryProvider).deleteImage(old);
+          await media.deletePaths(scope: 'profile', paths: [old]);
         }
       } else {
         setState(() => _photos.add(path));
       }
-      ref.invalidate(signedUrlProvider(path));
+      ref.invalidate(mediaVariantsProvider(path));
+    } on MediaException catch (error) {
+      if (mounted) setState(() => _error = _mediaError(error.code));
     } catch (_) {
       if (mounted) {
         setState(() => _error = 'Não foi possível enviar a foto.');
@@ -179,7 +190,27 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
   Future<void> _removePhoto(String path) async {
     setState(() => _photos.remove(path));
-    await ref.read(profileRepositoryProvider).deleteImage(path);
+    await ref.read(profileRepositoryProvider).updateProfile({
+      'photos': _photos,
+    });
+    ref.invalidate(profileProvider);
+    try {
+      await ref
+          .read(mediaServiceProvider)
+          .deletePaths(scope: 'profile', paths: [path]);
+    } on MediaException catch (error) {
+      if (mounted) setState(() => _error = _mediaError(error.code));
+    }
+  }
+
+  String _mediaError(String code) {
+    return switch (code) {
+      'quota_perfil' => 'Limite de fotos atingido.',
+      'arquivo_muito_grande' => 'A imagem ficou grande demais.',
+      'conteudo_nao_confere_com_tipo' => 'Formato de imagem inválido.',
+      'conta_inativa' => 'Sua conta não está ativa.',
+      _ => 'Não foi possível enviar a foto.',
+    };
   }
 
   Future<void> _openFavorites(String category) async {
@@ -357,10 +388,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                                     color: AppColors.border,
                                     child: const Icon(Icons.person, size: 48),
                                   )
-                                : _SignedImage(
+                                : MediaImage(
                                     path: _avatarPath!,
-                                    width: 96,
-                                    height: 96,
+                                    width: 112,
+                                    height: 112,
+                                    useThumb: false,
                                   ),
                           ),
                         ),
@@ -387,7 +419,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(AppRadius.sm),
-                              child: _SignedImage(
+                              child: MediaImage(
                                 path: path,
                                 width: 96,
                                 height: 96,
@@ -582,50 +614,4 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   final Map<String, String> _categoryByItemId = {};
-}
-
-class _SignedImage extends ConsumerWidget {
-  const _SignedImage({
-    required this.path,
-    required this.width,
-    required this.height,
-  });
-
-  final String path;
-  final double width;
-  final double height;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final url = ref.watch(signedUrlProvider(path));
-    return url.when(
-      data: (value) {
-        if (value == null) {
-          return Container(
-            width: width,
-            height: height,
-            color: AppColors.border,
-            child: const Icon(Icons.image_not_supported_outlined, size: 18),
-          );
-        }
-        return Image.network(
-          value,
-          width: width,
-          height: height,
-          fit: BoxFit.cover,
-        );
-      },
-      loading: () => SizedBox(
-        width: width,
-        height: height,
-        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-      ),
-      error: (_, _) => Container(
-        width: width,
-        height: height,
-        color: AppColors.border,
-        child: const Icon(Icons.image_not_supported_outlined, size: 18),
-      ),
-    );
-  }
 }

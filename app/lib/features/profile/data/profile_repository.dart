@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileRepository {
@@ -21,42 +19,6 @@ class ProfileRepository {
     final user = _client.auth.currentUser;
     if (user == null) return;
     await _client.from('profiles').update(data).eq('id', user.id);
-  }
-
-  Future<String> uploadImage({
-    required String path,
-    required Uint8List bytes,
-  }) async {
-    await _client.storage
-        .from('profile-media')
-        .uploadBinary(
-          path,
-          bytes,
-          fileOptions: const FileOptions(
-            contentType: 'image/jpeg',
-            upsert: true,
-          ),
-        );
-    return path;
-  }
-
-  Future<String?> signedUrl(String path) async {
-    if (path.isEmpty) return null;
-    try {
-      return await _client.storage
-          .from('profile-media')
-          .createSignedUrl(path, 3600);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<void> deleteImage(String path) async {
-    try {
-      await _client.storage.from('profile-media').remove([path]);
-    } catch (_) {
-      // ignora
-    }
   }
 
   Future<List<Map<String, dynamic>>> fetchCatalog() async {

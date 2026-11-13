@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -203,10 +204,11 @@ class _PackBrowserState extends ConsumerState<_PackBrowser> {
                         onTap: () => widget.onSticker(item),
                         child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Image.network(
-                            repo.publicUrl(item.imagePath),
+                          child: CachedNetworkImage(
+                            imageUrl: repo.publicUrl(item.imagePath),
+                            cacheKey: item.imagePath,
                             fit: BoxFit.contain,
-                            errorBuilder: (_, _, _) => const Icon(
+                            errorWidget: (_, _, _) => const Icon(
                               Icons.broken_image_outlined,
                               color: AppColors.muted,
                             ),

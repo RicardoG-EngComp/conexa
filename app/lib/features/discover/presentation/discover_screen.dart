@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/media/media_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../notifications/presentation/notification_bell.dart';
 import '../../groups/presentation/groups_directory.dart';
-import '../../profile/application/profile_providers.dart';
 import '../../profile/data/ufv_courses.dart';
 import '../../profile/presentation/incomplete_profile_banner.dart';
 import '../../studies/presentation/studies_home.dart';
@@ -314,9 +314,12 @@ class _DiscoverAvatar extends ConsumerWidget {
       child: Center(child: Icon(Icons.person, size: 48)),
     );
     if (path == null || path!.isEmpty) return fallback;
-    final url = ref.watch(signedUrlProvider(path!));
-    final value = url.asData?.value;
-    if (value == null) return fallback;
-    return Image.network(value, fit: BoxFit.cover, width: double.infinity);
+    return MediaImage(
+      path: path!,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      useThumb: false,
+      backgroundColor: AppColors.border,
+    );
   }
 }

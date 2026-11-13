@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/errors/moderation_errors.dart';
 import '../../../core/errors/moderation_ui.dart';
+import '../../../core/media/media_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../badges/application/badge_providers.dart';
@@ -108,7 +109,12 @@ class ProfileScreen extends ConsumerWidget {
                               color: AppColors.border,
                               child: const Icon(Icons.person, size: 56),
                             )
-                          : _SignedImage(path: avatar, width: 112, height: 112),
+                          : MediaImage(
+                              path: avatar,
+                              width: 112,
+                              height: 112,
+                              useThumb: false,
+                            ),
                     ),
                   ),
                 ),
@@ -251,7 +257,7 @@ class ProfileScreen extends ConsumerWidget {
                         .map(
                           (path) => ClipRRect(
                             borderRadius: BorderRadius.circular(AppRadius.sm),
-                            child: _SignedImage(
+                            child: MediaImage(
                               path: path,
                               width: 104,
                               height: 104,
@@ -438,52 +444,6 @@ class _BadgeChip extends StatelessWidget {
       label: Text(badge.name),
       backgroundColor: _color.withValues(alpha: 0.12),
       side: BorderSide(color: _color.withValues(alpha: 0.35)),
-    );
-  }
-}
-
-class _SignedImage extends ConsumerWidget {
-  const _SignedImage({
-    required this.path,
-    required this.width,
-    required this.height,
-  });
-
-  final String path;
-  final double width;
-  final double height;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final url = ref.watch(signedUrlProvider(path));
-    return url.when(
-      data: (value) {
-        if (value == null) {
-          return Container(
-            width: width,
-            height: height,
-            color: AppColors.border,
-            child: const Icon(Icons.image_not_supported_outlined, size: 18),
-          );
-        }
-        return Image.network(
-          value,
-          width: width,
-          height: height,
-          fit: BoxFit.cover,
-        );
-      },
-      loading: () => SizedBox(
-        width: width,
-        height: height,
-        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-      ),
-      error: (_, _) => Container(
-        width: width,
-        height: height,
-        color: AppColors.border,
-        child: const Icon(Icons.image_not_supported_outlined, size: 18),
-      ),
     );
   }
 }

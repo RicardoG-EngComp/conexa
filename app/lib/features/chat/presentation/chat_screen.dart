@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -464,14 +465,15 @@ class _Bubble extends StatelessWidget {
       );
     }
     if (message.kind == 'sticker' && message.stickerPath != null) {
-      return Image.network(
-        Supabase.instance.client.storage
+      return CachedNetworkImage(
+        imageUrl: Supabase.instance.client.storage
             .from('stickers')
             .getPublicUrl(message.stickerPath!),
+        cacheKey: message.stickerPath,
         width: 140,
         height: 140,
         fit: BoxFit.contain,
-        errorBuilder: (_, _, _) =>
+        errorWidget: (_, _, _) =>
             const Icon(Icons.broken_image_outlined, color: AppColors.muted),
       );
     }

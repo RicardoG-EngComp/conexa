@@ -7,10 +7,6 @@ final profileRepositoryProvider = Provider<ProfileRepository>(
   (ref) => ProfileRepository(Supabase.instance.client),
 );
 
-final signedUrlProvider = FutureProvider.autoDispose.family<String?, String>(
-  (ref, path) => ref.read(profileRepositoryProvider).signedUrl(path),
-);
-
 final catalogProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) => ref.read(profileRepositoryProvider).fetchCatalog(),
 );
