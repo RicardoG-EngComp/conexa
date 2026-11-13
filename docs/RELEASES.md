@@ -24,8 +24,9 @@ o histórico completo fica no Console do Firebase.
 - Feed com lista preguiçosa e imagens decodificadas no tamanho exibido.
 - Fotos antigas do Supabase continuam funcionando via fallback.
 - Estudos antigos e novos continuam abrindo via `study-file-url` com fallback.
-- Estrutura de backup diário do R2 com retenção de 7 dias.
-  - Requer o bucket `conexa-backup` e o token de backup configurados.
+- Estrutura de backup do R2 com retenção de 7 dias.
+  - Disparo manual até o bucket `conexa-backup` e o token de backup existirem.
+  - O cron diário está pausado no workflow.
 
 ### Notas usadas no App Distribution
 

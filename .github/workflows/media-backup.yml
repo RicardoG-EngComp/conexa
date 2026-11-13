@@ -1,8 +1,10 @@
 name: Media Backup
 
 on:
-  schedule:
-    - cron: '0 3 * * *'
+  # Agendamento pausado até o bucket conexa-backup e o token de backup
+  # existirem. Reative o cron depois de rodar scripts/setup-media-backup.ps1.
+  # schedule:
+  #   - cron: '0 3 * * *'
   workflow_dispatch:
 
 permissions:

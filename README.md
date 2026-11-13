@@ -92,8 +92,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-r2.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-media-backup.ps1
 ```
 
-- Backup diário em `conexa-backup`, retenção de 7 dias, disparado pelo workflow
-  `media-backup.yml`.
+- Backup em `conexa-backup`, retenção de 7 dias, disparado manualmente pelo
+  workflow `media-backup.yml`. O agendamento diário fica pausado até o bucket e
+  o token de backup serem configurados.
 
 - Uploads passam por `media-upload`; leitura de perfil por `media-sign`; estudos
   por `study-file-url`. Detalhes em

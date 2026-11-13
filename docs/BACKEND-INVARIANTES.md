@@ -260,8 +260,9 @@ Para cada item: regra, motivo e consequência de quebrar.
   ser admin ou vaza a identidade do autor.
 
 ### 4.13 Backup de mídia
-- `media-backup` roda diariamente pelo workflow `media-backup.yml` (GitHub
-  Actions, 03:00 UTC) e pode ser disparado manualmente.
+- `media-backup` é disparado manualmente pelo workflow `media-backup.yml`. O
+  cron diário (03:00 UTC) fica pausado até o bucket `conexa-backup` e o token de
+  backup existirem; reative depois de rodar `scripts/setup-media-backup.ps1`.
 - Exige `MEDIA_BACKUP_SECRET`; sem o segredo, responde 401.
 - Copia `conexa-profile` e `conexa-study` para
   `conexa-backup/snapshots/<YYYY-MM-DD>/...` via CopyObject no próprio R2.
