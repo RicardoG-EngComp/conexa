@@ -272,6 +272,9 @@ Para cada item: regra, motivo e consequência de quebrar.
 - Credenciais do backup são separadas (`R2_BACKUP_ACCESS_KEY_ID`/
   `R2_BACKUP_SECRET_ACCESS_KEY`) e o token precisa de Object Read & Write nos
   buckets de perfil, estudo e backup.
+- Ativação: criar o bucket `conexa-backup`, criar o token de backup e rodar
+  `scripts/setup-media-backup.ps1`. Até lá, o workflow falha com
+  `R2 backup nao configurado`.
 - Backup não substitui exclusão de conta: snapshots expiram em 7 dias e não
   devem ser restaurados para contas já excluídas.
 - Quebrar: backup sem retenção, backup público, credencial de upload com acesso
