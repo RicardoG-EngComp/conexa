@@ -49,5 +49,5 @@ jobs:
           TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
           WEBHOOK_SECRET: ${{ secrets.NOTIFICATION_WEBHOOK_SECRET }}
           NOTIFICATION_FUNCTION_URL: ${{ secrets.NOTIFICATION_FUNCTION_URL }}
-        run: flutter test test/integration --reporter expanded
+        run: flutter test test/integration -j 1 --reporter expanded
         working-directory: app
