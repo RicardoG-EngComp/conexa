@@ -35,6 +35,22 @@ Future<void> deleteConnectionBetween(
   } catch (_) {}
 }
 
+/// Move denúncias antigas dos usuários de teste para fora da janela de 24h.
+/// A conta admin precisa estar autenticada no client.
+Future<void> ageOutTestReports(
+  SupabaseClient client,
+  Iterable<String> userIds,
+) async {
+  final ids = userIds.toSet().toList();
+  if (ids.isEmpty) return;
+  try {
+    await client
+        .from('reports')
+        .update({'created_at': '2020-01-01T00:00:00Z'})
+        .inFilter('reporter_id', ids);
+  } catch (_) {}
+}
+
 /// Conecta os dois usuarios, cria convite direcionado e faz o convidado entrar.
 /// Ao final remove a conexao (convites in-app exigem conexao aceita).
 Future<void> inviteUserToGroup(

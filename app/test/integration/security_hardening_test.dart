@@ -278,6 +278,11 @@ void main() {
       await signInA(client);
       final userA = client.auth.currentUser!.id;
 
+      await signInAdmin(client);
+      final adminId = client.auth.currentUser!.id;
+      await ageOutTestReports(client, [userA, userB, adminId]);
+      await signInA(client);
+
       await expectError(
         () => client.from('reports').insert({
           'reporter_id': userA,

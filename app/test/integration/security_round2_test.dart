@@ -259,6 +259,11 @@ void main() {
       final userA = client.auth.currentUser!.id;
       await deleteConnectionBetween(client, userA, userB);
 
+      await signInAdmin(client);
+      final adminId = client.auth.currentUser!.id;
+      await ageOutTestReports(client, [userA, userB, adminId]);
+      await signInA(client);
+
       try {
         await expectError(
           () => client.from('reports').insert({
