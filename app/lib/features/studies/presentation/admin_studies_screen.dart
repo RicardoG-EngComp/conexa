@@ -41,9 +41,8 @@ class AdminStudiesScreen extends ConsumerWidget {
     try {
       await ref.read(studyRepositoryProvider).grantUploader(email);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Uploader liberado.')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Uploader liberado.')));
       }
     } catch (_) {
       if (context.mounted) {
@@ -63,10 +62,9 @@ class AdminStudiesScreen extends ConsumerWidget {
     bool approve,
   ) async {
     try {
-      await ref.read(studyRepositoryProvider).reviewMaterial(
-            materialId: material.id,
-            approve: approve,
-          );
+      await ref
+          .read(studyRepositoryProvider)
+          .reviewMaterial(materialId: material.id, approve: approve);
       ref.invalidate(pendingMaterialsProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -130,10 +128,7 @@ class AdminStudiesScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          material.title,
-                          style: theme.textTheme.titleSmall,
-                        ),
+                        Text(material.title, style: theme.textTheme.titleSmall),
                         const SizedBox(height: 4),
                         Text(
                           '${material.authorName ?? 'Aluno'} · '
@@ -153,21 +148,13 @@ class AdminStudiesScreen extends ConsumerWidget {
                           spacing: AppSpacing.sm,
                           children: [
                             OutlinedButton(
-                              onPressed: () => _review(
-                                context,
-                                ref,
-                                material,
-                                false,
-                              ),
+                              onPressed: () =>
+                                  _review(context, ref, material, false),
                               child: const Text('Rejeitar'),
                             ),
                             FilledButton(
-                              onPressed: () => _review(
-                                context,
-                                ref,
-                                material,
-                                true,
-                              ),
+                              onPressed: () =>
+                                  _review(context, ref, material, true),
                               child: const Text('Aprovar'),
                             ),
                           ],

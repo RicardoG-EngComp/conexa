@@ -8,8 +8,7 @@ final badgeRepositoryProvider = Provider<BadgeRepository>(
   (ref) => BadgeRepository(Supabase.instance.client),
 );
 
-final userBadgesProvider =
-    FutureProvider.autoDispose.family<List<ProfileBadge>, String>(
-  (ref, userId) =>
-      ref.read(badgeRepositoryProvider).fetchForUser(userId),
-);
+final userBadgesProvider = FutureProvider.autoDispose
+    .family<List<ProfileBadge>, String>(
+      (ref, userId) => ref.read(badgeRepositoryProvider).fetchForUser(userId),
+    );

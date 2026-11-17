@@ -12,8 +12,8 @@ final stickerPacksProvider = FutureProvider.autoDispose<List<StickerPack>>(
   (ref) => ref.read(stickerRepositoryProvider).fetchPacks(),
 );
 
-final stickersProvider =
-    FutureProvider.autoDispose.family<List<StickerItem>, String>(
-  (ref, packId) =>
-      ref.read(stickerRepositoryProvider).fetchStickers(packId),
-);
+final stickersProvider = FutureProvider.autoDispose
+    .family<List<StickerItem>, String>(
+      (ref, packId) =>
+          ref.read(stickerRepositoryProvider).fetchStickers(packId),
+    );

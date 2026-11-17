@@ -44,7 +44,8 @@ final myGroupInvitesProvider =
 
 final groupDirectoryProvider = FutureProvider.autoDispose
     .family<List<GroupSummary>, String>(
-      (ref, search) => ref.read(groupRepositoryProvider).fetchDirectory(search: search),
+      (ref, search) =>
+          ref.read(groupRepositoryProvider).fetchDirectory(search: search),
     );
 
 final pendingGroupsProvider = FutureProvider.autoDispose<List<GroupSummary>>(
@@ -56,4 +57,21 @@ final groupModeratorFlagProvider = FutureProvider.autoDispose
       (ref, groupId) => ref
           .read(groupRepositoryProvider)
           .hasPermission(groupId, 'moderate_content'),
+    );
+
+final groupEventsProvider = FutureProvider.autoDispose
+    .family<List<GroupEvent>, String>(
+      (ref, groupId) => ref.read(groupRepositoryProvider).fetchEvents(groupId),
+    );
+
+final groupAnalyticsProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>, String>(
+      (ref, groupId) =>
+          ref.read(groupRepositoryProvider).fetchAnalytics(groupId),
+    );
+
+final groupEventRsvpsProvider = FutureProvider.autoDispose
+    .family<List<Map<String, dynamic>>, String>(
+      (ref, groupId) =>
+          ref.read(groupRepositoryProvider).fetchEventRsvps(groupId),
     );

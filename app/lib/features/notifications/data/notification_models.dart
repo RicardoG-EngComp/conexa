@@ -42,6 +42,8 @@ class NotificationPreferences {
     this.connections = true,
     this.studies = true,
     this.groups = true,
+    this.securityAlerts = true,
+    this.interactions = true,
   });
 
   final bool messageRequests;
@@ -49,6 +51,8 @@ class NotificationPreferences {
   final bool connections;
   final bool studies;
   final bool groups;
+  final bool securityAlerts;
+  final bool interactions;
 
   NotificationPreferences copyWith({
     bool? messageRequests,
@@ -56,6 +60,8 @@ class NotificationPreferences {
     bool? connections,
     bool? studies,
     bool? groups,
+    bool? securityAlerts,
+    bool? interactions,
   }) {
     return NotificationPreferences(
       messageRequests: messageRequests ?? this.messageRequests,
@@ -63,6 +69,8 @@ class NotificationPreferences {
       connections: connections ?? this.connections,
       studies: studies ?? this.studies,
       groups: groups ?? this.groups,
+      securityAlerts: securityAlerts ?? this.securityAlerts,
+      interactions: interactions ?? this.interactions,
     );
   }
 
@@ -73,6 +81,8 @@ class NotificationPreferences {
       connections: (map['connections'] as bool?) ?? true,
       studies: (map['studies'] as bool?) ?? true,
       groups: (map['groups'] as bool?) ?? true,
+      securityAlerts: (map['security_alerts'] as bool?) ?? true,
+      interactions: (map['interactions'] as bool?) ?? true,
     );
   }
 }

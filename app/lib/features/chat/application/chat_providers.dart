@@ -56,3 +56,21 @@ final messagesStreamProvider = StreamProvider.autoDispose
       (ref, conversationId) =>
           ref.read(chatRepositoryProvider).streamMessages(conversationId),
     );
+
+final reactionsStreamProvider = StreamProvider.autoDispose
+    .family<List<MessageReaction>, String>(
+      (ref, conversationId) =>
+          ref.read(chatRepositoryProvider).streamReactions(conversationId),
+    );
+
+final typingStreamProvider = StreamProvider.autoDispose
+    .family<List<Map<String, dynamic>>, String>(
+      (ref, conversationId) =>
+          ref.read(chatRepositoryProvider).streamTyping(conversationId),
+    );
+
+final chatMembersProvider = FutureProvider.autoDispose
+    .family<List<ChatMember>, String>(
+      (ref, conversationId) =>
+          ref.read(chatRepositoryProvider).fetchMembers(conversationId),
+    );

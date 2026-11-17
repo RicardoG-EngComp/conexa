@@ -2,7 +2,9 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/admin/presentation/admin_feedback_screen.dart';
+import '../../features/admin/presentation/admin_appeals_screen.dart';
 import '../../features/admin/presentation/admin_groups_screen.dart';
+import '../../features/admin/presentation/admin_moderation_terms_screen.dart';
 import '../../features/admin/presentation/admin_notifications_screen.dart';
 import '../../features/admin/presentation/admin_screen.dart';
 import '../../features/badges/presentation/admin_badges_screen.dart';
@@ -21,11 +23,19 @@ import '../../features/connections/presentation/sent_connections_screen.dart';
 import '../../features/discover/presentation/discover_screen.dart';
 import '../../features/feed/data/feed_models.dart';
 import '../../features/feed/presentation/compose_post_screen.dart';
+import '../../features/feed/presentation/custom_feed_screen.dart';
+import '../../features/feed/presentation/custom_feeds_screen.dart';
 import '../../features/feed/presentation/feed_screen.dart';
+import '../../features/feed/presentation/hidden_posts_screen.dart';
+import '../../features/feed/presentation/insights_screen.dart';
 import '../../features/feed/presentation/post_detail_screen.dart';
+import '../../features/feed/presentation/saved_posts_screen.dart';
+import '../../features/feed/presentation/scheduled_posts_screen.dart';
+import '../../features/feed/presentation/search_screen.dart';
 import '../../features/groups/presentation/group_create_screen.dart';
 import '../../features/groups/presentation/group_manage_screen.dart';
 import '../../features/groups/presentation/group_profile_screen.dart';
+import '../../features/groups/presentation/group_insights_screen.dart';
 import '../../features/groups/presentation/group_invites_received_screen.dart';
 import '../../features/groups/presentation/groups_home_screen.dart';
 import '../../features/feedback/presentation/bug_report_screen.dart';
@@ -42,10 +52,17 @@ import '../../features/onboarding/presentation/welcome_screen.dart';
 import '../../features/profile/presentation/profile_checklist_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/reports/presentation/my_reports_screen.dart';
+import '../../features/security/presentation/muted_users_screen.dart';
+import '../../features/security/presentation/muted_words_screen.dart';
+import '../../features/security/presentation/security_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/studies/presentation/admin_studies_screen.dart';
+import '../../features/studies/presentation/saved_materials_screen.dart';
 import '../../features/studies/presentation/study_discipline_screen.dart';
 import '../../features/studies/presentation/study_material_detail_screen.dart';
+import '../../features/studies/presentation/study_question_detail_screen.dart';
+import '../../features/studies/presentation/study_questions_screen.dart';
 import '../../features/studies/presentation/study_upload_screen.dart';
 import '../../features/subscription/presentation/subscription_screen.dart';
 import '../../features/verification/presentation/verification_screen.dart';
@@ -151,8 +168,27 @@ final GoRouter appRouter = GoRouter(
         groupId: state.uri.queryParameters['group'],
         initialText: state.uri.queryParameters['text'],
         quoted: state.extra is FeedPost ? state.extra as FeedPost : null,
+        initialDraft: state.extra is Map
+            ? (state.extra as Map).cast<String, dynamic>()
+            : null,
       ),
     ),
+    GoRoute(path: '/feed/saved', builder: (_, _) => const SavedPostsScreen()),
+    GoRoute(
+      path: '/feed/scheduled',
+      builder: (_, _) => const ScheduledPostsScreen(),
+    ),
+    GoRoute(path: '/feed/hidden', builder: (_, _) => const HiddenPostsScreen()),
+    GoRoute(path: '/feed/search', builder: (_, _) => const SearchScreen()),
+    GoRoute(path: '/feed/feeds', builder: (_, _) => const CustomFeedsScreen()),
+    GoRoute(
+      path: '/feed/feeds/:id',
+      builder: (_, state) => CustomFeedScreen(
+        feedId: state.pathParameters['id'] ?? '',
+        feed: state.extra is CustomFeed ? state.extra as CustomFeed : null,
+      ),
+    ),
+    GoRoute(path: '/insights', builder: (_, _) => const InsightsScreen()),
     GoRoute(
       path: '/feed/:id',
       builder: (_, state) => PostDetailScreen(
@@ -179,6 +215,11 @@ final GoRouter appRouter = GoRouter(
           GroupManageScreen(groupId: state.pathParameters['id'] ?? ''),
     ),
     GoRoute(
+      path: '/groups/:id/insights',
+      builder: (_, state) =>
+          GroupInsightsScreen(groupId: state.pathParameters['id'] ?? ''),
+    ),
+    GoRoute(
       path: '/chats/:id',
       builder: (_, state) => ChatScreen(
         id: state.pathParameters['id'] ?? '',
@@ -199,6 +240,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/admin/groups',
       builder: (_, _) => const AdminGroupsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/appeals',
+      builder: (_, _) => const AdminAppealsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/moderation-terms',
+      builder: (_, _) => const AdminModerationTermsScreen(),
     ),
     GoRoute(
       path: '/admin/badges',
@@ -234,9 +283,29 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
     GoRoute(
+      path: '/studies/questions',
+      builder: (_, state) => StudyQuestionsScreen(
+        disciplineId: state.uri.queryParameters['discipline'] ?? '',
+      ),
+    ),
+    GoRoute(
+      path: '/studies/questions/:id',
+      builder: (_, state) => StudyQuestionDetailScreen(
+        questionId: state.pathParameters['id'] ?? '',
+      ),
+    ),
+    GoRoute(
+      path: '/studies/saved',
+      builder: (_, _) => const SavedMaterialsScreen(),
+    ),
+    GoRoute(
       path: '/blocked-users',
       builder: (_, _) => const BlockedUsersScreen(),
     ),
+    GoRoute(path: '/security', builder: (_, _) => const SecurityScreen()),
+    GoRoute(path: '/muted-users', builder: (_, _) => const MutedUsersScreen()),
+    GoRoute(path: '/muted-words', builder: (_, _) => const MutedWordsScreen()),
+    GoRoute(path: '/my-reports', builder: (_, _) => const MyReportsScreen()),
     GoRoute(
       path: '/notifications',
       builder: (_, _) => const NotificationsScreen(),

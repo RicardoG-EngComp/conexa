@@ -46,6 +46,18 @@ Deno.serve(async (req) => {
     body = {};
   }
 
+  try {
+    await admin.rpc("publish_due_scheduled_posts");
+  } catch (error) {
+    console.error("publish_due_scheduled_posts failed", error);
+  }
+
+  try {
+    await admin.rpc("enqueue_event_reminders");
+  } catch (error) {
+    console.error("enqueue_event_reminders failed", error);
+  }
+
   const record = (body.record ?? {}) as Record<string, unknown>;
   const singleId = typeof record.id === "string"
     ? record.id
@@ -92,7 +104,9 @@ async function processNotification(id: string) {
 
   const { data: prefs } = await admin
     .from("notification_preferences")
-    .select("message_requests, messages, connections, studies")
+    .select(
+      "message_requests, messages, connections, studies, groups, security_alerts, interactions",
+    )
     .eq("user_id", row.user_id)
     .maybeSingle();
 
@@ -154,6 +168,12 @@ function preferenceEnabled(
     return prefs.connections !== false;
   }
   if (type.startsWith("study_")) return prefs.studies !== false;
+  if (type === "group_invite") return prefs.groups !== false;
+  if (type === "event_reminder") return prefs.groups !== false;
+  if (type === "security_alert") return prefs.security_alerts !== false;
+  if (["like", "comment", "mention", "repost"].includes(type)) {
+    return prefs.interactions !== false;
+  }
   return false;
 }
 

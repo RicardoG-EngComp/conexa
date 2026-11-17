@@ -40,7 +40,10 @@ class NotificationRepository {
     if (userId == null) return const NotificationPreferences();
     final row = await _client
         .from('notification_preferences')
-        .select('message_requests, messages, connections, studies, groups')
+        .select(
+          'message_requests, messages, connections, studies, groups, '
+          'security_alerts, interactions',
+        )
         .eq('user_id', userId)
         .maybeSingle();
     if (row == null) return const NotificationPreferences();
@@ -57,6 +60,8 @@ class NotificationRepository {
       'connections': preferences.connections,
       'studies': preferences.studies,
       'groups': preferences.groups,
+      'security_alerts': preferences.securityAlerts,
+      'interactions': preferences.interactions,
       'updated_at': DateTime.now().toUtc().toIso8601String(),
     });
   }

@@ -7,6 +7,7 @@ import 'core/notifications/notification_service.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/update/firebase_update_service.dart';
+import 'features/security/data/security_repository.dart';
 
 class ConexaApp extends StatefulWidget {
   const ConexaApp({super.key});
@@ -29,6 +30,16 @@ class _ConexaAppState extends State<ConexaApp> {
     ) {
       if (state.event == AuthChangeEvent.passwordRecovery) {
         appRouter.go('/reset-password');
+      }
+      final session = state.session;
+      if (session != null &&
+          (state.event == AuthChangeEvent.initialSession ||
+              state.event == AuthChangeEvent.signedIn)) {
+        unawaited(
+          SecurityRepository(Supabase.instance.client)
+              .registerCurrentDevice()
+              .catchError((_) {}),
+        );
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {

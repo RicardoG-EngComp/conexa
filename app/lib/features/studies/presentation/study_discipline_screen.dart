@@ -24,13 +24,21 @@ class StudyDisciplineScreen extends ConsumerWidget {
         .firstOrNull;
 
     return Scaffold(
-      appBar: AppBar(title: Text(discipline?.name ?? 'Disciplina')),
+      appBar: AppBar(
+        title: Text(discipline?.name ?? 'Disciplina'),
+        actions: [
+          IconButton(
+            tooltip: 'Perguntas da disciplina',
+            onPressed: () =>
+                context.push('/studies/questions?discipline=$disciplineId'),
+            icon: const Icon(Icons.forum_outlined),
+          ),
+        ],
+      ),
       floatingActionButton: canUpload
           ? FloatingActionButton.extended(
               onPressed: () async {
-                await context.push(
-                  '/studies/upload?discipline=$disciplineId',
-                );
+                await context.push('/studies/upload?discipline=$disciplineId');
                 ref.invalidate(materialsProvider(disciplineId));
               },
               icon: const Icon(Icons.upload_file),
@@ -117,8 +125,8 @@ class _MaterialCard extends StatelessWidget {
                   status == 'pending'
                       ? 'Pendente'
                       : status == 'rejected'
-                          ? 'Rejeitado'
-                          : 'Oculto',
+                      ? 'Rejeitado'
+                      : 'Oculto',
                   style: theme.textTheme.bodySmall,
                 ),
               ),

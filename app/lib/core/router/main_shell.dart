@@ -10,7 +10,13 @@ class MainShell extends ConsumerWidget {
 
   final Widget child;
 
-  static const _paths = ['/feed', '/discover', '/groups', '/chats', '/settings'];
+  static const _paths = [
+    '/feed',
+    '/discover',
+    '/groups',
+    '/chats',
+    '/settings',
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

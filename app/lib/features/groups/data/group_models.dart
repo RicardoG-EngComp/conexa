@@ -185,3 +185,38 @@ class GroupDetail {
   bool get canPostAsGroup => permissions.contains('post_as_group');
   bool get canModerate => permissions.contains('moderate_content');
 }
+
+class GroupEvent {
+  const GroupEvent({
+    required this.id,
+    required this.groupId,
+    required this.title,
+    required this.startsAt,
+    required this.endsAt,
+    this.description,
+    this.location,
+    this.createdBy,
+  });
+
+  final String id;
+  final String groupId;
+  final String title;
+  final DateTime startsAt;
+  final DateTime endsAt;
+  final String? description;
+  final String? location;
+  final String? createdBy;
+
+  factory GroupEvent.fromMap(Map<String, dynamic> map) {
+    return GroupEvent(
+      id: map['id'] as String,
+      groupId: map['group_id'] as String,
+      title: (map['title'] as String?) ?? '',
+      startsAt: DateTime.parse(map['starts_at'] as String),
+      endsAt: DateTime.parse(map['ends_at'] as String),
+      description: map['description'] as String?,
+      location: map['location'] as String?,
+      createdBy: map['created_by'] as String?,
+    );
+  }
+}

@@ -29,10 +29,7 @@ class BadgeRepository {
   }) async {
     final result = await _client.rpc(
       'admin_grant_badges',
-      params: {
-        'p_emails': emails,
-        'p_slug': slug,
-      },
+      params: {'p_emails': emails, 'p_slug': slug},
     );
     return (result as num?)?.toInt() ?? 0;
   }

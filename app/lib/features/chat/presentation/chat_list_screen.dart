@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
+import '../../connections/application/connection_providers.dart';
 import '../../connections/presentation/connections_list.dart';
 import '../../notifications/presentation/notification_bell.dart';
 import '../application/chat_providers.dart';
@@ -22,11 +23,101 @@ class ChatListScreen extends ConsumerStatefulWidget {
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   final _search = TextEditingController();
+  bool _showArchived = false;
+  bool _creatingGroup = false;
 
   @override
   void dispose() {
     _search.dispose();
     super.dispose();
+  }
+
+  Future<void> _createGroup() async {
+    final connections = await ref.read(connectionsProvider.future);
+    if (!mounted) return;
+    final selected = <String>{};
+    final title = TextEditingController();
+    final result = await showDialog<({String title, Set<String> members})>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Novo grupo'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 380,
+            child: Column(
+              children: [
+                TextField(
+                  controller: title,
+                  maxLength: 80,
+                  decoration: const InputDecoration(labelText: 'Nome do grupo'),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Expanded(
+                  child: connections.accepted.isEmpty
+                      ? const Center(
+                          child: Text('Adicione conexoes para criar um grupo.'),
+                        )
+                      : ListView(
+                          children: [
+                            for (final c in connections.accepted)
+                              CheckboxListTile(
+                                value: selected.contains(c.userId),
+                                title: Text(c.displayName),
+                                onChanged: (value) {
+                                  setDialogState(() {
+                                    if (value == true) {
+                                      if (selected.length < 20) {
+                                        selected.add(c.userId);
+                                      }
+                                    } else {
+                                      selected.remove(c.userId);
+                                    }
+                                  });
+                                },
+                              ),
+                          ],
+                        ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final name = title.text.trim();
+                if (name.length < 3 || selected.isEmpty) return;
+                Navigator.pop(ctx, (title: name, members: selected));
+              },
+              child: const Text('Criar'),
+            ),
+          ],
+        ),
+      ),
+    );
+    title.dispose();
+    if (result == null) return;
+
+    setState(() => _creatingGroup = true);
+    try {
+      final id = await ref
+          .read(chatRepositoryProvider)
+          .createGroupConversation(result.title, result.members.toList());
+      ref.invalidate(conversationsProvider);
+      if (mounted) context.push('/chats/$id');
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel criar o grupo.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _creatingGroup = false);
+    }
   }
 
   @override
@@ -59,6 +150,29 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       ),
                     ),
                     const NotificationBell(),
+                    IconButton(
+                      tooltip: _showArchived
+                          ? 'Mostrar conversas ativas'
+                          : 'Mostrar arquivadas',
+                      onPressed: () =>
+                          setState(() => _showArchived = !_showArchived),
+                      icon: Icon(
+                        _showArchived
+                            ? Icons.unarchive_outlined
+                            : Icons.archive_outlined,
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Novo grupo',
+                      onPressed: _creatingGroup ? null : _createGroup,
+                      icon: _creatingGroup
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.group_add_outlined),
+                    ),
                   ],
                 ),
               ),
@@ -94,6 +208,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                   data: (conversations) {
                     final accepted = conversations
                         .where((c) => c.status == 'accepted')
+                        .where((c) => _showArchived ? c.archived : !c.archived)
                         .where((c) {
                           if (query.isEmpty) return true;
                           return c.otherName.toLowerCase().contains(query) ||
@@ -109,7 +224,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       children: [
                         _AcceptedList(
                           conversations: accepted,
-                          emptyMessage: query.isEmpty
+                          emptyMessage: _showArchived
+                              ? 'Nenhuma conversa arquivada.'
+                              : query.isEmpty
                               ? 'Nenhuma conversa ainda. Voce pode enviar um '
                                     'pedido de mensagem pelo perfil de alguem.'
                               : 'Nenhuma conversa encontrada.',
@@ -162,13 +279,40 @@ class _AcceptedList extends ConsumerWidget {
           for (final c in conversations)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const CircleAvatar(
+              leading: CircleAvatar(
                 backgroundColor: AppColors.teal,
-                child: Icon(Icons.person, color: Colors.white),
+                child: Icon(
+                  c.isGroup ? Icons.groups_outlined : Icons.person,
+                  color: Colors.white,
+                ),
               ),
-              title: Text(c.otherName),
+              title: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      c.displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (c.pinned) ...[
+                    const SizedBox(width: 4),
+                    const Icon(Icons.push_pin, size: 13),
+                  ],
+                  if (c.muted) ...[
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.notifications_off_outlined,
+                      size: 14,
+                      color: AppColors.muted,
+                    ),
+                  ],
+                ],
+              ),
               subtitle: Text(
-                c.lastMessage ?? 'Sem mensagens',
+                c.isGroup
+                    ? '${c.memberCount} participantes · ${c.lastMessage ?? 'Sem mensagens'}'
+                    : (c.lastMessage ?? 'Sem mensagens'),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -200,6 +344,46 @@ class _AcceptedList extends ConsumerWidget {
                         color: AppColors.muted,
                       ),
                     ),
+                  PopupMenuButton<String>(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.more_vert, size: 18),
+                    onSelected: (value) async {
+                      final repo = ref.read(chatRepositoryProvider);
+                      try {
+                        switch (value) {
+                          case 'pin':
+                            await repo.setPinned(c.id, !c.pinned);
+                          case 'mute':
+                            await repo.setMuted(c.id, !c.muted);
+                          case 'archive':
+                            await repo.setArchived(c.id, !c.archived);
+                        }
+                        ref.invalidate(conversationsProvider);
+                      } catch (_) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Nao foi possivel atualizar.'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: 'pin',
+                        child: Text(c.pinned ? 'Desafixar' : 'Fixar'),
+                      ),
+                      PopupMenuItem(
+                        value: 'mute',
+                        child: Text(c.muted ? 'Reativar' : 'Silenciar'),
+                      ),
+                      PopupMenuItem(
+                        value: 'archive',
+                        child: Text(c.archived ? 'Desarquivar' : 'Arquivar'),
+                      ),
+                    ],
+                  ),
                 ],
               ),
               onTap: () => context.push('/chats/${c.id}', extra: c),

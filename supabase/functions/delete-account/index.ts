@@ -34,7 +34,15 @@ Deno.serve(async (req) => {
     const r2 = getR2Config();
     const prefix = `${userId}/`;
 
-    for (const bucket of [r2.buckets.profile, r2.buckets.study]) {
+    const seenBuckets = new Set<string>();
+    for (const bucket of [
+      r2.buckets.profile,
+      r2.buckets.study,
+      r2.buckets.feed,
+      r2.buckets.chat,
+    ]) {
+      if (seenBuckets.has(bucket)) continue;
+      seenBuckets.add(bucket);
       const keys = await listPrefix(r2, bucket, prefix);
       for (let i = 0; i < keys.length; i += 20) {
         const chunk = keys.slice(i, i + 20);

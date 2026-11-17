@@ -23,7 +23,9 @@ class AdminGroupsScreen extends ConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                approve ? 'Grupo aprovado e selo concedido.' : 'Grupo rejeitado.',
+                approve
+                    ? 'Grupo aprovado e selo concedido.'
+                    : 'Grupo rejeitado.',
               ),
             ),
           );
@@ -47,7 +49,9 @@ class AdminGroupsScreen extends ConsumerWidget {
             return Center(
               child: Text(
                 'Nenhum grupo aguardando aprovação.',
-                style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: AppColors.muted,
+                ),
               ),
             );
           }
@@ -94,7 +98,9 @@ class AdminGroupsScreen extends ConsumerWidget {
                         const SizedBox(height: AppSpacing.sm),
                         Text(
                           group.description!,
-                          style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            height: 1.45,
+                          ),
                         ),
                       ],
                       const SizedBox(height: AppSpacing.md),

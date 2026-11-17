@@ -68,9 +68,7 @@ class AuthRepository {
         .select('type, version')
         .eq('user_id', user.id)
         .eq('version', consentVersion);
-    final types = (rows as List)
-        .map((r) => r['type'] as String)
-        .toSet();
+    final types = (rows as List).map((r) => r['type'] as String).toSet();
     return requiredConsents.every(types.contains);
   }
 

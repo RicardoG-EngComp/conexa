@@ -6,6 +6,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
 import '../data/feed_models.dart';
+import 'feed_media_view.dart';
+import 'post_poll_view.dart';
 
 class FeedPostCard extends StatelessWidget {
   const FeedPostCard({
@@ -17,6 +19,11 @@ class FeedPostCard extends StatelessWidget {
     this.onReport,
     this.onHide,
     this.onDelete,
+    this.onBookmark,
+    this.onEdit,
+    this.onPin,
+    this.onNotInterested,
+    this.onCopyLink,
     this.detail = false,
     this.showSource = false,
     this.showRelevance = false,
@@ -29,6 +36,11 @@ class FeedPostCard extends StatelessWidget {
   final VoidCallback? onReport;
   final VoidCallback? onHide;
   final VoidCallback? onDelete;
+  final VoidCallback? onBookmark;
+  final VoidCallback? onEdit;
+  final VoidCallback? onPin;
+  final VoidCallback? onNotInterested;
+  final VoidCallback? onCopyLink;
   final bool detail;
   final bool showSource;
   final bool showRelevance;
@@ -145,7 +157,27 @@ class FeedPostCard extends StatelessWidget {
                   color: AppColors.muted,
                 ),
               ),
-              if (onReport != null || onHide != null || onDelete != null)
+              if (post.pinnedAt != null) ...[
+                const SizedBox(width: 4),
+                const Icon(Icons.push_pin, size: 14, color: AppColors.teal),
+              ],
+              if (post.editedAt != null) ...[
+                const SizedBox(width: 4),
+                Text(
+                  'editado',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: AppColors.muted,
+                  ),
+                ),
+              ],
+              if (onReport != null ||
+                  onHide != null ||
+                  onDelete != null ||
+                  onBookmark != null ||
+                  onEdit != null ||
+                  onPin != null ||
+                  onNotInterested != null ||
+                  onCopyLink != null)
                 PopupMenuButton<String>(
                   padding: EdgeInsets.zero,
                   icon: const Icon(Icons.more_horiz, size: 20),
@@ -157,9 +189,50 @@ class FeedPostCard extends StatelessWidget {
                         onHide?.call();
                       case 'delete':
                         onDelete?.call();
+                      case 'bookmark':
+                        onBookmark?.call();
+                      case 'edit':
+                        onEdit?.call();
+                      case 'pin':
+                        onPin?.call();
+                      case 'not_interested':
+                        onNotInterested?.call();
+                      case 'copy_link':
+                        onCopyLink?.call();
                     }
                   },
                   itemBuilder: (_) => [
+                    if (onNotInterested != null)
+                      const PopupMenuItem<String>(
+                        value: 'not_interested',
+                        child: Text('Nao tenho interesse'),
+                      ),
+                    if (onCopyLink != null)
+                      const PopupMenuItem<String>(
+                        value: 'copy_link',
+                        child: Text('Copiar link da publicacao'),
+                      ),
+                    if (onBookmark != null)
+                      PopupMenuItem<String>(
+                        value: 'bookmark',
+                        child: Text(
+                          post.bookmarked ? 'Remover dos salvos' : 'Salvar',
+                        ),
+                      ),
+                    if (onEdit != null)
+                      const PopupMenuItem<String>(
+                        value: 'edit',
+                        child: Text('Editar publicacao'),
+                      ),
+                    if (onPin != null)
+                      PopupMenuItem<String>(
+                        value: 'pin',
+                        child: Text(
+                          post.pinnedAt == null
+                              ? 'Fixar no perfil'
+                              : 'Desafixar do perfil',
+                        ),
+                      ),
                     if (onReport != null)
                       const PopupMenuItem<String>(
                         value: 'report',
@@ -171,7 +244,7 @@ class FeedPostCard extends StatelessWidget {
                         child: Text('Ocultar publicação'),
                       ),
                     if (onDelete != null)
-                      PopupMenuItem<String>(
+                      const PopupMenuItem<String>(
                         value: 'delete',
                         child: Text(
                           'Apagar publicação',
@@ -210,13 +283,51 @@ class FeedPostCard extends StatelessWidget {
             _RoleChip(name: post.roleNameSnapshot!, current: post.roleCurrent),
           ],
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            post.content,
-            style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
-          ),
+          if (post.wasRepost) ...[
+            Row(
+              children: [
+                const Icon(Icons.repeat, size: 14, color: AppColors.muted),
+                const SizedBox(width: 5),
+                Text(
+                  'Republicou',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: AppColors.muted,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xs),
+          ],
+          if (post.content.isNotEmpty)
+            Text(
+              post.content,
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+            ),
           if (post.quoted != null) ...[
             const SizedBox(height: AppSpacing.md),
             _QuotedCard(quoted: post.quoted!),
+          ],
+          if (post.repostOf != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            _QuotedCard(quoted: post.repostOf!),
+          ],
+          FeedMediaView(media: post.media),
+          if (post.poll != null) PostPollView(poll: post.poll!),
+          if (post.mentions.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                for (final mention in post.mentions)
+                  Text(
+                    '@${mention.displayName}',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: AppColors.teal,
+                    ),
+                  ),
+              ],
+            ),
           ],
           if (post.topics.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),

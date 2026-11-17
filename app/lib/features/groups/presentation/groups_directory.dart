@@ -62,7 +62,8 @@ class _GroupsDirectoryState extends ConsumerState<GroupsDirectory> {
         Expanded(
           child: groupsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, _) => const Center(child: Text('Erro ao carregar grupos.')),
+            error: (_, _) =>
+                const Center(child: Text('Erro ao carregar grupos.')),
             data: (groups) {
               if (groups.isEmpty) {
                 return Center(
@@ -134,7 +135,11 @@ class _GroupSummaryCard extends StatelessWidget {
                       ),
                       if (group.isOfficial) ...[
                         const SizedBox(width: 4),
-                        const Icon(Icons.verified, size: 15, color: AppColors.teal),
+                        const Icon(
+                          Icons.verified,
+                          size: 15,
+                          color: AppColors.teal,
+                        ),
                       ],
                     ],
                   ),

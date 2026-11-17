@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/errors/moderation_errors.dart';
 import '../../../core/errors/moderation_ui.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
+import '../../connections/application/connection_providers.dart';
 import '../../groups/application/group_providers.dart';
 import '../application/feed_providers.dart';
 import '../data/feed_models.dart';
@@ -27,6 +30,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   bool _sending = false;
   String? _replyToId;
   String? _replyToName;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(feedRepositoryProvider).recordPostView(widget.postId);
+    });
+  }
 
   @override
   void dispose() {
@@ -88,10 +99,166 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final post = widget.post;
     if (post == null) return;
     try {
-      await ref.read(feedRepositoryProvider).toggleLike(post.id, post.likedByMe);
+      await ref
+          .read(feedRepositoryProvider)
+          .toggleLike(post.id, post.likedByMe);
       ref.invalidate(feedForYouProvider);
       ref.invalidate(feedConnectionsProvider);
     } catch (_) {}
+  }
+
+  Future<void> _toggleBookmark() async {
+    final post = widget.post;
+    if (post == null) return;
+    try {
+      await ref.read(feedRepositoryProvider).toggleBookmark(post.id);
+      ref.invalidate(feedForYouProvider);
+      ref.invalidate(feedConnectionsProvider);
+    } catch (_) {}
+  }
+
+  Future<void> _editPost() async {
+    final post = widget.post;
+    if (post == null) return;
+    final controller = TextEditingController(text: post.content);
+    final content = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Editar publicacao'),
+        content: TextField(
+          controller: controller,
+          minLines: 4,
+          maxLines: 8,
+          maxLength: 2000,
+          decoration: const InputDecoration(
+            hintText: 'O que voce quer compartilhar?',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final text = controller.text.trim();
+              if (text.isEmpty) return;
+              Navigator.pop(ctx, text);
+            },
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (content == null) return;
+
+    try {
+      await ref.read(feedRepositoryProvider).editPost(post.id, content);
+      ref.invalidate(feedForYouProvider);
+      ref.invalidate(feedConnectionsProvider);
+      if (mounted) context.pop();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Nao foi possivel editar. O prazo pode ter expirado.',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _pinPost() async {
+    final post = widget.post;
+    if (post == null) return;
+    try {
+      await ref
+          .read(feedRepositoryProvider)
+          .pinPost(post.id, post.pinnedAt == null);
+      ref.invalidate(feedForYouProvider);
+      ref.invalidate(feedConnectionsProvider);
+    } catch (_) {}
+  }
+
+  Future<void> _notInterested() async {
+    final post = widget.post;
+    if (post == null) return;
+    try {
+      await ref.read(feedRepositoryProvider).setNotInterested(post.id, true);
+      ref.invalidate(feedForYouProvider);
+      ref.invalidate(feedConnectionsProvider);
+      if (mounted) context.pop();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel ocultar.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _copyLink() async {
+    final post = widget.post;
+    if (post == null) return;
+    await Clipboard.setData(ClipboardData(text: 'conexa://feed/${post.id}'));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Link da publicacao copiado.')),
+      );
+    }
+  }
+
+  void _repostPost() {
+    final post = widget.post;
+    if (post == null) return;
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: AppColors.paper,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.repeat),
+              title: const Text('Republicar'),
+              subtitle: const Text('Compartilhar sem comentario.'),
+              onTap: () async {
+                Navigator.pop(sheetContext);
+                try {
+                  await ref
+                      .read(feedRepositoryProvider)
+                      .createPost('', repostOfId: post.id);
+                  ref.invalidate(feedForYouProvider);
+                  ref.invalidate(feedConnectionsProvider);
+                  if (mounted) context.pop();
+                } catch (_) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Nao foi possivel republicar.'),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.format_quote),
+              title: const Text('Citar'),
+              subtitle: const Text('Republicar com seu comentario.'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                context.push('/feed/compose?quote=1', extra: post);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _moderatePost(String action) async {
@@ -123,7 +290,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     }
 
     try {
-      await ref.read(groupRepositoryProvider).moderatePost(widget.postId, action);
+      await ref
+          .read(groupRepositoryProvider)
+          .moderatePost(widget.postId, action);
       ref.invalidate(feedForYouProvider);
       ref.invalidate(feedConnectionsProvider);
       ref.invalidate(commentsProvider(widget.postId));
@@ -131,9 +300,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              action == 'hide'
-                  ? 'Publicação ocultada.'
-                  : 'Publicação apagada.',
+              action == 'hide' ? 'Publicação ocultada.' : 'Publicação apagada.',
             ),
           ),
         );
@@ -169,14 +336,15 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     if (confirm != true || !mounted) return;
 
     try {
-      await ref.read(groupRepositoryProvider).moderateComment(comment.id, 'delete');
+      await ref
+          .read(groupRepositoryProvider)
+          .moderateComment(comment.id, 'delete');
       ref.invalidate(commentsProvider(widget.postId));
       ref.invalidate(feedForYouProvider);
       ref.invalidate(feedConnectionsProvider);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Resposta apagada.')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Resposta apagada.')));
       }
     } catch (_) {
       if (mounted) {
@@ -195,9 +363,20 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
 
     final isGroupPost = post != null && post.groupId != null;
     final canModerate = isGroupPost
-        ? (ref.watch(groupModeratorFlagProvider(post.groupId!)).asData?.value
-              ?? false)
+        ? (ref.watch(groupModeratorFlagProvider(post.groupId!)).asData?.value ??
+              false)
         : false;
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    final isAuthor = post != null && post.userId == currentUserId;
+    final connectionAsync =
+        post != null && post.replyPolicy == 'connections' && !isAuthor
+        ? ref.watch(connectionStatusProvider(post.userId))
+        : null;
+    final canReply =
+        post == null ||
+        post.replyPolicy != 'connections' ||
+        isAuthor ||
+        connectionAsync?.asData?.value.status == 'accepted';
 
     return Scaffold(
       appBar: AppBar(title: const Text('Publicacao')),
@@ -212,11 +391,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     post: post,
                     detail: true,
                     onLike: _toggleLike,
-                    onRepost: () =>
-                        context.push('/feed/compose?quote=1', extra: post),
-                    onHide: canModerate
-                        ? () => _moderatePost('hide')
-                        : null,
+                    onRepost: _repostPost,
+                    onBookmark: _toggleBookmark,
+                    onEdit: isAuthor && !post.wasRepost ? _editPost : null,
+                    onPin: isAuthor ? _pinPost : null,
+                    onNotInterested: _notInterested,
+                    onCopyLink: _copyLink,
+                    onHide: canModerate ? () => _moderatePost('hide') : null,
                     onDelete: canModerate
                         ? () => _moderatePost('delete')
                         : null,
@@ -241,7 +422,10 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Respostas', style: theme.textTheme.headlineMedium),
+                        Text(
+                          'Respostas',
+                          style: theme.textTheme.headlineMedium,
+                        ),
                         const SizedBox(height: AppSpacing.md),
                         for (final root in roots)
                           _CommentNode(
@@ -279,50 +463,74 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 color: AppColors.paper,
                 border: Border(top: BorderSide(color: AppColors.border)),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_replyToName != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.subdirectory_arrow_right, size: 14),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              'Respondendo a $_replyToName',
-                              style: theme.textTheme.labelSmall,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+              child: canReply
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (_replyToName != null)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSpacing.xs,
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.subdirectory_arrow_right,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    'Respondendo a $_replyToName',
+                                    style: theme.textTheme.labelSmall,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: _clearReply,
+                                  child: const Icon(Icons.close, size: 16),
+                                ),
+                              ],
                             ),
                           ),
-                          InkWell(
-                            onTap: _clearReply,
-                            child: const Icon(Icons.close, size: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _controller,
-                          decoration: const InputDecoration(
-                            hintText: 'Escreva um comentario...',
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _controller,
+                                decoration: const InputDecoration(
+                                  hintText: 'Escreva um comentario...',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            IconButton.filled(
+                              onPressed: _sending ? null : _send,
+                              icon: const Icon(Icons.send),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        const Icon(
+                          Icons.lock_outline,
+                          size: 18,
+                          color: AppColors.muted,
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            'O autor limitou as respostas às conexões dele.',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppColors.muted,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      IconButton.filled(
-                        onPressed: _sending ? null : _send,
-                        icon: const Icon(Icons.send),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      ],
+                    ),
             ),
           ),
         ],
@@ -373,11 +581,16 @@ class _CommentNodeState extends State<_CommentNode> {
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
-              child: Text(comment.authorName, style: theme.textTheme.titleSmall),
+              child: Text(
+                comment.authorName,
+                style: theme.textTheme.titleSmall,
+              ),
             ),
             Text(
               timeAgo(comment.createdAt),
-              style: theme.textTheme.bodySmall?.copyWith(color: AppColors.muted),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.muted,
+              ),
             ),
             if (widget.canModerate && widget.onDelete != null)
               IconButton(

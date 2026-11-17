@@ -57,22 +57,23 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
     }
     setState(() => _saving = true);
     try {
-      await ref.read(groupRepositoryProvider).updateGroup(
-        widget.groupId,
-        name: name,
-        description: _description.text.trim().isEmpty
-            ? null
-            : _description.text.trim(),
-        category: _category,
-        campus: _campus,
-        course: _course,
-      );
+      await ref
+          .read(groupRepositoryProvider)
+          .updateGroup(
+            widget.groupId,
+            name: name,
+            description: _description.text.trim().isEmpty
+                ? null
+                : _description.text.trim(),
+            category: _category,
+            campus: _campus,
+            course: _course,
+          );
       ref.invalidate(groupDetailProvider(widget.groupId));
       ref.invalidate(myGroupsProvider);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Grupo atualizado.')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Grupo atualizado.')));
         Navigator.of(context).pop();
       }
     } catch (error) {
@@ -95,7 +96,9 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
 
   Future<void> _requestPublic() async {
     try {
-      await ref.read(groupRepositoryProvider).requestPublicGroup(widget.groupId);
+      await ref
+          .read(groupRepositoryProvider)
+          .requestPublicGroup(widget.groupId);
       ref.invalidate(groupDetailProvider(widget.groupId));
       ref.invalidate(myGroupsProvider);
       if (mounted) {
@@ -151,9 +154,8 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
       ref.invalidate(myGroupsProvider);
       if (mounted) {
         context.go('/groups');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Grupo excluído.')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Grupo excluído.')));
       }
     } catch (error) {
       if (mounted) {
@@ -196,7 +198,9 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
             minLines: 2,
             maxLines: 4,
             maxLength: 1000,
-            decoration: const InputDecoration(labelText: 'Descrição (opcional)'),
+            decoration: const InputDecoration(
+              labelText: 'Descrição (opcional)',
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           DropdownButtonFormField<String>(
@@ -224,7 +228,10 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
             isExpanded: true,
             decoration: const InputDecoration(labelText: 'Curso (opcional)'),
             items: [
-              const DropdownMenuItem<String?>(value: null, child: Text('Nenhum curso')),
+              const DropdownMenuItem<String?>(
+                value: null,
+                child: Text('Nenhum curso'),
+              ),
               ...ufvCourses.map(
                 (c) => DropdownMenuItem<String?>(
                   value: c,

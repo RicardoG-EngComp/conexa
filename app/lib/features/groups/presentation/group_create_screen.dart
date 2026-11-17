@@ -41,16 +41,18 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
     }
     setState(() => _saving = true);
     try {
-      final id = await ref.read(groupRepositoryProvider).createGroup(
-        name: name,
-        description: _description.text.trim().isEmpty
-            ? null
-            : _description.text.trim(),
-        category: _category,
-        campus: _campus,
-        course: _course,
-        visibility: _visibility,
-      );
+      final id = await ref
+          .read(groupRepositoryProvider)
+          .createGroup(
+            name: name,
+            description: _description.text.trim().isEmpty
+                ? null
+                : _description.text.trim(),
+            category: _category,
+            campus: _campus,
+            course: _course,
+            visibility: _visibility,
+          );
       ref.invalidate(myGroupsProvider);
       if (mounted) {
         context.go('/groups');
@@ -123,7 +125,10 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
             isExpanded: true,
             decoration: const InputDecoration(labelText: 'Curso (opcional)'),
             items: [
-              const DropdownMenuItem<String?>(value: null, child: Text('Nenhum curso')),
+              const DropdownMenuItem<String?>(
+                value: null,
+                child: Text('Nenhum curso'),
+              ),
               ...ufvCourses.map(
                 (c) => DropdownMenuItem<String?>(
                   value: c,
@@ -157,7 +162,7 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
           Text(
             _visibility == 'public'
                 ? 'Grupos públicos passam por aprovação da moderação e recebem '
-                    'o selo oficial.'
+                      'o selo oficial.'
                 : 'Grupos privados só aparecem para quem tem convite.',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),

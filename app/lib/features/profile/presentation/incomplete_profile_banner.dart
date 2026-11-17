@@ -20,8 +20,7 @@ class IncompleteProfileBanner extends ConsumerWidget {
         final favoritesAsync = userId == null
             ? null
             : ref.watch(favoriteIdsProvider(userId));
-        final hasFavorites =
-            favoritesAsync?.asData?.value.isNotEmpty ?? false;
+        final hasFavorites = favoritesAsync?.asData?.value.isNotEmpty ?? false;
 
         final coreMissing = <String>[];
         if ((profile?['display_name'] as String?)?.trim().isEmpty ?? true) {
@@ -112,9 +111,7 @@ class _Banner extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             message,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: AppColors.muted,
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: AppColors.muted),
           ),
           TextButton(
             onPressed: () => context.push('/profile-setup'),

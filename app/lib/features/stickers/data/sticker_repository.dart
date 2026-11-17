@@ -109,14 +109,16 @@ class StickerRepository {
   }) async {
     final name = '${DateTime.now().microsecondsSinceEpoch}.png';
     final path = '$userId/packs/$packId/$name';
-    await _client.storage.from('stickers').uploadBinary(
-      path,
-      bytes,
-      fileOptions: const FileOptions(
-        contentType: 'image/png',
-        upsert: true,
-      ),
-    );
+    await _client.storage
+        .from('stickers')
+        .uploadBinary(
+          path,
+          bytes,
+          fileOptions: const FileOptions(
+            contentType: 'image/png',
+            upsert: true,
+          ),
+        );
     await _client.from('stickers').insert({
       'pack_id': packId,
       'image_path': path,

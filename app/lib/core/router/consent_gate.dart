@@ -24,8 +24,8 @@ class ConsentGate {
 
   static Future<bool> _load(String userId, int generation) async {
     try {
-      final accepted =
-          await AuthRepository(Supabase.instance.client).hasConsents();
+      final accepted = await AuthRepository(Supabase.instance.client)
+          .hasConsents();
       if (generation == _generation) {
         _checkedUserId = userId;
         _accepted = accepted;

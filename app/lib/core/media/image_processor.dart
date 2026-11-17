@@ -32,6 +32,17 @@ class ImageProcessor {
     });
     return ProcessedImage.fromMap(result);
   }
+
+  static Future<ProcessedImage> feedImage(Uint8List bytes) async {
+    final result = await compute(_process, <String, dynamic>{
+      'bytes': bytes,
+      'fullSize': 1600,
+      'thumbSize': 480,
+      'fullQuality': 82,
+      'thumbQuality': 78,
+    });
+    return ProcessedImage.fromMap(result);
+  }
 }
 
 Map<String, dynamic> _process(Map<String, dynamic> args) {

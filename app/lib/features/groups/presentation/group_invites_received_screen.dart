@@ -28,9 +28,8 @@ class GroupInvitesReceivedScreen extends ConsumerWidget {
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_error(e.toString()))),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(_error(e.toString()))));
         }
       }
     }

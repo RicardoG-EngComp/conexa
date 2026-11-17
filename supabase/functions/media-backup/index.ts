@@ -34,13 +34,18 @@ Deno.serve(async (req) => {
     const sources = [
       ["profile", config.buckets.profile],
       ["study", config.buckets.study],
+      ["feed", config.buckets.feed],
+      ["chat", config.buckets.chat],
     ] as const;
 
     let copied = 0;
     let failed = 0;
     let total = 0;
+    const seenBuckets = new Set<string>();
 
     for (const [scope, bucket] of sources) {
+      if (seenBuckets.has(bucket)) continue;
+      seenBuckets.add(bucket);
       const keys = await listPrefix(config, bucket, "");
       total += keys.length;
       if (total > MAX_OBJECTS) {

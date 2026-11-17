@@ -35,9 +35,8 @@ class GroupMembersTab extends ConsumerWidget {
         await action();
         onChanged();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(success)),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(success)));
         }
       } catch (_) {
         if (context.mounted) {
@@ -106,9 +105,8 @@ class GroupMembersTab extends ConsumerWidget {
       }
       onChanged();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cargos atualizados.')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Cargos atualizados.')));
       }
     }
 
@@ -117,7 +115,9 @@ class GroupMembersTab extends ConsumerWidget {
         context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('Remover membro?'),
-          content: Text('${member.name} deixa de publicar e ver conteúdos do grupo.'),
+          content: Text(
+            '${member.name} deixa de publicar e ver conteúdos do grupo.',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),

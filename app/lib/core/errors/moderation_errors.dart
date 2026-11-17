@@ -20,6 +20,9 @@ String friendlyModerationError(
     if (message.contains('conta_inativa')) {
       return 'Sua conta esta suspensa ou banida.';
     }
+    if (message.contains('respostas_restritas')) {
+      return 'O autor limitou as respostas as conexoes dele.';
+    }
   }
   return fallback;
 }

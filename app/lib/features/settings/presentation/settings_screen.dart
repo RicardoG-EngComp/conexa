@@ -65,6 +65,24 @@ class SettingsScreen extends ConsumerWidget {
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.shield_outlined),
+              title: const Text('Seguranca e privacidade'),
+              subtitle: const Text(
+                'Dispositivos, silenciamentos, relatos e exportar dados.',
+              ),
+              onTap: () => context.push('/security'),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.insights_outlined),
+              title: const Text('Insights'),
+              subtitle: const Text(
+                'Curtidas, respostas, reposts e salvamentos dos seus posts.',
+              ),
+              onTap: () => context.push('/insights'),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.slideshow_outlined),
               title: const Text('Como funciona'),
               subtitle: const Text('Rever o tutorial do aplicativo.'),

@@ -10,8 +10,7 @@ final connectionRepositoryProvider = Provider<ConnectionRepository>(
   (ref) => ConnectionRepository(Supabase.instance.client),
 );
 
-final connectionsProvider =
-    StreamProvider.autoDispose<ConnectionsData>((ref) {
+final connectionsProvider = StreamProvider.autoDispose<ConnectionsData>((ref) {
   final repository = ref.read(connectionRepositoryProvider);
   final client = Supabase.instance.client;
   final controller = StreamController<ConnectionsData>();
@@ -41,8 +40,8 @@ final connectionsProvider =
   return controller.stream;
 });
 
-final connectionStatusProvider =
-    FutureProvider.autoDispose.family<ConnectionStatus, String>(
-  (ref, targetId) =>
-      ref.read(connectionRepositoryProvider).statusWith(targetId),
-);
+final connectionStatusProvider = FutureProvider.autoDispose
+    .family<ConnectionStatus, String>(
+      (ref, targetId) =>
+          ref.read(connectionRepositoryProvider).statusWith(targetId),
+    );

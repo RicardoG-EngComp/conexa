@@ -6,6 +6,8 @@ export interface R2Config {
   buckets: {
     profile: string;
     study: string;
+    feed: string;
+    chat: string;
     test: string;
     backup: string;
   };
@@ -48,6 +50,8 @@ export function getR2Config(): R2Config {
     buckets: {
       profile: Deno.env.get("R2_BUCKET_PROFILE")?.trim() || "conexa-profile",
       study: Deno.env.get("R2_BUCKET_STUDY")?.trim() || "conexa-study",
+      feed: Deno.env.get("R2_BUCKET_FEED")?.trim() || "conexa-profile",
+      chat: Deno.env.get("R2_BUCKET_CHAT")?.trim() || "conexa-profile",
       test: testBucket,
       backup: Deno.env.get("R2_BUCKET_BACKUP")?.trim() || "conexa-backup",
     },

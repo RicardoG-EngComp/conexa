@@ -1,0 +1,31 @@
+name: Media GC
+
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Call media-gc
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          MEDIA_GC_SECRET: ${{ secrets.MEDIA_BACKUP_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${MEDIA_GC_SECRET:-}" ]; then
+            echo "Missing SUPABASE_URL or MEDIA_BACKUP_SECRET"
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error \
+            --retry 3 --retry-delay 10 \
+            -X POST "${SUPABASE_URL%/}/functions/v1/media-gc" \
+            -H "x-gc-secret: ${MEDIA_GC_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{}'

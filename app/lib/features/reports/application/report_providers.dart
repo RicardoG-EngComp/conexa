@@ -15,3 +15,11 @@ final isAdminProvider = FutureProvider.autoDispose<bool>(
 final openReportsProvider = FutureProvider.autoDispose<List<Report>>(
   (ref) => ref.read(reportRepositoryProvider).fetchOpenReports(),
 );
+
+final myReportsProvider = FutureProvider.autoDispose<List<Report>>(
+  (ref) => ref.read(reportRepositoryProvider).fetchMyReports(),
+);
+
+final pendingAppealsProvider = FutureProvider.autoDispose<List<Report>>(
+  (ref) => ref.read(reportRepositoryProvider).fetchPendingAppeals(),
+);

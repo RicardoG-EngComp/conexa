@@ -29,7 +29,13 @@ universidades federais.
 - Play Store / beta fechado: em preparação.
 - MVP de Estudos (fase 1): ✅ catálogo, materiais, upload com aprovação e moderação.
 - Canal de feedback (1.0.15): ✅ bugs e sugestões no app, triagem admin e exportação para agentes.
-- Próximo: Q&A e grupos de estudo (fase 2).
+- Privacidade e confiança (1.0.17): ✅ dispositivos, exportação LGPD, mutes e apelação.
+- Feed social P1 (1.0.18): ✅ bookmark, repost, enquete, edição, fixar, rascunhos, agendamento, menções e imagens.
+- Chat social P2 (1.0.19): ✅ grupos, reply, reações, edição, mídia de imagem/PDF, pin/mute/archive e digitando; sem E2EE.
+- Descoberta P3 (1.0.20): ✅ busca global, feeds personalizados, não interessado, insights e copiar link.
+- Grupos e estudos P4 (1.0.21): ✅ chat do grupo, eventos, analytics, Q&A, materiais salvos e avaliações.
+- Hardening P5 (1.0.22): ✅ 2FA e vídeo removidos, exportação em arquivo, termos administráveis, mídia agendada, membros de chat, RSVP, busca em comentários, views e anexos de Q&A.
+- Próximo: P5 experimental opcional (áudio/live, fediverso, IA e monetização), com orçamento e revisão jurídica.
 
 ## Documentos
 
@@ -42,6 +48,8 @@ universidades federais.
 | [ROADMAP-BLOCOS](docs/ROADMAP-BLOCOS.md) | Construção organizada em blocos |
 | [BACKEND-INVARIANTES](docs/BACKEND-INVARIANTES.md) | **Leitura obrigatória** antes de alterar o backend: invariantes, histórico e o que não quebrar |
 | [MAPA-DE-TELAS](docs/MAPA-DE-TELAS.md) | Telas e wireframes |
+| [CATALOGO-X-THREADS](docs/CATALOGO-X-THREADS.md) | Funções de X/Threads, custo e prioridade |
+| [NAO-COPIAR](docs/NAO-COPIAR.md) | Limites jurídicos, marca, código e moderação |
 | [ESCOPO-MVP](docs/ESCOPO-MVP.md) | Escopo funcional e técnico |
 | [FLUXO-VERIFICACAO](docs/FLUXO-VERIFICACAO.md) | Verificação de idade e identidade |
 | [CONFORMIDADE-LGPD](docs/CONFORMIDADE-LGPD.md) | Checklist de conformidade |
@@ -83,7 +91,9 @@ flutter run -d android
 
 ## Mídia (Cloudflare R2)
 
-- Buckets privados: `conexa-profile`, `conexa-study` e `conexa-test`.
+- Buckets privados: `conexa-profile`, `conexa-study`, `conexa-feed` (opcional),
+  `conexa-chat` (opcional) e `conexa-test`. Sem `R2_BUCKET_FEED`/`R2_BUCKET_CHAT`,
+  mídia do feed/chat usa `conexa-profile` por compatibilidade.
 - Credenciais ficam somente nos secrets das Edge Functions; nunca no app.
 - Configure/rotacione com:
 
@@ -95,7 +105,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-media-backup
 - Backup diário em `conexa-backup`, retenção de 7 dias, disparado pelo workflow
   `media-backup.yml`.
 
-- Uploads passam por `media-upload`; leitura de perfil por `media-sign`; estudos
+- Uploads passam por `media-upload`; leitura de perfil por `media-sign`; mídia
+  do feed por `feed-media-sign`; mídia do chat por `chat-media-sign`; estudos
   por `study-file-url`. Detalhes em
   [docs/BACKEND-INVARIANTES.md](docs/BACKEND-INVARIANTES.md).
 

@@ -50,6 +50,48 @@ class ReportRepository {
         .toList();
   }
 
+  Future<List<Report>> fetchMyReports() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+    final rows = await _client
+        .from('reports')
+        .select()
+        .eq('reporter_id', user.id)
+        .order('created_at', ascending: false);
+    return (rows as List)
+        .map((r) => Report.fromMap(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> submitAppeal(String reportId, String reason) async {
+    await _client.rpc(
+      'submit_report_appeal',
+      params: {'p_report_id': reportId, 'p_reason': reason},
+    );
+  }
+
+  Future<List<Report>> fetchPendingAppeals() async {
+    final rows = await _client
+        .from('reports')
+        .select()
+        .eq('appeal_status', 'pending')
+        .order('appeal_created_at', ascending: true);
+    return (rows as List)
+        .map((r) => Report.fromMap(r as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> resolveAppeal({
+    required String reportId,
+    required bool accept,
+    String? result,
+  }) async {
+    await _client.rpc(
+      'admin_resolve_report_appeal',
+      params: {'p_report_id': reportId, 'p_accept': accept, 'p_result': result},
+    );
+  }
+
   Future<void> review({
     required String reportId,
     required String reportedUserId,
@@ -62,16 +104,11 @@ class ReportRepository {
 
     if (action == 'hide' || action == 'restore' || action == 'delete') {
       final type = targetType ?? 'profile';
-      final id = targetId ??
-          (type == 'profile' ? reportedUserId : null);
+      final id = targetId ?? (type == 'profile' ? reportedUserId : null);
       if (id == null) throw Exception('conteudo sem id');
       await _client.rpc(
         'admin_moderate_content',
-        params: {
-          'p_target_type': type,
-          'p_target_id': id,
-          'p_action': action,
-        },
+        params: {'p_target_type': type, 'p_target_id': id, 'p_action': action},
       );
     }
 

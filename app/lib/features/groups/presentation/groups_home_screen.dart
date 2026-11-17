@@ -35,10 +35,7 @@ class GroupsHomeScreen extends ConsumerWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      'Grupos',
-                      style: theme.textTheme.displayMedium,
-                    ),
+                    child: Text('Grupos', style: theme.textTheme.displayMedium),
                   ),
                   const NotificationBell(),
                 ],
@@ -74,10 +71,7 @@ class GroupsHomeScreen extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.mail_outline,
-                          color: AppColors.teal,
-                        ),
+                        const Icon(Icons.mail_outline, color: AppColors.teal),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
@@ -107,7 +101,8 @@ class GroupsHomeScreen extends ConsumerWidget {
                   await ref.read(myGroupsProvider.future);
                 },
                 child: groupsAsync.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (_, _) => const Center(
                     child: Text('Erro ao carregar seus grupos.'),
                   ),

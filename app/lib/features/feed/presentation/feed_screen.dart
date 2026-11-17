@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -48,7 +50,160 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   }
 
   void _repost(FeedPost post) {
-    context.push('/feed/compose?quote=1', extra: post);
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: AppColors.paper,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.repeat),
+              title: const Text('Republicar'),
+              subtitle: const Text('Compartilhar sem comentario.'),
+              onTap: () async {
+                Navigator.pop(sheetContext);
+                try {
+                  await ref
+                      .read(feedRepositoryProvider)
+                      .createPost('', repostOfId: post.id);
+                  ref.invalidate(feedForYouProvider);
+                  ref.invalidate(feedConnectionsProvider);
+                } catch (_) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Nao foi possivel republicar.'),
+                    ),
+                  );
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.format_quote),
+              title: const Text('Citar'),
+              subtitle: const Text('Republicar com seu comentario.'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                context.push('/feed/compose?quote=1', extra: post);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleBookmark(FeedPost post) async {
+    try {
+      await ref.read(feedRepositoryProvider).toggleBookmark(post.id);
+      ref.invalidate(feedForYouProvider);
+      ref.invalidate(feedConnectionsProvider);
+    } catch (_) {}
+  }
+
+  Future<void> _edit(FeedPost post) async {
+    final controller = TextEditingController(text: post.content);
+    final content = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Editar publicacao'),
+        content: TextField(
+          controller: controller,
+          minLines: 4,
+          maxLines: 8,
+          maxLength: 2000,
+          decoration: const InputDecoration(
+            hintText: 'O que voce quer compartilhar?',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final text = controller.text.trim();
+              if (text.isEmpty) return;
+              Navigator.pop(ctx, text);
+            },
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (content == null) return;
+
+    try {
+      await ref.read(feedRepositoryProvider).editPost(post.id, content);
+      ref.invalidate(feedForYouProvider);
+      ref.invalidate(feedConnectionsProvider);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Nao foi possivel editar. O prazo pode ter expirado.',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _pin(FeedPost post) async {
+    try {
+      await ref
+          .read(feedRepositoryProvider)
+          .pinPost(post.id, post.pinnedAt == null);
+      ref.invalidate(feedForYouProvider);
+      ref.invalidate(feedConnectionsProvider);
+    } catch (_) {}
+  }
+
+  Future<void> _notInterested(FeedPost post) async {
+    try {
+      await ref.read(feedRepositoryProvider).setNotInterested(post.id, true);
+      ref.invalidate(feedForYouProvider);
+      ref.invalidate(feedConnectionsProvider);
+      ref.invalidate(savedPostsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Publicacao removida do seu feed.'),
+            action: SnackBarAction(
+              label: 'Desfazer',
+              onPressed: () async {
+                await ref
+                    .read(feedRepositoryProvider)
+                    .setNotInterested(post.id, false);
+                ref.invalidate(feedForYouProvider);
+                ref.invalidate(feedConnectionsProvider);
+                ref.invalidate(hiddenPostsProvider);
+              },
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nao foi possivel ocultar.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _copyLink(FeedPost post) async {
+    await Clipboard.setData(ClipboardData(text: 'conexa://feed/${post.id}'));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Link da publicacao copiado.')),
+      );
+    }
   }
 
   void _openComposerMenu(List<UserGroup> groups) {
@@ -93,6 +248,42 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                       _pickGroup(groups);
                     },
                   ),
+                _ComposerOption(
+                  icon: Icons.filter_list,
+                  title: 'Feeds personalizados',
+                  subtitle: 'Acompanhar ate 5 topicos escolhidos por voce.',
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    context.push('/feed/feeds');
+                  },
+                ),
+                _ComposerOption(
+                  icon: Icons.visibility_off_outlined,
+                  title: 'Publicacoes ocultas',
+                  subtitle: 'Rever posts marcados como “nao tenho interesse”.',
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    context.push('/feed/hidden');
+                  },
+                ),
+                _ComposerOption(
+                  icon: Icons.bookmark_outline,
+                  title: 'Salvos',
+                  subtitle: 'Publicacoes que voce guardou para depois.',
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    context.push('/feed/saved');
+                  },
+                ),
+                _ComposerOption(
+                  icon: Icons.schedule_outlined,
+                  title: 'Rascunhos e agendados',
+                  subtitle: 'Continuar um rascunho ou ver o que vai publicar.',
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    context.push('/feed/scheduled');
+                  },
+                ),
                 _ComposerOption(
                   icon: Icons.add_circle_outline,
                   title: 'Criar grupo',
@@ -162,7 +353,14 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text('Feed UFV', style: theme.textTheme.titleLarge),
-          actions: const [NotificationBell()],
+          actions: [
+            IconButton(
+              tooltip: 'Buscar publicacoes',
+              onPressed: () => context.push('/feed/search'),
+              icon: const Icon(Icons.search),
+            ),
+            const NotificationBell(),
+          ],
           bottom: TabBar(
             indicatorColor: AppColors.teal,
             labelColor: AppColors.ink,
@@ -191,6 +389,11 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               onComment: _openPost,
               onRepost: _repost,
               onReport: _report,
+              onBookmark: _toggleBookmark,
+              onEdit: _edit,
+              onPin: _pin,
+              onNotInterested: _notInterested,
+              onCopyLink: _copyLink,
             ),
             _FeedTab(
               feed: connections,
@@ -199,6 +402,11 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               onComment: _openPost,
               onRepost: _repost,
               onReport: _report,
+              onBookmark: _toggleBookmark,
+              onEdit: _edit,
+              onPin: _pin,
+              onNotInterested: _notInterested,
+              onCopyLink: _copyLink,
             ),
           ],
         ),
@@ -215,6 +423,11 @@ class _FeedTab extends ConsumerWidget {
     required this.onComment,
     required this.onRepost,
     required this.onReport,
+    required this.onBookmark,
+    required this.onEdit,
+    required this.onPin,
+    required this.onNotInterested,
+    required this.onCopyLink,
   });
 
   final AsyncValue<List<FeedPost>> feed;
@@ -223,11 +436,17 @@ class _FeedTab extends ConsumerWidget {
   final void Function(FeedPost post) onComment;
   final void Function(FeedPost post) onRepost;
   final void Function(FeedPost post) onReport;
+  final void Function(FeedPost post) onBookmark;
+  final void Function(FeedPost post) onEdit;
+  final void Function(FeedPost post) onPin;
+  final void Function(FeedPost post) onNotInterested;
+  final void Function(FeedPost post) onCopyLink;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final provider = forYou ? feedForYouProvider : feedConnectionsProvider;
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -292,6 +511,15 @@ class _FeedTab extends ConsumerWidget {
                   onComment: () => onComment(post),
                   onRepost: () => onRepost(post),
                   onReport: () => onReport(post),
+                  onBookmark: () => onBookmark(post),
+                  onEdit: post.userId == currentUserId && !post.wasRepost
+                      ? () => onEdit(post)
+                      : null,
+                  onPin: post.userId == currentUserId
+                      ? () => onPin(post)
+                      : null,
+                  onNotInterested: () => onNotInterested(post),
+                  onCopyLink: () => onCopyLink(post),
                 ),
               );
             },

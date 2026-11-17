@@ -42,7 +42,9 @@ class GroupRolesTab extends ConsumerWidget {
                 children: [
                   TextField(
                     controller: name,
-                    decoration: const InputDecoration(labelText: 'Nome do cargo'),
+                    decoration: const InputDecoration(
+                      labelText: 'Nome do cargo',
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   for (final permission in GroupRepository.allPermissions)
@@ -99,9 +101,8 @@ class GroupRolesTab extends ConsumerWidget {
         }
         onChanged();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cargo salvo.')),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Cargo salvo.')));
         }
       } catch (_) {
         if (context.mounted) {
@@ -137,9 +138,8 @@ class GroupRolesTab extends ConsumerWidget {
         await repo.deleteRole(role.id);
         onChanged();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cargo apagado.')),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Cargo apagado.')));
         }
       } catch (_) {
         if (context.mounted) {

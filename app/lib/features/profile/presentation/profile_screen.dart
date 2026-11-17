@@ -16,6 +16,7 @@ import '../../chat/application/chat_providers.dart';
 import '../../connections/presentation/connection_actions.dart';
 import '../../connections/presentation/profile_message_button.dart';
 import '../../reports/presentation/report_dialog.dart';
+import '../../security/application/security_providers.dart';
 import '../application/profile_providers.dart';
 import '../data/ufv_courses.dart';
 
@@ -179,6 +180,37 @@ class ProfileScreen extends ConsumerWidget {
                           contentSnapshot: profile['bio'] as String?,
                         ),
                         child: const Text('Denunciar'),
+                      ),
+                      OutlinedButton(
+                        onPressed: () async {
+                          try {
+                            await ref
+                                .read(securityRepositoryProvider)
+                                .muteUser(id);
+                            ref.invalidate(mutedUsersProvider);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Usuario silenciado. Gerencie em '
+                                    'Ajustes > Seguranca e privacidade.',
+                                  ),
+                                ),
+                              );
+                            }
+                          } catch (_) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Nao foi possivel silenciar o usuario.',
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        child: const Text('Silenciar'),
                       ),
                     ],
                   ),

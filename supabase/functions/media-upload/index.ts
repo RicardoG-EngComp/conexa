@@ -11,16 +11,32 @@ import {
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-kind, x-variant, x-asset-id, x-width, x-height",
+    "authorization, x-client-info, apikey, content-type, x-kind, x-variant, x-asset-id, x-width, x-height, x-duration-ms",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 const ONE_MB = 1024 * 1024;
 const PROFILE_FULL_MAX = 5 * ONE_MB;
 const STUDY_FULL_MAX = 10 * ONE_MB;
+const FEED_IMAGE_MAX = 5 * ONE_MB;
+const FEED_VIDEO_MAX = 25 * ONE_MB;
+const CHAT_IMAGE_MAX = 5 * ONE_MB;
+const CHAT_VIDEO_MAX = 25 * ONE_MB;
+const CHAT_FILE_MAX = 10 * ONE_MB;
+const QA_IMAGE_MAX = 5 * ONE_MB;
+const QA_FILE_MAX = 10 * ONE_MB;
 const THUMB_MAX = 1 * ONE_MB;
 const STUDY_MONTHLY_FILES = 20;
 const STUDY_MONTHLY_BYTES = 200 * ONE_MB;
+const FEED_IMAGES_24H = 30;
+const FEED_VIDEOS_24H = 6;
+const FEED_MONTHLY_BYTES = 500 * ONE_MB;
+const CHAT_IMAGES_24H = 50;
+const CHAT_VIDEOS_24H = 10;
+const CHAT_FILES_24H = 20;
+const CHAT_MONTHLY_BYTES = 500 * ONE_MB;
+const QA_FILES_24H = 20;
+const QA_MONTHLY_BYTES = 500 * ONE_MB;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -66,6 +82,13 @@ Deno.serve(async (req) => {
     const rule = validateKind(kind, variant, declaredMime);
     if (!rule) return json({ error: "tipo_ou_variante_invalida" }, 400);
 
+    if (
+      (kind === "feed_video" || kind === "chat_video") &&
+      Deno.env.get("ALLOW_VIDEO_UPLOAD") !== "true"
+    ) {
+      return json({ error: "video_indisponivel" }, 403);
+    }
+
     if (rule.scope === "study") {
       const { data: uploader } = await admin
         .from("study_uploaders")
@@ -104,13 +127,23 @@ Deno.serve(async (req) => {
     const config = getR2Config();
     const bucket = rule.scope === "profile"
       ? config.buckets.profile
-      : config.buckets.study;
+      : rule.scope === "study"
+      ? config.buckets.study
+      : rule.scope === "feed"
+      ? config.buckets.feed
+      : config.buckets.chat;
     const extension = extensionFor(sniffed);
     if (!extension) return json({ error: "tipo_nao_suportado" }, 415);
 
     const base = rule.scope === "profile"
       ? `${userId}/${kind}/${assetId}`
-      : `${userId}/study/${assetId}`;
+      : rule.scope === "study"
+      ? `${userId}/study/${assetId}`
+      : rule.scope === "feed"
+      ? `${userId}/feed/${assetId}`
+      : rule.scope === "qa"
+      ? `${userId}/qa/${assetId}`
+      : `${userId}/chat/${assetId}`;
     const key = `${base}${variant === "thumb" ? "_t" : ""}.${extension}`;
     if (!isSafeObjectPath(key)) return json({ error: "caminho_invalido" }, 400);
 
@@ -126,6 +159,7 @@ Deno.serve(async (req) => {
     const sha256 = await sha256Hex(bytes);
     const width = positiveInt(req.headers.get("x-width"));
     const height = positiveInt(req.headers.get("x-height"));
+    const durationMs = positiveInt(req.headers.get("x-duration-ms"));
 
     const { error: dbError } = await admin
       .from("media_objects")
@@ -140,6 +174,7 @@ Deno.serve(async (req) => {
         byte_size: bytes.byteLength,
         width,
         height,
+        duration_ms: durationMs,
         sha256,
         deleted_at: null,
       }, { onConflict: "scope,object_key" });
@@ -169,12 +204,48 @@ function validateKind(
   kind: string,
   variant: string,
   mime: string,
-): { scope: "profile" | "study"; maxBytes: number } | null {
+): { scope: "profile" | "study" | "feed"; maxBytes: number } | null {
   if (variant !== "full" && variant !== "thumb") return null;
 
   if (kind === "study_pdf") {
     if (variant !== "full" || mime !== "application/pdf") return null;
     return { scope: "study", maxBytes: STUDY_FULL_MAX };
+  }
+
+  if (kind === "feed_video") {
+    if (variant !== "full") return null;
+    if (!["video/mp4", "video/webm"].includes(mime)) return null;
+    return { scope: "feed", maxBytes: FEED_VIDEO_MAX };
+  }
+
+  if (kind === "chat_image") {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(mime)) return null;
+    return {
+      scope: "chat",
+      maxBytes: variant === "thumb" ? THUMB_MAX : CHAT_IMAGE_MAX,
+    };
+  }
+
+  if (kind === "chat_video") {
+    if (variant !== "full") return null;
+    if (!["video/mp4", "video/webm"].includes(mime)) return null;
+    return { scope: "chat", maxBytes: CHAT_VIDEO_MAX };
+  }
+
+  if (kind === "chat_file") {
+    if (variant !== "full" || mime !== "application/pdf") return null;
+    return { scope: "chat", maxBytes: CHAT_FILE_MAX };
+  }
+
+  if (kind === "qa_image") {
+    if (variant !== "full") return null;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(mime)) return null;
+    return { scope: "qa", maxBytes: QA_IMAGE_MAX };
+  }
+
+  if (kind === "qa_file") {
+    if (variant !== "full" || mime !== "application/pdf") return null;
+    return { scope: "qa", maxBytes: QA_FILE_MAX };
   }
 
   if (!["image/jpeg", "image/png", "image/webp"].includes(mime)) return null;
@@ -193,13 +264,20 @@ function validateKind(
     };
   }
 
+  if (kind === "feed_image") {
+    return {
+      scope: "feed",
+      maxBytes: variant === "thumb" ? THUMB_MAX : FEED_IMAGE_MAX,
+    };
+  }
+
   return null;
 }
 
 async function checkQuota(
   admin: ReturnType<typeof createClient>,
   userId: string,
-  scope: "profile" | "study",
+  scope: "profile" | "study" | "feed" | "chat" | "qa",
   kind: string,
   variant: string,
   incomingBytes: number,
@@ -247,6 +325,122 @@ async function checkQuota(
     );
     if (used + incomingBytes > STUDY_MONTHLY_BYTES) {
       return "quota_estudo_bytes";
+    }
+    return null;
+  }
+
+  if (scope === "feed" && variant === "full") {
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since30d = new Date(
+      Date.now() - 30 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+
+    const { count } = await admin
+      .from("media_objects")
+      .select("asset_id", { count: "exact", head: true })
+      .eq("owner_id", userId)
+      .eq("scope", "feed")
+      .eq("kind", kind)
+      .eq("variant", "full")
+      .is("deleted_at", null)
+      .gte("created_at", since24h);
+
+    if (kind === "feed_image" && (count ?? 0) >= FEED_IMAGES_24H) {
+      return "quota_feed_imagens";
+    }
+    if (kind === "feed_video" && (count ?? 0) >= FEED_VIDEOS_24H) {
+      return "quota_feed_videos";
+    }
+
+    const { data: usage } = await admin
+      .from("media_objects")
+      .select("byte_size")
+      .eq("owner_id", userId)
+      .eq("scope", "feed")
+      .is("deleted_at", null)
+      .gte("created_at", since30d);
+
+    const used = (usage ?? []).reduce(
+      (sum, row) => sum + Number(row.byte_size ?? 0),
+      0,
+    );
+    if (used + incomingBytes > FEED_MONTHLY_BYTES) {
+      return "quota_feed_bytes";
+    }
+  }
+
+  if (scope === "chat" && variant === "full") {
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since30d = new Date(
+      Date.now() - 30 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+
+    const { count } = await admin
+      .from("media_objects")
+      .select("asset_id", { count: "exact", head: true })
+      .eq("owner_id", userId)
+      .eq("scope", "chat")
+      .eq("kind", kind)
+      .eq("variant", "full")
+      .is("deleted_at", null)
+      .gte("created_at", since24h);
+
+    if (kind === "chat_image" && (count ?? 0) >= CHAT_IMAGES_24H) {
+      return "quota_chat_imagens";
+    }
+    if (kind === "chat_video" && (count ?? 0) >= CHAT_VIDEOS_24H) {
+      return "quota_chat_videos";
+    }
+    if (kind === "chat_file" && (count ?? 0) >= CHAT_FILES_24H) {
+      return "quota_chat_arquivos";
+    }
+
+    const { data: usage } = await admin
+      .from("media_objects")
+      .select("byte_size")
+      .eq("owner_id", userId)
+      .eq("scope", "chat")
+      .is("deleted_at", null)
+      .gte("created_at", since30d);
+
+    const used = (usage ?? []).reduce(
+      (sum, row) => sum + Number(row.byte_size ?? 0),
+      0,
+    );
+    if (used + incomingBytes > CHAT_MONTHLY_BYTES) {
+      return "quota_chat_bytes";
+    }
+  }
+
+  if (scope === "qa" && variant === "full") {
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since30d = new Date(
+      Date.now() - 30 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+
+    const { count } = await admin
+      .from("media_objects")
+      .select("asset_id", { count: "exact", head: true })
+      .eq("owner_id", userId)
+      .eq("scope", "qa")
+      .eq("variant", "full")
+      .is("deleted_at", null)
+      .gte("created_at", since24h);
+    if ((count ?? 0) >= QA_FILES_24H) return "quota_qa_arquivos";
+
+    const { data: usage } = await admin
+      .from("media_objects")
+      .select("byte_size")
+      .eq("owner_id", userId)
+      .eq("scope", "qa")
+      .is("deleted_at", null)
+      .gte("created_at", since30d);
+    const used = (usage ?? []).reduce(
+      (sum, row) => sum + Number(row.byte_size ?? 0),
+      0,
+    );
+    if (used + incomingBytes > QA_MONTHLY_BYTES) {
+      return "quota_qa_bytes";
     }
   }
 

@@ -65,6 +65,12 @@ class _StudiesHomeState extends ConsumerState<StudiesHome> {
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: AppSpacing.md),
+            OutlinedButton.icon(
+              onPressed: () => context.push('/studies/saved'),
+              icon: const Icon(Icons.bookmark_outline),
+              label: const Text('Materiais salvos'),
+            ),
+            const SizedBox(height: AppSpacing.md),
             canUploadAsync.maybeWhen(
               data: (canUpload) => canUpload
                   ? FilledButton.icon(
@@ -97,9 +103,7 @@ class _StudiesHomeState extends ConsumerState<StudiesHome> {
                 ),
               )
             else
-              ...filtered.map(
-                (d) => _DisciplineCard(discipline: d),
-              ),
+              ...filtered.map((d) => _DisciplineCard(discipline: d)),
           ],
         );
       },

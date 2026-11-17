@@ -4,6 +4,46 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
+## 1.0.17+21 — Hardening P5
+
+- **Data:** 17 de novembro de 2026.
+- **Versão:** `1.0.17` (versionCode `21`).
+- **Pacote:** `com.ricardogengcomp.conexa`.
+- **Grupo:** `ufv-beta` — UFV Beta.
+- **Banco:** migrations P5 aplicadas no Supabase.
+- **Distribuição:** Firebase App Distribution.
+
+### O que entrou
+
+- 2FA removido; login segue pela conta institucional.
+- Upload de vídeo desativado no MVP por custo; feed e chat seguem com imagem/PDF.
+- Exportação dos próprios dados em arquivo.
+- Termos de moderação administráveis pelo admin.
+- Mídia em posts agendados/rascunhos.
+- Adicionar/remover membros no chat de grupo.
+- RSVP e lembretes de eventos.
+- Busca em comentários e busca de perguntas no Q&A.
+- Anexos de imagem/PDF no Q&A.
+- Contagem de views e painel de insights.
+- Comentário público nas avaliações de materiais.
+- Posts ocultos com opção de desfazer.
+
+### Notas usadas no App Distribution
+
+```text
+Feed, chat, grupos e estudos mais completos.
+Agora com mídia agendada, membros no chat, RSVP, anexos no Q&A,
+busca em comentários, views e avaliações com comentário.
+2FA e upload de vídeo foram removidos nesta versão.
+```
+
+### Como reproduzir o build
+
+```powershell
+cd app
+flutter build apk --release --build-name=1.0.17 --build-number=21
+```
+
 ## 1.0.16+20 — Mídia rápida no R2
 
 - **Data:** 13 de novembro de 2026.

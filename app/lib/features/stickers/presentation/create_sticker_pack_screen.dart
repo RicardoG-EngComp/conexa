@@ -78,19 +78,15 @@ class _CreateStickerPackScreenState
       final repo = ref.read(stickerRepositoryProvider);
       final packId = await repo.createPack(name);
       for (final bytes in _images) {
-        await repo.uploadSticker(
-          packId: packId,
-          userId: user.id,
-          bytes: bytes,
-        );
+        await repo.uploadSticker(packId: packId, userId: user.id, bytes: bytes);
       }
       ref.invalidate(stickerPacksProvider);
       if (mounted) Navigator.pop(context);
     } catch (_) {
       if (mounted) {
         setState(
-          () => _error =
-              'Falha ao criar o pacote. Verifique o limite de 50 MB.',
+          () =>
+              _error = 'Falha ao criar o pacote. Verifique o limite de 50 MB.',
         );
       }
     } finally {
@@ -146,10 +142,7 @@ class _CreateStickerPackScreenState
             ],
             if (_error != null) ...[
               const SizedBox(height: AppSpacing.md),
-              Text(
-                _error!,
-                style: const TextStyle(color: AppColors.danger),
-              ),
+              Text(_error!, style: const TextStyle(color: AppColors.danger)),
             ],
             const SizedBox(height: AppSpacing.lg),
             FilledButton(

@@ -71,24 +71,28 @@ class GroupRepository {
       }
     }
 
-    return groupIds.map((gid) {
-      final g = groups[gid];
-      if (g == null) return null;
-      final roleObjs = (roleIdsByGroup[gid] ?? const [])
-          .map((rid) => roleMap[rid])
-          .whereType<UserGroupRole>()
-          .toList();
-      final isPublicVerified = g['visibility'] == 'public' &&
-          g['public_approval'] == 'approved' &&
-          g['is_official'] == true;
-      return UserGroup(
-        id: gid,
-        name: g['name'] as String,
-        isOfficial: g['is_official'] == true,
-        isPublicVerified: isPublicVerified,
-        roles: roleObjs,
-      );
-    }).whereType<UserGroup>().toList();
+    return groupIds
+        .map((gid) {
+          final g = groups[gid];
+          if (g == null) return null;
+          final roleObjs = (roleIdsByGroup[gid] ?? const [])
+              .map((rid) => roleMap[rid])
+              .whereType<UserGroupRole>()
+              .toList();
+          final isPublicVerified =
+              g['visibility'] == 'public' &&
+              g['public_approval'] == 'approved' &&
+              g['is_official'] == true;
+          return UserGroup(
+            id: gid,
+            name: g['name'] as String,
+            isOfficial: g['is_official'] == true,
+            isPublicVerified: isPublicVerified,
+            roles: roleObjs,
+          );
+        })
+        .whereType<UserGroup>()
+        .toList();
   }
 
   Future<GroupDetail?> fetchGroupDetail(String id) async {
@@ -105,10 +109,13 @@ class GroupRepository {
         .maybeSingle();
     if (row == null) return null;
 
-    final statsList =
-        (await _client.rpc('group_stats', params: {'p_group_id': id}) as List)
-            .cast<Map<String, dynamic>>();
-    final stats = statsList.isEmpty ? const <String, dynamic>{} : statsList.first;
+    final statsList = (await _client.rpc(
+      'group_stats',
+      params: {'p_group_id': id},
+    ) as List).cast<Map<String, dynamic>>();
+    final stats = statsList.isEmpty
+        ? const <String, dynamic>{}
+        : statsList.first;
     final memberCount = stats['member_count'] as int? ?? 0;
     final followerCount = stats['follower_count'] as int? ?? 0;
 
@@ -148,7 +155,10 @@ class GroupRepository {
     );
   }
 
-  Future<List<String>> _fetchMyPermissions(String groupId, String ownerId) async {
+  Future<List<String>> _fetchMyPermissions(
+    String groupId,
+    String ownerId,
+  ) async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
     final perms = <String>{};
@@ -159,15 +169,18 @@ class GroupRepository {
         .select('role_id')
         .eq('group_id', groupId)
         .eq('user_id', user.id);
-    final roleIds = (mrRows as List).map((r) => r['role_id'] as String).toList();
+    final roleIds = (mrRows as List)
+        .map((r) => r['role_id'] as String)
+        .toList();
     if (roleIds.isNotEmpty) {
       final roleRows = await _client
           .from('group_roles')
           .select('permissions')
           .inFilter('id', roleIds);
       for (final r in (roleRows as List)) {
-        perms.addAll(((r['permissions'] as List?) ?? const [])
-            .map((e) => e as String));
+        perms.addAll(
+          ((r['permissions'] as List?) ?? const []).map((e) => e as String),
+        );
       }
     }
     return perms.toList();
@@ -224,7 +237,8 @@ class GroupRepository {
     final names = <String, String>{};
     final courses = <String, String>{};
     for (final p in (profileRows as List)) {
-      names[p['id'] as String] = (p['display_name'] as String?) ?? 'Estudante UFV';
+      names[p['id'] as String] =
+          (p['display_name'] as String?) ?? 'Estudante UFV';
       courses[p['id'] as String] = (p['course'] as String?) ?? '';
     }
 
@@ -276,7 +290,9 @@ class GroupRepository {
   Future<List<GroupInvite>> fetchInvites(String groupId) async {
     final rows = await _client
         .from('group_invites')
-        .select('id, expires_at, max_uses, used_count, revoked_at, target_user_id')
+        .select(
+          'id, expires_at, max_uses, used_count, revoked_at, target_user_id',
+        )
         .eq('group_id', groupId)
         .order('created_at', ascending: false);
     final items = (rows as List).cast<Map<String, dynamic>>();
@@ -307,7 +323,9 @@ class GroupRepository {
         usedCount: r['used_count'] as int,
         revoked: r['revoked_at'] != null,
         targetUserId: targetId,
-        targetName: targetId == null ? null : (names[targetId] ?? 'Estudante UFV'),
+        targetName: targetId == null
+            ? null
+            : (names[targetId] ?? 'Estudante UFV'),
       );
     }).toList();
   }
@@ -325,14 +343,12 @@ class GroupRepository {
         .inFilter('id', ids);
     final names = <String, String>{};
     for (final p in (profileRows as List)) {
-      names[p['id'] as String] = (p['display_name'] as String?) ?? 'Estudante UFV';
+      names[p['id'] as String] =
+          (p['display_name'] as String?) ?? 'Estudante UFV';
     }
     return ids
         .map(
-          (id) => GroupFollower(
-            userId: id,
-            name: names[id] ?? 'Estudante UFV',
-          ),
+          (id) => GroupFollower(userId: id, name: names[id] ?? 'Estudante UFV'),
         )
         .toList();
   }
@@ -382,14 +398,17 @@ class GroupRepository {
     String? course,
     String visibility = 'private',
   }) async {
-    final res = await _client.rpc('create_group', params: {
-      'p_name': name.trim(),
-      'p_description': description,
-      'p_category': category,
-      'p_campus': campus,
-      'p_course': course,
-      'p_visibility': visibility,
-    });
+    final res = await _client.rpc(
+      'create_group',
+      params: {
+        'p_name': name.trim(),
+        'p_description': description,
+        'p_category': category,
+        'p_campus': campus,
+        'p_course': course,
+        'p_visibility': visibility,
+      },
+    );
     return (res as Map)['id'] as String;
   }
 
@@ -401,14 +420,17 @@ class GroupRepository {
     String? campus,
     String? course,
   }) async {
-    await _client.rpc('update_group', params: {
-      'p_group_id': id,
-      'p_name': name.trim(),
-      'p_description': description,
-      'p_category': category,
-      'p_campus': campus,
-      'p_course': course,
-    });
+    await _client.rpc(
+      'update_group',
+      params: {
+        'p_group_id': id,
+        'p_name': name.trim(),
+        'p_description': description,
+        'p_category': category,
+        'p_campus': campus,
+        'p_course': course,
+      },
+    );
   }
 
   Future<void> requestPublicGroup(String id) async {
@@ -431,21 +453,35 @@ class GroupRepository {
     await _client.rpc('unfollow_group', params: {'p_group_id': id});
   }
 
-  Future<String> createRole(String groupId, String name, List<String> permissions) async {
-    final res = await _client.rpc('create_group_role', params: {
-      'p_group_id': groupId,
-      'p_name': name.trim(),
-      'p_permissions': permissions,
-    });
+  Future<String> createRole(
+    String groupId,
+    String name,
+    List<String> permissions,
+  ) async {
+    final res = await _client.rpc(
+      'create_group_role',
+      params: {
+        'p_group_id': groupId,
+        'p_name': name.trim(),
+        'p_permissions': permissions,
+      },
+    );
     return res as String;
   }
 
-  Future<void> updateRole(String roleId, String name, List<String> permissions) async {
-    await _client.rpc('update_group_role', params: {
-      'p_role_id': roleId,
-      'p_name': name.trim(),
-      'p_permissions': permissions,
-    });
+  Future<void> updateRole(
+    String roleId,
+    String name,
+    List<String> permissions,
+  ) async {
+    await _client.rpc(
+      'update_group_role',
+      params: {
+        'p_role_id': roleId,
+        'p_name': name.trim(),
+        'p_permissions': permissions,
+      },
+    );
   }
 
   Future<void> deleteRole(String roleId) async {
@@ -453,33 +489,31 @@ class GroupRepository {
   }
 
   Future<void> assignRole(String groupId, String userId, String roleId) async {
-    await _client.rpc('assign_group_role', params: {
-      'p_group_id': groupId,
-      'p_user_id': userId,
-      'p_role_id': roleId,
-    });
+    await _client.rpc(
+      'assign_group_role',
+      params: {'p_group_id': groupId, 'p_user_id': userId, 'p_role_id': roleId},
+    );
   }
 
   Future<void> removeRole(String groupId, String userId, String roleId) async {
-    await _client.rpc('remove_group_role', params: {
-      'p_group_id': groupId,
-      'p_user_id': userId,
-      'p_role_id': roleId,
-    });
+    await _client.rpc(
+      'remove_group_role',
+      params: {'p_group_id': groupId, 'p_user_id': userId, 'p_role_id': roleId},
+    );
   }
 
   Future<void> removeMember(String groupId, String userId) async {
-    await _client.rpc('remove_group_member', params: {
-      'p_group_id': groupId,
-      'p_user_id': userId,
-    });
+    await _client.rpc(
+      'remove_group_member',
+      params: {'p_group_id': groupId, 'p_user_id': userId},
+    );
   }
 
   Future<void> removeFollower(String groupId, String userId) async {
-    await _client.rpc('remove_group_follower', params: {
-      'p_group_id': groupId,
-      'p_user_id': userId,
-    });
+    await _client.rpc(
+      'remove_group_follower',
+      params: {'p_group_id': groupId, 'p_user_id': userId},
+    );
   }
 
   Future<void> deleteGroup(String groupId) async {
@@ -487,17 +521,17 @@ class GroupRepository {
   }
 
   Future<void> moderatePost(String postId, String action) async {
-    await _client.rpc('group_moderate_post', params: {
-      'p_post_id': postId,
-      'p_action': action,
-    });
+    await _client.rpc(
+      'group_moderate_post',
+      params: {'p_post_id': postId, 'p_action': action},
+    );
   }
 
   Future<void> moderateComment(String commentId, String action) async {
-    await _client.rpc('group_moderate_comment', params: {
-      'p_comment_id': commentId,
-      'p_action': action,
-    });
+    await _client.rpc(
+      'group_moderate_comment',
+      params: {'p_comment_id': commentId, 'p_action': action},
+    );
   }
 
   Future<bool> hasPermission(String groupId, String permission) async {
@@ -552,10 +586,86 @@ class GroupRepository {
   }
 
   Future<void> reviewGroup(String id, bool approve, {String? note}) async {
-    await _client.rpc('admin_review_group', params: {
-      'p_group_id': id,
-      'p_approve': approve,
-      'p_note': note,
-    });
+    await _client.rpc(
+      'admin_review_group',
+      params: {'p_group_id': id, 'p_approve': approve, 'p_note': note},
+    );
+  }
+
+  Future<String> openGroupChat(String groupId) async {
+    final result = await _client.rpc(
+      'get_or_create_group_chat',
+      params: {'p_group_id': groupId},
+    );
+    return result as String;
+  }
+
+  Future<List<GroupEvent>> fetchEvents(String groupId) async {
+    final rows = await _client
+        .from('group_events')
+        .select(
+          'id, group_id, created_by, title, description, starts_at, ends_at, '
+          'location',
+        )
+        .eq('group_id', groupId)
+        .order('starts_at');
+    return (rows as List)
+        .map((row) => GroupEvent.fromMap(row as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<String> createEvent({
+    required String groupId,
+    required String title,
+    required DateTime startsAt,
+    required DateTime endsAt,
+    String? description,
+    String? location,
+  }) async {
+    final result = await _client.rpc(
+      'create_group_event',
+      params: {
+        'p_group_id': groupId,
+        'p_title': title,
+        'p_description': description,
+        'p_starts_at': startsAt.toUtc().toIso8601String(),
+        'p_ends_at': endsAt.toUtc().toIso8601String(),
+        'p_location': location,
+      },
+    );
+    return (result as Map)['id'] as String;
+  }
+
+  Future<void> deleteEvent(String eventId) async {
+    await _client.rpc('delete_group_event', params: {'p_event_id': eventId});
+  }
+
+  Future<Map<String, dynamic>> fetchAnalytics(String groupId) async {
+    final result = await _client.rpc(
+      'group_analytics',
+      params: {'p_group_id': groupId},
+    );
+    return (result as Map).cast<String, dynamic>();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchEventRsvps(String groupId) async {
+    final events = await _client
+        .from('group_events')
+        .select('id')
+        .eq('group_id', groupId);
+    final ids = (events as List).map((e) => e['id'] as String).toList();
+    if (ids.isEmpty) return [];
+    final rows = await _client
+        .from('group_event_rsvps')
+        .select('event_id, user_id, status')
+        .inFilter('event_id', ids);
+    return (rows as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<void> setEventRsvp(String eventId, String status) async {
+    await _client.rpc(
+      'set_event_rsvp',
+      params: {'p_event_id': eventId, 'p_status': status},
+    );
   }
 }

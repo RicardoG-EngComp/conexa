@@ -488,6 +488,271 @@ Entradas: Ajuda, Ajustes e ícone na Administração.
 
 ---
 
+## 1.0.17 - Privacidade e confianca (P0)
+
+Rotas: `/security`, `/muted-users`, `/muted-words`, `/my-reports` e
+`/admin/appeals`.
+Entradas: Ajustes > Seguranca e privacidade; perfil > Silenciar; admin > Apelacoes.
+
+### P0.1 Seguranca e privacidade
+```
++----------------------------------+
+| <  Seguranca e privacidade       |
+| Dispositivos conhecidos          |
+| Android . Conexa 1.0.17  ontem   |
+|                                  |
+| Usuarios silenciados          >  |
+| Palavras silenciadas          >  |
+| Meus relatos                  >  |
+| Exportar meus dados           >  |
+| [ Sair de todos os dispositivos] |
++----------------------------------+
+```
+
+### P0.2 Apelacao
+```
++----------------------------------+
+| <  Meus relatos                  |
+| Assedio . Recebida               |
+| Status: Encerrada                |
+| Acao: hide                       |
+| [ Apelar ]                       |
++----------------------------------+
+```
+
+---
+
+## 1.0.18 - Feed social P1
+
+Rotas: `/feed/scheduled`, `/feed/saved`, `/feed/hidden`, `/feed/search`,
+`/feed/feeds`, `/feed/feeds/:id` e `/insights`.
+Entradas: FAB > Publicar; FAB > Salvos; FAB > Rascunhos e agendados; menu do post.
+
+### P1.1 Composer
+```
++----------------------------------+
+| <  Publicar              Publicar|
+| [ texto ]                        |
+| Midia: [Imagem]                  |
+|   [alt de cada imagem]           |
+| Enquete: 2-4 opcoes + 24h/3d/7d  |
+| Mencoes: [Mencionar conexoes]    |
+| Quem pode ver / responder        |
+| Topicos / cargo / selo           |
+| [Salvar rascunho] [Agendar]      |
++----------------------------------+
+```
+
+### P1.2 Card
+```
++----------------------------------+
+| autor · agora · editado · pin    |
+| [Republicou]                     |
+| texto                            |
+| [midia: imagem]                  |
+| [enquete com votos]              |
+| @mencao                          |
+| curtir . responder . republicar  |
+| menu: salvar/editar/fixar/...    |
++----------------------------------+
+```
+
+### P1.3 Rascunhos e agendados
+```
++----------------------------------+
+| <  Rascunhos e agendados         |
+| [ Agendados | Rascunhos ]        |
+| texto                            |
+| status . data . erro             |
+| [Cancelar] ou [Usar][Apagar]     |
++----------------------------------+
+```
+
+### P1.4 Salvos
+```
++----------------------------------+
+| <  Salvos                        |
+| [ card do post salvo ]           |
+| menu: remover dos salvos         |
++----------------------------------+
+```
+
+---
+
+## 1.0.19 - Chat social P2
+
+Rotas: `/chats`, `/chats/:id` (agora com grupos, reply, reações e mídia).
+Sem novas rotas obrigatórias; ações ficam em menus e bottom sheets.
+
+### P2.1 Lista de conversas
+```
++----------------------------------+
+| Conversas       [arquivo] [+grupo]|
+| [busca]                          |
+| [Mensagens][Pedidos][Conexões]   |
+| [grupo] titulo . N participantes |
+| fixado . silenciado . nao lidas  |
+| menu: fixar/silenciar/arquivar   |
++----------------------------------+
+```
+
+### P2.2 Chat
+```
++----------------------------------+
+| <  Grupo . 5 participantes  [...]|
+| [reply/quote da mensagem]        |
+| [nome do remetente no grupo]     |
+| texto / imagem / PDF             |
+| reacoes: 👍 2  ❤️ 1              |
+| editada . hora                   |
+| [anexo][texto][emoji][enviar]    |
+| [Fulano esta digitando...]       |
++----------------------------------+
+```
+
+### P2.3 Ações
+```
+Mensagem: reagir / responder / editar / apagar / denunciar
+Conversa: participantes / fixar / silenciar / arquivar / limpar / excluir
+```
+
+---
+
+## 1.0.20 - Descoberta P3
+
+Rotas: `/feed/search`, `/feed/feeds`, `/feed/feeds/:id` e `/insights`.
+Entradas: lupa no feed; FAB > Feeds personalizados; Ajustes > Insights; menu do post.
+
+### P3.1 Busca global
+```
++----------------------------------+
+| <  Buscar publicacoes            |
+| [ buscar no feed... ]            |
+| [ card de resultado ]            |
+| [ card de resultado ]            |
++----------------------------------+
+```
+
+### P3.2 Feeds personalizados
+```
++----------------------------------+
+| <  Feeds personalizados       [+]|
+| [ feed . N topicos ]          [x]|
+| [ feed . N topicos ]          [x]|
++----------------------------------+
+Novo feed: nome + ate 5 topicos.
+```
+
+### P3.3 Insights
+```
++----------------------------------+
+| <  Insights                      |
+| [ publicacoes ][ curtidas ]      |
+| [ respostas ][ reposts ]         |
+| [ salvos ][ votos ]              |
+| Principais publicacoes           |
++----------------------------------+
+```
+
+---
+
+## 1.0.21 - Grupos e estudos P4
+
+Rotas: `/groups/:id/insights`, `/studies/questions`, `/studies/questions/:id`
+e `/studies/saved`. Sem mudar a navegação principal.
+
+### P4.1 Grupo
+```
++----------------------------------+
+| <  Grupo        [chat] [insights]|
+| [Membros][Cargos][Seguidores]    |
+| [Eventos][Convites]              |
+| Evento . data . local            |
+| [Novo evento] (gestor)           |
++----------------------------------+
+```
+
+### P4.2 Chat do grupo
+```
++----------------------------------+
+| <  Grupo . N participantes       |
+| mensagens (mesmo chat P2)        |
+| entrada/saida de membro sincroniza|
++----------------------------------+
+```
+
+### P4.3 Q&A
+```
++----------------------------------+
+| <  Perguntas da disciplina   [+] |
+| titulo . autor . N respostas     |
+| resolvida [ok]                   |
++----------------------------------+
+Pergunta:
+| respostas . aceitar . votar      |
+| [escrever resposta]              |
++----------------------------------+
+```
+
+### P4.4 Materiais salvos e avaliacoes
+```
++----------------------------------+
+| <  Material                      |
+| [Salvar] 4.5 . N avaliacoes      |
+| [*][*][*][*][*]                  |
+| Materiais salvos (lista)         |
++----------------------------------+
+```
+
+---
+
+## 1.0.22 - Hardening P5
+
+Rotas novas: `/admin/moderation-terms`, `/feed/hidden`, `/feed/search`
+(com aba Comentarios), `/groups/:id/insights` e `/studies/questions` (com busca).
+
+### P5.1 Termos de moderacao (admin)
+```
++----------------------------------+
+| <  Termos de moderacao       [+] |
+| termo                [x] ativo   |
+| categoria                        |
++----------------------------------+
+```
+
+### P5.2 Chat do grupo
+```
+Participantes
+[ Adicionar ]
+Fulano  [remover]
+Ciclano
+```
+
+### P5.3 Evento
+```
+Evento . data . local
+3 confirmados . 2 interessados
+[ Vou ] [ Interesse ] [ Nao vou ]
+```
+
+### P5.4 Q&A
+```
+Pergunta: texto + anexos (imagem/PDF)
+[ Anexar imagem/PDF ] (autor)
+Respostas: texto + anexos + votos
+[ Aceitar ] (autor da pergunta)
+Busca: [ buscar perguntas... ]
+```
+
+### P5.5 Avaliacao
+```
+[*****] 4.5 . N avaliacoes
+[ Avaliar com comentario ]
+Comentarios publicos (nome + nota + texto)
+```
+
+---
+
 ## Ordem de construção das telas
 1. **B1:** 1–6 (18+, conta, consentimento, verificação).
 2. **B2:** 7–10 + 18 (perfil, estilo de relação, preferências, configurações).

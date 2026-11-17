@@ -19,7 +19,9 @@ class StickerPickerSheet extends ConsumerWidget {
     StickerItem item,
   ) async {
     try {
-      await ref.read(stickerRepositoryProvider).sendSticker(
+      await ref
+          .read(stickerRepositoryProvider)
+          .sendSticker(
             conversationId: conversationId,
             stickerPath: item.imagePath,
           );
@@ -39,10 +41,9 @@ class StickerPickerSheet extends ConsumerWidget {
     GiphyItem item,
   ) async {
     try {
-      await ref.read(stickerRepositoryProvider).sendGif(
-            conversationId: conversationId,
-            gifUrl: item.originalUrl,
-          );
+      await ref
+          .read(stickerRepositoryProvider)
+          .sendGif(conversationId: conversationId, gifUrl: item.originalUrl);
       if (context.mounted) Navigator.pop(context);
     } catch (_) {
       if (context.mounted) {
@@ -74,9 +75,7 @@ class StickerPickerSheet extends ConsumerWidget {
                     isPublic: true,
                     onSticker: (item) => _sendSticker(context, ref, item),
                   ),
-                  _GiphyTab(
-                    onGif: (item) => _sendGif(context, ref, item),
-                  ),
+                  _GiphyTab(onGif: (item) => _sendGif(context, ref, item)),
                 ],
               ),
             ),
@@ -109,16 +108,19 @@ class _PackBrowserState extends ConsumerState<_PackBrowser> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (_, _) => const Center(child: Text('Erro ao carregar pacotes.')),
       data: (packs) {
-        final filtered =
-            packs.where((p) => p.isPublic == widget.isPublic).toList();
+        final filtered = packs
+            .where((p) => p.isPublic == widget.isPublic)
+            .toList();
         if (filtered.isEmpty) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(widget.isPublic
-                    ? 'Nenhum pacote global ainda.'
-                    : 'Voce ainda nao criou pacotes.'),
+                Text(
+                  widget.isPublic
+                      ? 'Nenhum pacote global ainda.'
+                      : 'Voce ainda nao criou pacotes.',
+                ),
                 if (!widget.isPublic) ...[
                   const SizedBox(height: AppSpacing.md),
                   FilledButton.icon(
@@ -180,8 +182,7 @@ class _PackBrowserState extends ConsumerState<_PackBrowser> {
             ),
             Expanded(
               child: stickersAsync.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (_, _) =>
                     const Center(child: Text('Erro ao carregar figurinhas.')),
                 data: (items) {
@@ -192,10 +193,10 @@ class _PackBrowserState extends ConsumerState<_PackBrowser> {
                     padding: const EdgeInsets.all(AppSpacing.md),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
-                    ),
+                          crossAxisCount: 4,
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                        ),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
                       final item = items[index];
@@ -341,9 +342,7 @@ class _GiphyTabState extends ConsumerState<_GiphyTab> {
           padding: const EdgeInsets.all(AppSpacing.sm),
           child: Text(
             'Powered by GIPHY',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
+            style: Theme.of(context).textTheme.bodySmall
                 ?.copyWith(color: AppColors.muted),
           ),
         ),

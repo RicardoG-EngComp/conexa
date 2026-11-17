@@ -12,6 +12,10 @@ class Report {
     this.contentSnapshot,
     this.actionTaken,
     this.reviewedAt,
+    this.appealStatus = 'none',
+    this.appealReason,
+    this.appealResult,
+    this.appealCreatedAt,
   });
 
   final String id;
@@ -26,6 +30,10 @@ class Report {
   final String? contentSnapshot;
   final String? actionTaken;
   final DateTime? reviewedAt;
+  final String appealStatus;
+  final String? appealReason;
+  final String? appealResult;
+  final DateTime? appealCreatedAt;
 
   factory Report.fromMap(Map<String, dynamic> map) {
     return Report(
@@ -43,6 +51,12 @@ class Report {
       reviewedAt: map['reviewed_at'] == null
           ? null
           : DateTime.parse(map['reviewed_at'] as String),
+      appealStatus: (map['appeal_status'] as String?) ?? 'none',
+      appealReason: map['appeal_reason'] as String?,
+      appealResult: map['appeal_result'] as String?,
+      appealCreatedAt: map['appeal_created_at'] == null
+          ? null
+          : DateTime.parse(map['appeal_created_at'] as String),
     );
   }
 }

@@ -8,6 +8,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../application/group_providers.dart';
 import '../data/group_models.dart';
 import 'group_common.dart';
+import 'group_events_tab.dart';
 import 'group_invites_tab.dart';
 import 'group_members_tab.dart';
 import 'group_roles_tab.dart';
@@ -36,9 +37,8 @@ class _GroupProfileScreenState extends ConsumerState<GroupProfileScreen> {
       await action();
       _refresh();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(success)),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(success)));
       }
     } catch (e) {
       if (mounted) {
@@ -49,12 +49,27 @@ class _GroupProfileScreenState extends ConsumerState<GroupProfileScreen> {
     }
   }
 
+  Future<void> _openChat() async {
+    try {
+      final conversationId = await ref
+          .read(groupRepositoryProvider)
+          .openGroupChat(widget.groupId);
+      if (mounted) context.push('/chats/$conversationId');
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Entre no grupo para acessar o chat.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(groupDetailProvider(widget.groupId));
 
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -70,6 +85,27 @@ class _GroupProfileScreenState extends ConsumerState<GroupProfileScreen> {
           ),
           title: const Text('Grupo'),
           actions: [
+            detailAsync.maybeWhen(
+              data: (d) => d != null && d.isMember
+                  ? IconButton(
+                      icon: const Icon(Icons.chat_bubble_outline),
+                      tooltip: 'Chat do grupo',
+                      onPressed: _openChat,
+                    )
+                  : const SizedBox.shrink(),
+              orElse: () => const SizedBox.shrink(),
+            ),
+            detailAsync.maybeWhen(
+              data: (d) => d != null && d.canManageGroup
+                  ? IconButton(
+                      icon: const Icon(Icons.insights_outlined),
+                      tooltip: 'Insights do grupo',
+                      onPressed: () =>
+                          context.push('/groups/${widget.groupId}/insights'),
+                    )
+                  : const SizedBox.shrink(),
+              orElse: () => const SizedBox.shrink(),
+            ),
             detailAsync.maybeWhen(
               data: (d) => d != null && d.canManageGroup
                   ? IconButton(
@@ -100,23 +136,33 @@ class _GroupProfileScreenState extends ConsumerState<GroupProfileScreen> {
                 _Header(
                   detail: detail,
                   onJoin: () => _run(
-                    () => ref.read(groupRepositoryProvider).joinGroup(widget.groupId),
+                    () => ref
+                        .read(groupRepositoryProvider)
+                        .joinGroup(widget.groupId),
                     'Voce entrou no grupo.',
                   ),
                   onLeave: () => _run(
-                    () => ref.read(groupRepositoryProvider).leaveGroup(widget.groupId),
+                    () => ref
+                        .read(groupRepositoryProvider)
+                        .leaveGroup(widget.groupId),
                     'Voce saiu do grupo.',
                   ),
                   onFollow: () => _run(
-                    () => ref.read(groupRepositoryProvider).followGroup(widget.groupId),
+                    () => ref
+                        .read(groupRepositoryProvider)
+                        .followGroup(widget.groupId),
                     'Voce seguiu o grupo.',
                   ),
                   onUnfollow: () => _run(
-                    () => ref.read(groupRepositoryProvider).unfollowGroup(widget.groupId),
+                    () => ref
+                        .read(groupRepositoryProvider)
+                        .unfollowGroup(widget.groupId),
                     'Voce deixou de seguir o grupo.',
                   ),
                   onRequestPublic: () => _run(
-                    () => ref.read(groupRepositoryProvider).requestPublicGroup(widget.groupId),
+                    () => ref
+                        .read(groupRepositoryProvider)
+                        .requestPublicGroup(widget.groupId),
                     'Pedido de selo oficial enviado para a moderacao.',
                   ),
                 ),
@@ -130,6 +176,7 @@ class _GroupProfileScreenState extends ConsumerState<GroupProfileScreen> {
                     Tab(text: 'Membros'),
                     Tab(text: 'Cargos'),
                     Tab(text: 'Seguidores'),
+                    Tab(text: 'Eventos'),
                     Tab(text: 'Convites'),
                   ],
                 ),
@@ -155,6 +202,7 @@ class _GroupProfileScreenState extends ConsumerState<GroupProfileScreen> {
                         followers: followers.asData?.value ?? const [],
                         onChanged: _refresh,
                       ),
+                      GroupEventsTab(groupId: widget.groupId, detail: detail),
                       GroupInvitesTab(
                         groupId: widget.groupId,
                         detail: detail,
@@ -257,7 +305,8 @@ class _Header extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             const _InfoLine(
               icon: Icons.hourglass_top,
-              text: 'Aguardando aprovaÃ§Ã£o da moderaÃ§Ã£o para receber o selo.',
+              text:
+                  'Aguardando aprovaÃ§Ã£o da moderaÃ§Ã£o para receber o selo.',
             ),
           ],
           const SizedBox(height: AppSpacing.md),
@@ -359,9 +408,9 @@ class _FollowersTab extends ConsumerWidget {
             .removeFollower(groupId, follower.userId);
         onChanged();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Seguidor removido.')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Seguidor removido.')));
         }
       } catch (_) {
         if (context.mounted) {
@@ -383,9 +432,7 @@ class _FollowersTab extends ConsumerWidget {
         else if (followers.isEmpty)
           Text(
             'Ninguém segue este grupo ainda.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.muted,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.muted),
           )
         else
           for (final follower in followers)
@@ -402,10 +449,7 @@ class _FollowersTab extends ConsumerWidget {
               trailing: canRemove
                   ? IconButton(
                       tooltip: 'Remover seguidor',
-                      icon: const Icon(
-                        Icons.person_remove_outlined,
-                        size: 20,
-                      ),
+                      icon: const Icon(Icons.person_remove_outlined, size: 20),
                       onPressed: () => remove(follower),
                     )
                   : null,
@@ -414,6 +458,7 @@ class _FollowersTab extends ConsumerWidget {
     );
   }
 }
+
 class _MiniTag extends StatelessWidget {
   const _MiniTag({required this.label, this.icon});
 
@@ -461,9 +506,14 @@ class _Stat extends StatelessWidget {
       children: [
         Text(
           value,
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        Text(label, style: theme.textTheme.bodySmall?.copyWith(color: AppColors.muted)),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(color: AppColors.muted),
+        ),
       ],
     );
   }

@@ -151,6 +151,24 @@ class _NotificationPreferencesScreenState
                 onChanged: (value) =>
                     _save(preferences.copyWith(groups: value)),
               ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Seguranca'),
+                subtitle: const Text('Alertas de novo acesso a conta.'),
+                value: preferences.securityAlerts,
+                onChanged: (value) =>
+                    _save(preferences.copyWith(securityAlerts: value)),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Interacoes'),
+                subtitle: const Text(
+                  'Curtidas, respostas, mencoes e republicacoes.',
+                ),
+                value: preferences.interactions,
+                onChanged: (value) =>
+                    _save(preferences.copyWith(interactions: value)),
+              ),
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Categorias desligadas nao geram push nem item na central. '

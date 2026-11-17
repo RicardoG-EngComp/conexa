@@ -61,9 +61,9 @@ class GroupInvitesTab extends ConsumerWidget {
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_inviteError(e.toString()))),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(_inviteError(e.toString()))));
         }
       }
     }
@@ -116,7 +116,11 @@ class GroupInvitesTab extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.mail_outline, size: 18, color: AppColors.teal),
+                  const Icon(
+                    Icons.mail_outline,
+                    size: 18,
+                    color: AppColors.teal,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     'Convite dentro do app',
@@ -247,9 +251,8 @@ class _ConnectionsPicker extends ConsumerWidget {
             Expanded(
               child: connections.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, _) => const Center(
-                  child: Text('Erro ao carregar conexões.'),
-                ),
+                error: (_, _) =>
+                    const Center(child: Text('Erro ao carregar conexões.')),
                 data: (data) {
                   if (data.accepted.isEmpty) {
                     return Center(

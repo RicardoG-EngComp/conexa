@@ -45,9 +45,7 @@ class _AdminBadgesScreenState extends ConsumerState<AdminBadgesScreen> {
           .grantBadges(emails: emails, slug: _slug);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Insignia concedida a $count conta(s).'),
-        ),
+        SnackBar(content: Text('Insignia concedida a $count conta(s).')),
       );
     } catch (_) {
       if (mounted) {

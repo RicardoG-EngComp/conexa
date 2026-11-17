@@ -36,7 +36,15 @@ Deno.serve(async (req) => {
 
     const userId = userData.user.id;
     const body = await req.json().catch(() => ({}));
-    const scope = body?.scope === "study" ? "study" : "profile";
+    const scope = body?.scope === "study"
+      ? "study"
+      : body?.scope === "feed"
+      ? "feed"
+      : body?.scope === "chat"
+      ? "chat"
+      : body?.scope === "qa"
+      ? "qa"
+      : "profile";
     const rawPaths = Array.isArray(body?.paths) ? body.paths : [];
 
     const paths = [
@@ -61,6 +69,12 @@ Deno.serve(async (req) => {
     const config = getR2Config();
     const bucket = scope === "study"
       ? config.buckets.study
+      : scope === "feed"
+      ? config.buckets.feed
+      : scope === "chat"
+      ? config.buckets.chat
+      : scope === "qa"
+      ? config.buckets.chat
       : config.buckets.profile;
 
     const results = await Promise.all(
@@ -70,7 +84,9 @@ Deno.serve(async (req) => {
       }),
     );
 
-    const failed = results.filter((result) => !result.ok);
+    const failed = results.filter(
+      (result) => !result.ok && result.status !== 404,
+    );
     if (failed.length > 0) {
       return json({
         error: "r2_delete_failed",

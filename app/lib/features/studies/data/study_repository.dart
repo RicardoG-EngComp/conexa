@@ -297,4 +297,428 @@ class StudyRepository {
       params: {'p_email': email.trim()},
     );
   }
+
+  Future<List<StudyQuestion>> fetchQuestions(String disciplineId) async {
+    final rows = await _client
+        .from('study_questions')
+        .select(
+          'id, discipline_id, author_id, title, content, status, created_at',
+        )
+        .eq('discipline_id', disciplineId)
+        .order('created_at', ascending: false);
+    final questions = (rows as List).cast<Map<String, dynamic>>();
+    if (questions.isEmpty) return [];
+
+    final ids = questions.map((q) => q['id'] as String).toList();
+    final authorIds = questions
+        .map((q) => q['author_id'] as String)
+        .toSet()
+        .toList();
+    final answerRows = await _client
+        .from('study_answers')
+        .select('question_id')
+        .inFilter('question_id', ids);
+    final answerCounts = <String, int>{};
+    for (final row in (answerRows as List)) {
+      final id = row['question_id'] as String;
+      answerCounts[id] = (answerCounts[id] ?? 0) + 1;
+    }
+    final profiles = await _client
+        .from('profiles_public')
+        .select('id, display_name')
+        .inFilter('id', authorIds);
+    final names = <String, String>{
+      for (final row in (profiles as List))
+        row['id'] as String: (row['display_name'] as String?) ?? 'Aluno',
+    };
+
+    return questions
+        .map(
+          (q) => StudyQuestion(
+            id: q['id'] as String,
+            disciplineId: q['discipline_id'] as String,
+            authorId: q['author_id'] as String,
+            title: (q['title'] as String?) ?? '',
+            content: (q['content'] as String?) ?? '',
+            status: (q['status'] as String?) ?? 'open',
+            createdAt: DateTime.parse(q['created_at'] as String),
+            authorName: names[q['author_id'] as String] ?? 'Aluno',
+            answerCount: answerCounts[q['id'] as String] ?? 0,
+          ),
+        )
+        .toList();
+  }
+
+  Future<StudyQuestion?> fetchQuestion(String id) async {
+    final row = await _client
+        .from('study_questions')
+        .select(
+          'id, discipline_id, author_id, title, content, status, created_at',
+        )
+        .eq('id', id)
+        .maybeSingle();
+    if (row == null) return null;
+    final profile = await _client
+        .from('profiles_public')
+        .select('display_name')
+        .eq('id', row['author_id'])
+        .maybeSingle();
+    return StudyQuestion(
+      id: row['id'] as String,
+      disciplineId: row['discipline_id'] as String,
+      authorId: row['author_id'] as String,
+      title: (row['title'] as String?) ?? '',
+      content: (row['content'] as String?) ?? '',
+      status: (row['status'] as String?) ?? 'open',
+      createdAt: DateTime.parse(row['created_at'] as String),
+      authorName: (profile?['display_name'] as String?) ?? 'Aluno',
+    );
+  }
+
+  Future<String> createQuestion({
+    required String disciplineId,
+    required String title,
+    required String content,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('sem sessao');
+    final id = uuidV4();
+    await _client.from('study_questions').insert({
+      'id': id,
+      'discipline_id': disciplineId,
+      'author_id': user.id,
+      'title': title.trim(),
+      'content': content.trim(),
+      'status': 'open',
+    });
+    return id;
+  }
+
+  Future<QaAttachmentDraft> uploadQaAttachment({
+    required Uint8List bytes,
+    required bool image,
+    String? name,
+  }) async {
+    if (image) {
+      final processed = await ImageProcessor.studyImage(bytes);
+      final uploaded = await _media.uploadImage(
+        bytes: processed.full,
+        kind: 'qa_image',
+        variant: 'full',
+        contentType: 'image/webp',
+        width: processed.width,
+        height: processed.height,
+      );
+      return QaAttachmentDraft(
+        path: uploaded.key,
+        kind: 'image',
+        mimeType: 'image/webp',
+        byteSize: uploaded.bytes,
+        name: name,
+      );
+    }
+
+    final uploaded = await _media.uploadImage(
+      bytes: bytes,
+      kind: 'qa_file',
+      variant: 'full',
+      contentType: 'application/pdf',
+    );
+    return QaAttachmentDraft(
+      path: uploaded.key,
+      kind: 'file',
+      mimeType: 'application/pdf',
+      byteSize: uploaded.bytes,
+      name: name,
+    );
+  }
+
+  Future<void> addQuestionAttachment(
+    String questionId,
+    QaAttachmentDraft draft,
+  ) async {
+    await _client.from('study_question_attachments').insert({
+      'question_id': questionId,
+      'owner_id': _client.auth.currentUser?.id,
+      'object_key': draft.path,
+      'kind': draft.kind,
+      'mime_type': draft.mimeType,
+      'byte_size': draft.byteSize,
+      'name': draft.name,
+    });
+  }
+
+  Future<void> addAnswerAttachment(
+    String answerId,
+    QaAttachmentDraft draft,
+  ) async {
+    await _client.from('study_answer_attachments').insert({
+      'answer_id': answerId,
+      'owner_id': _client.auth.currentUser?.id,
+      'object_key': draft.path,
+      'kind': draft.kind,
+      'mime_type': draft.mimeType,
+      'byte_size': draft.byteSize,
+      'name': draft.name,
+    });
+  }
+
+  Future<List<QaAttachment>> fetchQuestionAttachments(String questionId) async {
+    final rows = await _client
+        .from('study_question_attachments')
+        .select('id, object_key, kind, mime_type, name')
+        .eq('question_id', questionId);
+    return (rows as List)
+        .map(
+          (r) => QaAttachment(
+            id: r['id'] as String,
+            path: r['object_key'] as String,
+            kind: r['kind'] as String,
+            mimeType: r['mime_type'] as String,
+            name: r['name'] as String?,
+          ),
+        )
+        .toList();
+  }
+
+  Future<Map<String, List<QaAttachment>>> fetchAnswerAttachments(
+    String questionId,
+  ) async {
+    final answerRows = await _client
+        .from('study_answers')
+        .select('id')
+        .eq('question_id', questionId);
+    final ids = (answerRows as List).map((r) => r['id'] as String).toList();
+    if (ids.isEmpty) return {};
+    final rows = await _client
+        .from('study_answer_attachments')
+        .select('id, answer_id, object_key, kind, mime_type, name')
+        .inFilter('answer_id', ids);
+    final result = <String, List<QaAttachment>>{};
+    for (final r in (rows as List)) {
+      result
+          .putIfAbsent(r['answer_id'] as String, () => [])
+          .add(
+            QaAttachment(
+              id: r['id'] as String,
+              path: r['object_key'] as String,
+              kind: r['kind'] as String,
+              mimeType: r['mime_type'] as String,
+              name: r['name'] as String?,
+            ),
+          );
+    }
+    return result;
+  }
+
+  Future<String> createAnswer(String questionId, String content) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('sem sessao');
+    final id = uuidV4();
+    await _client.from('study_answers').insert({
+      'id': id,
+      'question_id': questionId,
+      'author_id': user.id,
+      'content': content.trim(),
+      'accepted': false,
+    });
+    return id;
+  }
+
+  Future<List<StudyAnswer>> fetchAnswers(String questionId) async {
+    final rows = await _client
+        .from('study_answers')
+        .select('id, question_id, author_id, content, accepted, created_at')
+        .eq('question_id', questionId)
+        .order('accepted', ascending: false)
+        .order('created_at');
+    final answers = (rows as List).cast<Map<String, dynamic>>();
+    if (answers.isEmpty) return [];
+
+    final authorIds = answers
+        .map((a) => a['author_id'] as String)
+        .toSet()
+        .toList();
+    final profiles = await _client
+        .from('profiles_public')
+        .select('id, display_name')
+        .inFilter('id', authorIds);
+    final names = <String, String>{
+      for (final row in (profiles as List))
+        row['id'] as String: (row['display_name'] as String?) ?? 'Aluno',
+    };
+    final results = await _client.rpc(
+      'study_answer_results',
+      params: {'p_question_id': questionId},
+    ) as List;
+    final votes = <String, int>{};
+    final mine = <String>{};
+    for (final row in results) {
+      final id = row['answer_id'] as String;
+      votes[id] = (row['votes'] as num).toInt();
+      if (row['my_vote'] == true) mine.add(id);
+    }
+
+    return answers
+        .map(
+          (a) => StudyAnswer(
+            id: a['id'] as String,
+            questionId: a['question_id'] as String,
+            authorId: a['author_id'] as String,
+            content: (a['content'] as String?) ?? '',
+            accepted: a['accepted'] == true,
+            createdAt: DateTime.parse(a['created_at'] as String),
+            authorName: names[a['author_id'] as String] ?? 'Aluno',
+            votes: votes[a['id'] as String] ?? 0,
+            votedByMe: mine.contains(a['id']),
+          ),
+        )
+        .toList();
+  }
+
+  Future<void> acceptAnswer(String answerId) async {
+    await _client.rpc('accept_study_answer', params: {'p_answer_id': answerId});
+  }
+
+  Future<void> toggleAnswerVote(String answerId) async {
+    await _client.rpc(
+      'toggle_study_answer_vote',
+      params: {'p_answer_id': answerId},
+    );
+  }
+
+  Future<void> deleteAnswer(String answerId) async {
+    await _client.rpc('delete_study_answer', params: {'p_answer_id': answerId});
+  }
+
+  Future<bool> isMaterialSaved(String materialId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+    final row = await _client
+        .from('study_material_saves')
+        .select('material_id')
+        .eq('user_id', user.id)
+        .eq('material_id', materialId)
+        .maybeSingle();
+    return row != null;
+  }
+
+  Future<void> toggleMaterialSave(String materialId, bool saved) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    if (saved) {
+      await _client
+          .from('study_material_saves')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('material_id', materialId);
+    } else {
+      await _client.from('study_material_saves').insert({
+        'user_id': user.id,
+        'material_id': materialId,
+      });
+    }
+  }
+
+  Future<List<StudyMaterial>> fetchSavedMaterials() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+    final rows = await _client
+        .from('study_material_saves')
+        .select('material_id')
+        .eq('user_id', user.id)
+        .order('created_at', ascending: false);
+    final ids = (rows as List).map((r) => r['material_id'] as String).toList();
+    if (ids.isEmpty) return [];
+    final materialRows = await _client
+        .from('study_materials')
+        .select(
+          'id, discipline_id, author_id, title, description, kind, '
+          'storage_path, external_url, status, created_at',
+        )
+        .inFilter('id', ids);
+    final materials = (materialRows as List)
+        .map((r) => StudyMaterial.fromMap(r as Map<String, dynamic>))
+        .toList();
+    final enriched = await _attachMeta(materials);
+    final byId = {for (final m in enriched) m.id: m};
+    return [
+      for (final id in ids)
+        if (byId[id] != null) byId[id]!,
+    ];
+  }
+
+  Future<void> rateMaterial(
+    String materialId,
+    int rating, {
+    String? comment,
+  }) async {
+    await _client.rpc(
+      'rate_study_material',
+      params: {
+        'p_material_id': materialId,
+        'p_rating': rating,
+        'p_comment': comment,
+      },
+    );
+  }
+
+  Future<List<StudyReview>> fetchMaterialReviews(String materialId) async {
+    final rows = await _client.rpc(
+      'study_material_reviews',
+      params: {'p_material_id': materialId},
+    ) as List;
+    return rows
+        .map(
+          (row) => StudyReview(
+            userId: row['user_id'] as String,
+            displayName: (row['display_name'] as String?) ?? 'Aluno',
+            rating: (row['rating'] as num).toInt(),
+            comment: (row['comment'] as String?) ?? '',
+            updatedAt: DateTime.parse(row['updated_at'] as String),
+          ),
+        )
+        .toList();
+  }
+
+  Future<List<StudyQuestion>> searchQuestions(
+    String disciplineId,
+    String query,
+  ) async {
+    final rows = await _client.rpc(
+      'search_study_qa',
+      params: {
+        'p_discipline_id': disciplineId,
+        'p_query': query,
+        'p_limit': 40,
+        'p_offset': 0,
+      },
+    ) as List;
+    final ids = rows.map((r) => r['question_id'] as String).toSet();
+    if (ids.isEmpty) return [];
+    final all = await fetchQuestions(disciplineId);
+    return all.where((q) => ids.contains(q.id)).toList();
+  }
+
+  Future<Map<String, dynamic>> fetchMaterialRating(String materialId) async {
+    final result = await _client.rpc(
+      'study_material_rating',
+      params: {'p_material_id': materialId},
+    );
+    return (result as Map).cast<String, dynamic>();
+  }
+
+  Future<void> removeMaterialRating(String materialId) async {
+    await _client.rpc(
+      'remove_study_material_rating',
+      params: {'p_material_id': materialId},
+    );
+  }
+
+  Future<void> deleteQuestion(String questionId) async {
+    await _client.rpc(
+      'delete_study_question',
+      params: {'p_question_id': questionId},
+    );
+  }
 }

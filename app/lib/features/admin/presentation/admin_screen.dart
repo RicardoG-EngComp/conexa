@@ -21,6 +21,16 @@ class AdminScreen extends ConsumerWidget {
         title: const Text('Administracao'),
         actions: [
           IconButton(
+            tooltip: 'Apelacoes',
+            icon: const Icon(Icons.gavel_outlined),
+            onPressed: () => context.push('/admin/appeals'),
+          ),
+          IconButton(
+            tooltip: 'Termos de moderacao',
+            icon: const Icon(Icons.text_fields_outlined),
+            onPressed: () => context.push('/admin/moderation-terms'),
+          ),
+          IconButton(
             tooltip: 'Materiais pendentes',
             icon: const Icon(Icons.menu_book_outlined),
             onPressed: () => context.push('/admin/studies'),

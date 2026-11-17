@@ -127,6 +127,16 @@ IconData _iconFor(String type) {
       return Icons.menu_book_outlined;
     case 'group_invite':
       return Icons.groups_outlined;
+    case 'security_alert':
+      return Icons.shield_outlined;
+    case 'like':
+      return Icons.favorite_border;
+    case 'comment':
+      return Icons.chat_bubble_outline;
+    case 'mention':
+      return Icons.alternate_email;
+    case 'repost':
+      return Icons.repeat;
     default:
       return Icons.notifications_outlined;
   }

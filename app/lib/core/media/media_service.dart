@@ -99,6 +99,27 @@ class MediaService {
     String? assetId,
     int? width,
     int? height,
+  }) {
+    return uploadBytes(
+      bytes: bytes,
+      kind: kind,
+      variant: variant,
+      contentType: contentType,
+      assetId: assetId,
+      width: width,
+      height: height,
+    );
+  }
+
+  Future<MediaUploadResult> uploadBytes({
+    required Uint8List bytes,
+    required String kind,
+    required String variant,
+    required String contentType,
+    String? assetId,
+    int? width,
+    int? height,
+    int? durationMs,
   }) async {
     final session = _client.auth.currentSession;
     if (session == null) throw const MediaException('sem_sessao');
@@ -114,6 +135,7 @@ class MediaService {
     if (assetId != null) headers['x-asset-id'] = assetId;
     if (width != null) headers['x-width'] = '$width';
     if (height != null) headers['x-height'] = '$height';
+    if (durationMs != null) headers['x-duration-ms'] = '$durationMs';
 
     final response = await http.post(uri, headers: headers, body: bytes);
     final data = _decodeJson(response.body);

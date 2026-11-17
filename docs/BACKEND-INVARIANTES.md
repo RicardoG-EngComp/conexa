@@ -107,6 +107,53 @@ com `supabase migration repair --status reverted`. Não recrie esses arquivos.
 > 58–87% menor que JPEG q85; miniaturas de 1,7–17 KB. Números de host, não de
 > aparelho; revalidar em Android modesto.
 
+### 1.0.17 — Privacidade e confiança (P0)
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261118120000_p0_trust_safety` | Mutes, controle de respostas, apelação, exportação LGPD, dispositivos/alertas e moderação | `user_mutes`, `muted_words`, `user_devices`; `posts.reply_policy`; `reports.appeal_*`; RPCs `mute_user`, `unmute_user`, `list_muted_users`, `add_muted_word`, `remove_muted_word`, `submit_report_appeal`, `admin_resolve_report_appeal`, `export_my_data`, `register_device_session`; tipos `security_alert` | Mutes filtram feed/comentários/descoberta; apelação só pelo denunciante e uma vez; exportação só do próprio titular; dispositivos só via RPC; não expor `cpf_hash` |
+| `20261118121000_p0_export_fix` | Correção da exportação | `export_my_data` | `consents` usa `accepted_at`; não reverter para `created_at` |
+| `20261118122000_p0_mute_list_fix` | Remover silenciamento de alvo suspenso/bloqueado | `list_muted_users` | Usa `profiles`, não `profiles_public`, para o dono conseguir desfazer o mute |
+
+### 1.0.18 — Feed social P1
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261119120000_p1_feed` | Bookmark, repost, enquete, edição, fixar, rascunhos, agendamento, menções e notificações de interação | `posts.edited_at/pinned_at/repost_of_id/was_repost`; `post_bookmarks`, `polls`, `poll_options`, `poll_votes`, `post_drafts`, `scheduled_posts`, `post_mentions`; RPCs `toggle_bookmark`, `edit_post`, `pin_post`, `create_poll`, `vote_poll`, `poll_results`, `schedule_post`, `cancel_scheduled_post`, `publish_due_scheduled_posts`, `set_post_mentions`; tipos `like/comment/mention/repost` | Repost sem conteúdo e sem auto-repost; edição só em 15 min; enquete 2–4 opções; agendamento só via RPC; publicação due só service role; menções máx. 10; não remover notificações de interação |
+| `20261119121000_p1_media` | Mídia no feed (imagem/vídeo curto) | `media_objects` scope/kind `feed`; `post_media`; `filter_visible_feed_media` | Máx. 4 imagens ou 1 vídeo; 25 MB/60s no cliente; vídeo não é transcodificado; assinatura só após `can_view_post` |
+| `20261119122000_p1_admin_publish` | Operação/teste de agendamento | `admin_publish_scheduled_post` | Só admin; força a data e chama a publicação due |
+
+### 1.0.19 — Chat social P2
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261120120000_p2_chat` | Grupos, reply, reações, edição, mídia, pin/mute/archive e digitando | `conversations.kind/title/owner_id`; `conversation_participants.role/pinned_at/muted_until/archived_at`; `messages.reply_to_id/edited_at/media_*`; `message_reactions`; `typing_indicators`; RPCs `create_group_conversation`, `set_conversation_*`, `edit_message`, `toggle_message_reaction`; `filter_visible_chat_media` | Grupo exige conexão e título; sem E2EE; reply só na mesma conversa; mídia só `scope=chat`; mute respeitado no push; digitando filtrado por 10s |
+
+### 1.0.20 — Descoberta P3
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261121120000_p3_discovery` | Busca global, feeds personalizados, não interessado e analytics agregado | `post_not_interested`, `custom_feeds`; `posts.search_vector` GIN; RPCs `set_not_interested`, `feed_custom`, `search_posts`, `my_analytics` | Busca/feeds respeitam conta ativa, bloqueio, mute, não interessado e `can_view_post`; feeds têm 1–5 tópicos e limite 20; analytics não expõe identidade nem demografia |
+
+### 1.0.21 — Grupos e estudos P4
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261122120000_p4_groups_studies` | Chat do grupo do campus, eventos, analytics de grupo, Q&A, salvos e avaliações | `conversations.group_id/kind group_chat`; `get_or_create_group_chat`, sync de membros/título; `group_events`, `group_analytics`; `study_questions`, `study_answers`, `study_answer_votes`; `study_material_saves`, `study_material_ratings`; RPCs de Q&A/rating | Chat só para membros; evento só `manage_group`; Q&A só autor aceita; rating 1–5; salvos só material aprovado; sem PII em analytics |
+| `20261122121000_p4_group_chat_owner` | Dono do grupo sem linha ativa em `group_members` | `get_or_create_group_chat` | Sempre insere o dono como participante |
+| `20261122122000_p4_cleanup_helpers` | Limpeza do próprio conteúdo | `remove_study_material_rating`, `delete_study_question` | Só autor/admin |
+
+### 1.0.22 — Hardening P5
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261123120000_p5_moderation_terms` | Termos de moderação sem deploy | `moderation_terms`, `moderation_term_category`; `enforce_content_policy` usa tabela + fallback | Termos só admin; seed não pode ser removido sem manter fallback |
+| `20261123121000_p5_scheduled_media` | Mídia em agendamento | `schedule_post`/`publish_due_scheduled_posts` com `media`; índice de GC | Só imagens; path do próprio usuário; mídia é validada no insert |
+| `20261123122000_p5_conversation_members` | Membros de chat em grupo | `messages.kind='system'`, `add_conversation_members`, `remove_conversation_member` | Só dono; conexão/ativo; sem notificação de sistema |
+| `20261123123000_p5_event_rsvp` | RSVP e lembretes | `group_event_rsvps`, `set_event_rsvp`, `enqueue_event_reminders`, tipo `event_reminder` | RSVP só por RPC; lembrete só service role |
+| `20261123124000_p5_discovery_studies` | Busca em comentários, views, anexos/busca de Q&A e comentário em nota | `comments.search_vector`, `post_views`, anexos de Q&A, `search_study_qa`, `study_material_reviews` | Views sem PII; anexos só PDF/imagem; comentário de nota é público |
+| `20261123125000_p5_content_policy_fix` | `study_materials` não tem `content` | `enforce_content_policy` | Usa `title/description` para material |
+
 ---
 
 ## 4. Invariantes por domínio
@@ -120,14 +167,26 @@ Para cada item: regra, motivo e consequência de quebrar.
 - `feed_for_you`: públicos (pessoais de perfil público + grupos públicos
   aprovados), janela de 30 dias, relevância transparente (curso +3, campus +2,
   interesses +2, recência +1 e +1), conta ativa.
-  - Quebrar: ranking opaco/aleatório, posts antigos/privados.
+  - Mutes: exclui autores silenciados e posts com palavras silenciadas.
+  - Quebrar: ranking opaco/aleatório, posts antigos/privados ou conteúdo que o
+    usuário pediu para não ver.
 - `feed_connections`: próprios + conexões aceitas + grupos públicos seguidos.
+  - Mutes valem para conexões/grupos; os próprios posts continuam visíveis.
+- Repost simples: `repost_of_id` exige `can_view_post`, não pode ser do próprio
+  autor nem de outro repost; `content` fica vazio e `was_repost=true`.
+- `post_media` só existe para post do próprio autor e mídia `scope=feed`;
+  feed assina URL só depois de `filter_visible_feed_media`.
 - `created_at` de posts/comentários/mensagens/denúncias é **do servidor**
   (`force_server_created_at`). Quebrar permite manipular recência/limites.
 
 ### 4.2 Respostas e citações
 - Comentários aninhados até **3 níveis** (`parent_id/depth`, trigger).
   Profundidade maior é rejeitada (`profundidade_maxima`).
+- `posts.reply_policy` (`anyone` ou `connections`) é aplicada no servidor pelo
+  trigger `comments_enforce_reply_policy`; o autor sempre pode responder.
+  - Quebrar: comentário de estranho em post restrito a conexões.
+- Edição: só autor, texto de 1–2.000, máximo 15 min após `created_at`; repost
+  não é editável. Fixação: uma por autor, via RPC.
 - Citação guarda somente `quoted_post_id` + `was_quote`, sem cópia de texto.
   O cartão é lido em tempo real sob RLS; inacessível → “Conteúdo indisponível”.
 - Citar exige `can_view_post` no momento da criação e não pode citar a si mesmo.
@@ -150,6 +209,8 @@ Para cada item: regra, motivo e consequência de quebrar.
   usos/conta ativa/verificada/diretrizes/grupo não arquivado.
   - RPCs de link antigas estão **revogadas**; não reative.
 - Remoção de membro/seguidor e exclusão do grupo exigem permissão/dono.
+- Eventos do grupo exigem `manage_group`; chat exige membro ativo e é único por
+  grupo (`kind=group_chat`), sincronizado por trigger em `group_members`.
 
 ### 4.4 Conexões
 - **Não existe policy de INSERT** em `connections`; só `send_connection_request`.
@@ -160,17 +221,30 @@ Para cada item: regra, motivo e consequência de quebrar.
 
 ### 4.5 Conversas e mensagens
 - `start_conversation` só para **conexão aceita**, contas ativas e sem bloqueio;
-  caso contrário, use o fluxo de pedido.
+  caso contrário, use o fluxo de pedido. Só cria/reaproveita conversa `direct`.
 - Pedido: `send_message_request` + `respond_message_request` (sem UPDATE direto).
+- Grupo: `create_group_conversation` exige conta ativa/diretrizes, título 3–80,
+  até 20 conexões ativas/sem bloqueio e limite de 10 grupos/24h. Participantes
+  entram com papel `owner`/`member`; role/joined_at são protegidos por trigger.
 - `messages` só em conversa aceita, participante ativo, sem bloqueio, respeitando
   `hidden_at`, `cleared_at` e `message_deletions`.
-- Apagar para todos: remetente e janela de 5 minutos.
-- Quebrar: conversa com estranho, mensagens após bloqueio, spoof de status.
+- Reply só na mesma conversa e mensagem-pai não apagada.
+- Edição: remetente, texto, 15 min; apagar para todos: remetente, 5 min.
+- Reação: uma por usuário/mensagem, via RPC; digitando: próprio usuário, filtrado
+  por 10s no app.
+- Pin/mute/archive são por participante; mute não bloqueia, só suprime push.
+- Mídia: `scope=chat`, tipos `chat_image/chat_video/chat_file`; leitura só por
+  `chat-media-sign` + `filter_visible_chat_media`; PDF até 10 MB, imagem 5 MB,
+  vídeo 25 MB.
+- Quebrar: conversa com estranho, mensagens após bloqueio, spoof de status,
+  participante virando dono, mídia de outra conversa ou reply cross-conversa.
 
-### 4.6 Bloqueios
+### 4.6 Bloqueios e silenciamentos
 - Posts, perfis, comentários, curtidas, conversas e conexões filtram bloqueio nos
   **dois sentidos**.
-- Quebrar: bloqueado continua vendo/interagindo.
+- Mutes são unilaterais e não impedem o acesso ao perfil; apenas removem posts,
+  comentários e perfis silenciados do feed/descoberta.
+- Quebrar: bloqueado continua vendo/interagindo ou mute vira bloqueio oculto.
 
 ### 4.7 Denúncias
 - Trigger valida: autor real do alvo, alvo visível ao denunciante, não denunciar
@@ -178,9 +252,12 @@ Para cada item: regra, motivo e consequência de quebrar.
   limite de 20/24h e `created_at` do servidor.
 - Auto-hide só com **3 denunciantes distintos** em categoria grave
   (posts, comentários, mensagens, materiais e perfil em revisão).
-- `reports_force_created_at` precisa rodar **antes** de
+- `reports_force_created_at` precisa rodar **antes de**
   `reports_validate_target` (ordem alfabética dos triggers). Não renomeie.
-- Quebrar: censura em massa, denúncia de conteúdo inacessível, bypass do limite.
+- Apelação: só o denunciante, só em denúncia encerrada, uma vez; admin resolve
+  por RPC auditada. Não adicione policy de UPDATE em `reports`.
+- Quebrar: censura em massa, denúncia de conteúdo inacessível, bypass do limite
+  ou denunciante alterando o próprio status.
 
 ### 4.8 Perfis, privacidade e contas inativas
 - Guard `guard_profile_sensitive`: cliente não altera `verification_status`,
@@ -192,13 +269,37 @@ Para cada item: regra, motivo e consequência de quebrar.
 - Conta inativa não lê feeds/posts/grupos/perfis/conversas/conexões e não
   curte/denuncia.
 - `profiles_public` filtra ativo/fora de revisão/bloqueio.
+- **Mídia no feed**: upload só via `media-upload` com `x-kind=feed_image`.
+  `x-variant=thumb` para imagem. `media_objects.scope=feed`. Imagem 5 MB;
+  quota 30 imagens/24h e 500 MB/30d. Leitura só por `feed-media-sign` +
+  `filter_visible_feed_media`. Upload de vídeo retorna `video_indisponivel`
+  enquanto `ALLOW_VIDEO_UPLOAD` não for `true` (reservado para assinantes).
+- `R2_BUCKET_FEED` pode apontar para um bucket separado; se ausente, usa
+  `conexa-profile` por compatibilidade. Não torne o bucket público.
+- **Mídia no chat**: `x-kind=chat_image/chat_file`, `media_objects.scope=chat`,
+  thumb para imagem; limites 5 MB/10 MB e cotas 50 imagens/24h, 20 PDFs/24h e
+  500 MB/30d. Leitura somente por `chat-media-sign` +
+  `filter_visible_chat_media`. `R2_BUCKET_CHAT` é opcional e cai em
+  `conexa-profile`. Vídeo no chat também depende de `ALLOW_VIDEO_UPLOAD`.
 - Admin muda status/revisão somente por `admin_set_account_status` /
   `admin_set_profile_review` (auditadas).
+- `export_my_data`: somente o próprio titular, conta ativa, retorna JSON com os
+  dados da conta; não inclui `cpf_hash` nem dados de terceiros além do que o
+  titular já acessa (conversas/reports próprios).
+- `user_devices`: leitura só do dono; escrita só pela RPC
+  `register_device_session`.
 
 ### 4.9 Notificações
 - `enqueue_notification` e `notification_type_enabled` são internas (revogadas
   de PUBLIC); só triggers/RPCs definer chamam.
 - Tipo `group_invite` é válido e mapeado à preferência `groups`.
+- Tipo `security_alert` é inserido diretamente por
+  `register_device_session` (autoalerta) e respeita `security_alerts`; não use
+  `enqueue_notification` para autoalerta (ela bloqueia o próprio usuário).
+- Tipos `like`, `comment`, `mention` e `repost` respeitam `interactions`.
+- A Edge Function `send-push` lê `groups`, `security_alerts` e `interactions`;
+  não remova essas colunas do select nem do mapeamento de preferência.
+- `send-push` chama `publish_due_scheduled_posts` antes de processar a fila.
 - Quebrar: spam/phishing de notificação ou erro de constraint em convites.
 
 ### 4.10 Storage e mídia
@@ -219,9 +320,10 @@ Para cada item: regra, motivo e consequência de quebrar.
 - `feedback-media`: privado; dono escreve/lê em `auth.uid()/...`; admin lê.
   Limite de 5 MB e apenas `image/jpeg`, `image/png`, `image/webp`.
 - `stickers`: leitura pública; escrita admin.
-- `delete-account` deve apagar o prefixo `<uid>/` dos dois buckets R2,
-  `media_objects`, e os buckets Supabase `profile-media`, `study-media`,
-  `verification-docs`, `feedback-media` e `stickers`.
+- `delete-account` deve apagar o prefixo `<uid>/` dos buckets R2 de perfil,
+  estudo, feed e chat (sem duplicar bucket), `media_objects`, e os buckets
+  Supabase `profile-media`, `study-media`, `verification-docs`, `feedback-media`
+  e `stickers`.
 - Quebrar: exposição de fotos/documentos, URL pública de PII, escrita direta no
   R2, perda de avatares ou conta excluída com mídia órfã.
 
@@ -263,8 +365,9 @@ Para cada item: regra, motivo e consequência de quebrar.
 - `media-backup` roda diariamente pelo workflow `media-backup.yml` (GitHub
   Actions, 03:00 UTC) e pode ser disparado manualmente.
 - Exige `MEDIA_BACKUP_SECRET`; sem o segredo, responde 401.
-- Copia `conexa-profile` e `conexa-study` para
+- Copia `conexa-profile`, `conexa-study` e os buckets de feed/chat para
   `conexa-backup/snapshots/<YYYY-MM-DD>/...` via CopyObject no próprio R2.
+  Buckets repetidos são copiados uma vez só.
 - Retenção curta: **7 dias**. Snapshots mais antigos são apagados somente quando
   a cópia do dia termina sem falhas.
 - Limite operacional: 2.000 objetos por execução; acima disso, retorna
@@ -279,6 +382,36 @@ Para cada item: regra, motivo e consequência de quebrar.
   devem ser restaurados para contas já excluídas.
 - Quebrar: backup sem retenção, backup público, credencial de upload com acesso
   ao bucket de backup ou restauração de PII de conta excluída.
+
+### 4.14 Busca, feeds personalizados e insights
+- `search_posts` usa `posts.search_vector` (português) e GIN; respeita
+  `can_view_post`, conta ativa, bloqueio, mute, não interessado e mute da
+  publicação original de repost.
+- `custom_feeds` é privado do dono, com 1–5 tópicos ativos e limite de 20 feeds;
+  `feed_custom` só retorna posts visíveis e não silenciados/ocultos.
+- `post_not_interested` é por usuário/post; o feed, busca e feed custom somem,
+  mas o post continua acessível por link/detalhe para permitir desfazer.
+- `my_analytics` agrega apenas os próprios posts no período (1–365 dias), sem
+  identidade de quem interagiu e sem demografia.
+- Compartilhar link usa deep link `conexa://feed/<id>`; não há página web
+  pública de post no MVP.
+
+### 4.15 Grupos e estudos P4
+- Chat do grupo do campus: conversa única por `group_id` (`kind=group_chat`),
+  participante = membro ativo; trigger sincroniza entrada/saída e o dono sempre
+  participa. Só membro abre (`get_or_create_group_chat`).
+- Eventos: `group_events` é leitura via `can_view_group`; criação/exclusão só
+  `manage_group`/dono.
+- `group_analytics`: agregado de membros, seguidores, posts/comentários/
+  curtidas/mensagens dos últimos 30 dias e eventos futuros; exige membro/admin.
+- Q&A: pergunta aberta por autor ativo com diretrizes; resposta por autor ativo;
+  autor da pergunta aceita uma resposta (demais ficam `accepted=false`) e a
+  pergunta vira `resolved`. Voto é único por usuário/resposta.
+- Conteúdo de Q&A passa por `enforce_active_guidelines` e
+  `enforce_study_content_policy`; denúncia continua no canal normal.
+- Materiais salvos: só material aprovado/visível; RLS por dono.
+- Avaliações: 1–5, uma por usuário/material, agregado por RPC; não expõe quem
+  avaliou.
 
 ---
 
@@ -305,6 +438,37 @@ requer atualizar `app/lib/...` e os testes.
 | `start_conversation` | conexão aceita, ativo, sem bloqueio | `use_message_request`, `blocked`, `conta_inativa` |
 | `send_message_request` / `respond_message_request` | regras de pedido/bloqueio | `blocked`, `message too long` |
 | `admin_set_account_status` / `admin_set_profile_review` | admin | `forbidden`, `status invalido` |
+| `mute_user` / `unmute_user` / `list_muted_users` | conta ativa, próprio muter | `alvo_invalido`, `conta_inativa` |
+| `add_muted_word` / `remove_muted_word` | 2–40 chars, limite 200 | `palavra_invalida`, `limite_palavras` |
+| `submit_report_appeal` | denunciante, status encerrado, uma vez | `motivo_invalido`, `apelacao_indisponivel` |
+| `admin_resolve_report_appeal` | admin, apelação pendente | `forbidden`, `apelacao_indisponivel` |
+| `export_my_data` | próprio titular ativo | `not authenticated`, `conta_inativa` |
+| `register_device_session` | device id/label válidos, conta ativa | `dispositivo_invalido`, `conta_inativa` |
+| `toggle_bookmark` / `edit_post` / `pin_post` | autor/visível; edição 15 min | `publicacao_inacessivel`, `prazo_de_edicao_expirado` |
+| `create_poll` / `vote_poll` / `poll_results` | autor, 2–4 opções, enquete aberta | `opcoes_invalidas`, `enquete_encerrada`, `opcao_invalida` |
+| `schedule_post` / `cancel_scheduled_post` | conta ativa, diretrizes, 5 min–30 dias, 10 pendentes | `data_invalida`, `limite_agendamentos` |
+| `publish_due_scheduled_posts` | service role | publica pendentes vencidos; falha marca `failed` |
+| `admin_publish_scheduled_post` | admin | força um agendamento pendente |
+| `set_post_mentions` | autor, alvos ativos, máx. 10 | `publicacao_inacessivel` |
+| `create_group_conversation` | conexões ativas, título 3–80, 1–20 membros | `titulo_invalido`, `sem_membros_validos`, `limite_grupos` |
+| `set_conversation_pinned/muted/archived` | participante | `conversa_inacessivel` |
+| `edit_message` | remetente, texto, 15 min | `mensagem_nao_editavel`, `prazo_de_edicao_expirado` |
+| `toggle_message_reaction` | participante, mensagem viva, emoji 1–8 | `mensagem_inacessivel`, `emoji_invalido` |
+| `set_not_interested` | conta ativa, post visível | `publicacao_inacessivel` |
+| `feed_custom` | feed do próprio usuário, 1–5 tópicos | vazio se inacessível |
+| `search_posts` | query não vazia, post visível, sem mute/bloqueio | vazio |
+| `my_analytics` | próprio usuário, 1–365 dias | `conta_inativa` |
+| `get_or_create_group_chat` | membro ativo, grupo visível | `apenas_membros`, `grupo_indisponivel` |
+| `create_group_event` / `delete_group_event` | `manage_group` | `forbidden`, `evento_inexistente` |
+| `group_analytics` | membro/admin, grupo visível | `forbidden`, `grupo_indisponivel` |
+| `accept_study_answer` / `toggle_study_answer_vote` | autor da pergunta; voto único | `forbidden`, `resposta_inexistente` |
+| `delete_study_question` / `remove_study_material_rating` | autor/admin; próprio voto | `forbidden` |
+| `rate_study_material` / `study_material_rating` | material aprovado, 1–5 | `material_inacessivel`, `nota_invalida` |
+| `add_conversation_members` / `remove_conversation_member` | dono do grupo, conexão ativa, limite 50 | `forbidden`, `dono_nao_pode_sair` |
+| `set_event_rsvp` | evento visível, status válido | `evento_inacessivel`, `status_invalido` |
+| `record_post_view` / `my_views_summary` | post visível; próprio autor | `publicacao_inacessivel` |
+| `search_comments` / `search_study_qa` | consulta, RLS de post/pergunta | vazio |
+| `enqueue_event_reminders` | service role | lembrete único por evento |
 | `export_feedback` | admin; `p_kind` em `bug`/`suggestion` | `forbidden`, `tipo_invalido` |
 
 Erros de conteúdo/moderação: `conteudo_proibido:<categoria>`,
@@ -360,7 +524,8 @@ supabase db push --yes              # aplicar pendentes
 ### Edge Functions
 ```bash
 supabase functions deploy delete-account media-upload media-sign media-delete \
-  media-health media-backup study-file-url
+  feed-media-sign chat-media-sign qa-media-sign media-gc media-health \
+  media-backup study-file-url send-push
 ```
 - `media-backup` precisa de `--no-verify-jwt` (protegida pelo segredo do header).
 - Mudou lista de buckets? Atualize a função **e** este documento.
@@ -392,6 +557,12 @@ supabase functions deploy delete-account media-upload media-sign media-delete \
 | `replies_quotes_test` | limite de 3 níveis, citação inacessível, `was_quote` |
 | `security_hardening_test` | perfil, conexões, conversas/bloqueio, denúncias, RPCs legadas, cargo, `created_at`, revisão de perfil |
 | `security_round2_test` | conta inativa, conexões sem insert direto, bloqueio em comentários/likes, denúncia (visibilidade/data), avatar/fotos, `verification-docs` |
+| `p0_trust_safety_test` | mutes no feed/comentários/descoberta, palavras silenciadas, `reply_policy`, apelação, exportação e dispositivo |
+| `p1_feed_test` | bookmark, repost, enquete/voto, edição, fixação, menção, agendamento publicado, notificações de interação e mídia do feed assinada |
+| `p2_chat_test` | grupo, reply cross-conversa, reação, edição, mute, pin/archive, digitando e mídia do chat assinada |
+| `p3_discovery_test` | busca full-text, feed custom, não interessado removendo do feed/busca e analytics agregado |
+| `p4_groups_studies_test` | chat do grupo sincronizado, eventos, analytics, Q&A com aceite/voto, material salvo e avaliação |
+| `p5_hardening_test` | termos de moderação, busca em comentário, views, comentário em avaliação, mídia agendada, anexo Q&A, vídeo bloqueado, membros do chat, RSVP e busca de Q&A |
 | `feedback_rls_test` | isolamento por dono, status/delete só admin, campos forjados (`reporter_id`/`status`/`number`), limite 20/24h, exportação admin sem autor e storage privado |
 | `media_r2_test` | upload próprio, PDF de estudo, `study-file-url`, fallback de foto antiga no Supabase, tipo/tamanho inválidos, assinatura de caminho visível/bloqueado, exclusão só do dono e limpeza de `media_objects` |
 | `image_processor_test` / `media_fixture_test` | WebP cheio/miniatura, sem upscale e payload menor que JPEG 85 nas fixtures |
@@ -451,6 +622,31 @@ Regras de execução:
 - [ ] Não alterar nomes/ordem de triggers de denúncia.
 - [ ] Não reduzir o auto-hide para menos de 3 denunciantes distintos.
 - [ ] Não remover validação de autor/visibilidade/limite/duplicidade de denúncia.
+- [ ] Não adicionar policy de UPDATE para o denunciante em `reports`; apelação
+  só por RPC.
+- [ ] Não fazer `export_my_data` retornar dados de outra conta ou `cpf_hash`.
+- [ ] Não expor `user_mutes`/`muted_words`/`user_devices` além do dono.
+- [ ] Não ignorar `reply_policy` no insert de comentário.
+- [ ] Não permitir repost de si mesmo, de repost ou com conteúdo.
+- [ ] Não editar post após 15 min nem permitir edição de repost.
+- [ ] Não assinar mídia do feed sem `filter_visible_feed_media`.
+- [ ] Não permitir mais de 4 imagens por post; vídeo está desativado.
+- [ ] Não conceder `publish_due_scheduled_posts` a usuário comum.
+- [ ] Não permitir reply entre conversas diferentes.
+- [ ] Não permitir participante trocar `role`/`joined_at` por UPDATE direto.
+- [ ] Não enviar push de mensagem para conversa silenciada.
+- [ ] Não assinar mídia do chat sem `filter_visible_chat_media`.
+- [ ] Não remover `search_vector`/GIN nem ignorar `can_view_post` na busca.
+- [ ] Não retornar analytics de outro autor nem dados demográficos.
+- [ ] Não usar feed custom sem validar tópicos ativos e limite de 20.
+- [ ] Não abrir chat de grupo para não membro nem duplicar conversa por grupo.
+- [ ] Não deixar membro removido no chat do grupo (trigger de sync).
+- [ ] Não permitir resposta de Q&A sem diretrizes/ativo nem aceite por terceiro.
+- [ ] Não expor quem avaliou/salvou material.
+- [ ] Não permitir upload de vídeo sem `ALLOW_VIDEO_UPLOAD` e checagem de assinante.
+- [ ] Não apagar mídia referenciada por agendamento/rascunho no GC.
+- [ ] Não deixar membro removido no chat do grupo.
+- [ ] Não expor identidade em views/analytics.
 - [ ] Não tornar `profile-media`, `verification-docs` ou buckets R2 públicos.
 - [ ] Não permitir upload/delete direto no R2 pelo cliente; só via Edge
   Functions.

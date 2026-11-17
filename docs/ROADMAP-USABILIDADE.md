@@ -22,6 +22,12 @@ Princípios:
 | 1.0.13 — usabilidade essencial | Push reais validados; encerramento após revisões finais | Não deixar o usuário perdido ou sem retorno | Notificações, central, tutorial, checklist, ajuda, busca e acessibilidade |
 | Feed e Grupos | Concluída (1.0.14) | Copiar a estrutura de feed com duas abas e criar grupos com cargos | Para Você/Conexão, FAB de publicar, posts citados, respostas encadeadas e grupos com convites/cargos |
 | Canal de feedback | Concluída (1.0.15) | Ouvir os testadores e transformar relatos em melhoria | Bugs e sugestões no app, print opcional, protocolo, triagem admin, exportação e agentes de análise |
+| Privacidade e confiança | Concluída (1.0.17) | Reduzir assédio, dar controle e cumprir LGPD | Dispositivos conhecidos, exportar dados, mutes de usuário/palavras, apelação e controle de respostas |
+| Feed social P1 | Concluída (1.0.18) | Paridade de feed sem perder segurança | Bookmark, repost, enquete, edição, fixar, rascunhos, agendamento, alt text, menções, notificações de interação e imagens |
+| Chat social P2 | Concluída (1.0.19) | Conversas mais próximas de um mensageiro moderno | Grupos, reply, reações, edição, mídia, pin/mute/archive e digitando; sem E2EE |
+| Descoberta P3 | Concluída (1.0.20) | Encontrar conteúdo e medir o próprio alcance | Busca global, feeds personalizados, não interessado, insights agregados e copiar link |
+| Grupos e estudos P4 | Concluída (1.0.21) | Fechar o ciclo de grupo e estudo | Chat do grupo, eventos, analytics agregado, Q&A, materiais salvos e avaliações |
+| Hardening P5 | Concluída | Corrigir dívidas e remover custos desnecessários | Remoção do 2FA e vídeo, exportação em arquivo, termos gerenciáveis, mídia agendada, membros do chat, RSVP, busca em comentários, views, anexos de Q&A e comentários em avaliações |
 | Estudos fase 2 | Planejada | Aprofundar o valor de estudo | Q&A, grupos, materiais salvos, avaliações e status de aprovação |
 | Vida no campus | Planejada | Ir além da comunidade | Eventos, serviços, avisos, professores/servidores e alumni |
 | Contínuo — confiança | Contínuo | Segurança e transparência | Status de denúncias, privacidade, bloqueios, preferências e moderação |
@@ -180,6 +186,194 @@ sem abrir mão das regras de segurança.
 - Exportação funciona e não expõe o autor.
 - `flutter analyze` limpo e testes de integração passando.
 - Build 1.0.15+19 distribuída no App Distribution.
+
+## 1.0.17 — Privacidade e confiança
+
+Objetivo: dar controle ao usuário, reduzir assédio e cumprir a LGPD sem abrir
+mão da moderação forte.
+
+### Entregas
+
+- Dispositivos conhecidos e “sair de todos os aparelhos”.
+- Exportação dos dados do titular em JSON (copiar e compartilhar arquivo).
+- Silenciar usuários e palavras; feed, comentários e descoberta respeitam.
+- Controle de quem pode responder (`anyone`/`connections`).
+- Status da denúncia visível e apelação única, com decisão do admin.
+- Política de moderação forte documentada; termos gerenciáveis pelo admin.
+
+### Critérios de aceite
+
+- Usuário silenciado some do feed/comentários/descoberta, sem virar bloqueio.
+- Post restrito a conexões rejeita resposta de estranho no servidor.
+- Denunciante vê status e consegue apelar uma vez; admin resolve.
+- Exportação não inclui `cpf_hash` nem dados de outra conta.
+- Nenhuma tela de 2FA é exibida; login usa a conta institucional.
+- `flutter analyze` limpo e suíte de integração passando.
+
+## 1.0.18 — Feed social P1
+
+Objetivo: fechar lacunas de feed sem abrir mão de moderação, privacidade e
+custo baixo.
+
+### Entregas
+
+- Bookmark e lista própria (sem expor quem salvou).
+- Repost simples e citação separados.
+- Enquete de 2–4 opções, 24h/3d/7d, voto único e resultados agregados.
+- Edição em até 15 min, com marca “editado”; fixar um post por perfil.
+- Rascunhos e agendamento (5 min–30 dias; 10 pendentes) com publicação via
+  `send-push`/cron.
+- Alt text por mídia, menções a conexões e notificações de curtida, resposta,
+  menção e repost.
+- Imagens (até 4) no R2 privado, com cota de 30 imagens/24h e 500 MB/30d.
+- Upload de vídeo pausado por custo; pode voltar como recurso de assinante.
+- Moderação por palavras-chave continua valendo para texto e mídia é denunciável.
+
+### Limitações conhecidas
+
+- Upload de vídeo está desativado no MVP.
+- Rascunho/agendamento com mídia usa imagens.
+- URL de mídia assinada expira em 1h; o app renova.
+
+### Critérios de aceite
+
+- Bookmark, repost, enquete, edição, fixação e menção funcionam com RLS.
+- Post agendado publica e respeita diretrizes, tópicos e menções.
+- Mídia só assina para quem pode ver o post; cota e tipo são validados.
+- Notificações respeitam a preferência `interactions`.
+- `flutter analyze` limpo e suíte de integração passando.
+
+## 1.0.19 — Chat social P2
+
+Objetivo: melhorar a conversa sem abrir mão da moderação server-side.
+
+### Entregas
+
+- Chat em grupo com título, criador, participantes e limite de 10 grupos/24h.
+- Responder mensagem (somente na mesma conversa) e editar texto em 15 min.
+- Reações por mensagem, uma por usuário, com contagem agregada.
+- Imagem (5 MB) e PDF (10 MB) no R2 privado, com cota; upload de vídeo pausado.
+- Fixar, silenciar e arquivar por participante; silenciado não recebe push.
+- Indicador “está digitando”, com expiração de 10s.
+- Lista com fixados no topo, ícones de silenciado/arquivado e filtro de arquivadas.
+- Imagens do chat usam miniatura.
+- Sem E2EE no MVP; moderação e conteúdo continuam server-side.
+
+### Limitações conhecidas
+
+- Upload de vídeo no chat está desativado no MVP.
+- URL de mídia do chat expira em 1h e é renovada.
+
+### Critérios de aceite
+
+- Grupo só com conexões ativas; participante não vira dono por UPDATE direto.
+- Reply cross-conversa é bloqueado no servidor.
+- Reação/edição/pin/mute/archive funcionam com RLS.
+- Mídia só assina para participante ativo da conversa.
+- Silenciado não recebe push de mensagem.
+- `flutter analyze` limpo e suíte de integração passando.
+
+## 1.0.20 — Descoberta P3
+
+Objetivo: facilitar encontrar conteúdo e entender o próprio alcance sem
+sacrificar privacidade.
+
+### Entregas
+
+- Busca global de posts com full-text em português e índice GIN.
+- Feeds personalizados com nome e até 5 tópicos; limite de 20 por usuário.
+- “Nao tenho interesse” por post, removendo de feed, busca e feed custom.
+- Insights agregados dos próprios posts: curtidas, respostas, reposts, salvos,
+  votos em enquetes e top posts; sem identidade de terceiros/demografia.
+- Copiar link do post via deep link `conexa://feed/<id>`.
+
+### Limitações conhecidas
+
+- Não há página web pública de post; o link é deep link do app.
+- Busca cobre conteúdo do post; não inclui comentários.
+- Não há métrica de impressões/views.
+- “Nao interessado” não tem tela de desfazer; o post continua acessível por link.
+
+### Critérios de aceite
+
+- Busca respeita bloqueio, mute, conta ativa e não interessado.
+- Feed custom só retorna posts visíveis e com tópicos válidos.
+- Não interessado remove do feed/busca sem quebrar o detalhe por link.
+- Insights contam apenas posts do próprio usuário.
+- `flutter analyze` limpo e suíte de integração passando.
+
+## 1.0.21 — Grupos e estudos P4
+
+Objetivo: conectar a comunidade do campus e aprofundar o estudo colaborativo.
+
+### Entregas
+
+- Chat do grupo do campus, único por grupo, só para membros, com sync de
+  entrada/saída e título.
+- Eventos do grupo com título, descrição, local, início/fim e duração.
+- Insights agregados do grupo: membros, seguidores, posts, respostas, curtidas,
+  mensagens e eventos futuros.
+- Q&A por disciplina: perguntas, respostas, voto, resposta aceita e status
+  resolvido.
+- Materiais salvos e avaliação de 1–5 estrelas com média agregada.
+- Conteúdo de Q&A passa por diretrizes, palavras-chave e denúncia.
+
+### Limitações conhecidas
+
+- Chat do grupo usa a mesma infraestrutura do P2, sem E2EE.
+- Eventos não têm RSVP/lembrete nesta versão.
+- Q&A não tem anexos nem busca própria.
+- Avaliações não têm comentário; apenas nota.
+
+### Critérios de aceite
+
+- Chat do grupo abre apenas para membro e acompanha entrada/saída.
+- Evento só é criado por gestor/dono; leitura respeita `can_view_group`.
+- Insights do grupo não expõem identidade de terceiros.
+- Q&A aceita resposta só pelo autor da pergunta; voto é único.
+- Salvar/avaliar funciona só em material aprovado e visível.
+- `flutter analyze` limpo e suíte de integração passando.
+
+## 1.0.22 — Hardening P5
+
+Objetivo: corrigir dívidas acumuladas, remover custo desnecessário e fechar
+lacunas de moderação, mídia e colaboração.
+
+### Entregas
+
+- 2FA removido do app (login pela conta institucional).
+- Upload de vídeo desativado no feed/chat; imagens e PDF seguem.
+- Exportação de dados em arquivo compartilhável.
+- Termos de moderação gerenciáveis pelo admin, com seed dos termos atuais.
+- Renovação de URL de mídia e telas de “publicações ocultas” com desfazer.
+- Mídia em rascunho/agendamento (imagens) e GC diário de órfãos.
+- Miniatura para imagens do chat.
+- Adicionar/remover membros de chat em grupo.
+- RSVP de eventos e lembrete push.
+- Busca em comentários e views agregadas.
+- Anexos PDF/imagem e busca no Q&A.
+- Comentário público em avaliações de material.
+
+### Limitações conhecidas
+
+- Vídeo upload fica para uma fase de assinantes.
+- Página web pública de post não existe; link é deep link.
+- E2EE não será implementado enquanto a moderação server-side for requisito.
+- Revogação individual de sessão fica fora; “sair de todos” permanece.
+
+### Critérios de aceite
+
+- Nenhuma referência a 2FA no app.
+- Vídeo rejeitado no servidor para não assinantes.
+- Termo novo bloqueia conteúdo sem deploy.
+- Agendamento com imagem publica e anexa mídia.
+- Órfãos de mídia não crescem sem controle.
+- Chat permite adicionar/remover membros.
+- Evento tem RSVP e lembrete.
+- Busca em comentários e Q&A funciona com RLS.
+- Views deduplicadas por dia.
+- Avaliação com comentário público moderado.
+- `flutter analyze` limpo e suíte de integração passando.
 
 ## Matriz de testes
 
