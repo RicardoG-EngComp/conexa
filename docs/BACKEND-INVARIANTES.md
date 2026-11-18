@@ -143,6 +143,13 @@ com `supabase migration repair --status reverted`. Não recrie esses arquivos.
 | `20261122121000_p4_group_chat_owner` | Dono do grupo sem linha ativa em `group_members` | `get_or_create_group_chat` | Sempre insere o dono como participante |
 | `20261122122000_p4_cleanup_helpers` | Limpeza do próprio conteúdo | `remove_study_material_rating`, `delete_study_question` | Só autor/admin |
 
+### 1.0.19 — Gestão de grupos, notificações e skins
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261124130000_group_governance` | Gestão transferível e administradores múltiplos | `is_group_leader`, `group_leader_count`, `transfer_group_leadership`, `add_group_administrator`, `remove_group_administrator`; `has_group_permission`, `create_group`, `leave_group`, `remove_group_member` | Permissão só por cargo; criador recebe cargo; CA/DA/República usam “Administração” com vários portadores; demais usam “Dono” único; nunca remover o último administrador |
+| `20261124131000_notification_per_conversation` | Uma notificação por conversa | `notifications.conversation_id`, índice parcial único, `enqueue_message_notification`, `notify_new_message`, `mark_conversation_read` | Uma linha não lida por conversa; contagem total de mensagens; título do grupo ou remetente; marcação de leitura junto com o chat |
+
 ### 1.0.18 — Correções pós-P5
 
 | Migration | Por que foi criada | Objetos | Não altere sem revisar |
@@ -204,9 +211,15 @@ Para cada item: regra, motivo e consequência de quebrar.
 - `can_view_group`: exige conta ativa, grupo não arquivado e (admin, membro, ou
   público aprovado/oficial/fora de revisão).
 - Nome: público único e normalizado (índice parcial); privado repetível.
-- Categorias fixas (5) validadas por trigger; legado normalizado.
-- Permissões de cargo: lista fixa, somente quem possui pode conceder (dono
-  isento), cargo do dono protegido, ninguém se atribui cargo.
+- Categorias fixas (6) validadas por trigger; legado normalizado.
+- Permissões de cargo: lista fixa, somente quem possui pode conceder; ninguém se
+  atribui cargo. `owner_id` **não** concede permissão por si só.
+- Cargo de gestão: o criador recebe o cargo do sistema com todos os privilégios.
+  Em Centro Acadêmico, República e Diretório Acadêmico ele se chama
+  “Administração” e pode ter vários portadores; nos demais, “Dono” é único e
+  transferível.
+- Nunca remova o último administrador/portador do cargo de gestão; transfira
+  antes. O antigo gestor pode sair ou ser removido depois.
 - Post no grupo: exige cargo do próprio grupo, membro ativo e cargo atribuído;
   `posted_as_group` exige `post_as_group`; `role_name_snapshot` é gravado no
   insert e **não muda depois** (cargo à época).
@@ -308,10 +321,13 @@ Para cada item: regra, motivo e consequência de quebrar.
 - A Edge Function `send-push` lê `groups`, `security_alerts` e `interactions`;
   não remova essas colunas do select nem do mapeamento de preferência.
 - `send-push` chama `publish_due_scheduled_posts` antes de processar a fila.
-- Mensagem de chat: `notify_new_message` usa o nome público do remetente como
-  título, uma contagem por remetente no corpo e `sender_id`/`sender_name`/
-  `unread_count` no `data`. O Android usa `tag=chat_<sender_id>` para substituir
-  notificações do mesmo remetente e `notification_count` para o badge.
+- Mensagem de chat: `notify_new_message` cria **uma linha não lida por
+  conversa**, com contagem total de mensagens não lidas e título do grupo (ou
+  nome público do remetente em conversa individual). O Android usa
+  `tag=chat_<conversation_id>` e `notification_count` para manter uma única
+  notificação por conversa.
+- `mark_conversation_read` atualiza `last_read_at` e marca a notificação da
+  conversa como lida; abrir o chat deve chamar essa RPC.
 - **Nunca** inclua o conteúdo da mensagem no push; o nome público é permitido
   apenas porque o destinatário já vê o remetente no chat.
 - Quebrar: spam/phishing de notificação, notificações duplicadas por mensagem ou
@@ -439,13 +455,15 @@ requer atualizar `app/lib/...` e os testes.
 |---|---|---|
 | `create_group` / `update_group` | ativo, verificado, diretrizes, perfil completo, limite 3/24h | `conta_inativa`, `nao_verificado`, `diretrizes_necessarias`, `perfil_incompleto`, `limite_de_grupos`, `nome_publico_em_uso`, `categoria_invalida` |
 | `request_public_group` / `admin_review_group` | dono/gestor; admin | `forbidden`, `nome_publico_em_uso` |
-| `join_group` / `leave_group` | público aprovado; dono não sai | `grupo_indisponivel`, `conta_inativa`, `dono_nao_pode_sair` |
+| `join_group` / `leave_group` | público aprovado; gestor só sai se houver outro administrador | `grupo_indisponivel`, `conta_inativa`, `transferencia_necessaria` |
 | `follow_group` / `unfollow_group` | público aprovado | `grupo_indisponivel`, `conta_inativa` |
 | `create_group_role` / `update_group_role` / `delete_group_role` | `manage_roles`; subset de permissões | `forbidden`, `permissao_invalida`, `permissao_nao_permitida`, `cargo_sistema` |
-| `assign_group_role` / `remove_group_role` | `manage_roles`; não auto; dono protegido | `nao_pode_se_atribuir`, `cargo_sistema`, `cargo_de_outro_grupo`, `usuario_nao_membro`, `cargo_do_dono` |
+| `assign_group_role` / `remove_group_role` | `manage_roles`; não auto; cargo do sistema só por RPC de gestão | `nao_pode_se_atribuir`, `cargo_sistema`, `cargo_de_outro_grupo`, `usuario_nao_membro` |
+| `transfer_group_leadership` | gestor atual/admin; alvo ativo; move cargo do sistema | `gestao_necessaria`, `membro_inativo`, `ja_administrador` |
+| `add_group_administrator` / `remove_group_administrator` | grupo institucional; gestor/admin; mantém ao menos um | `administracao_unica`, `gestao_necessaria`, `ultimo_administrador` |
 | `create_group_invite_for_user` | `manage_invites`, conexão, alvo ativo | `sem_conexao`, `destinatario_inativo`, `ja_e_membro` |
 | `accept_group_invite` / `decline_group_invite` | destinatário, validade, revogação, usos, grupo não arquivado | `convite invalido`, `convite revogado`, `convite expirado`, `convite esgotado`, `convite de outro usuario`, `grupo_indisponivel` |
-| `remove_group_member` / `remove_group_follower` | `manage_members` | `forbidden`, `nao_pode_remover_dono` |
+| `remove_group_member` / `remove_group_follower` | `manage_members`; não remove o último gestor | `forbidden`, `transferencia_necessaria` |
 | `delete_group` | dono/admin | `forbidden` |
 | `group_moderate_post/comment` | `moderate_content` no grupo | `forbidden`, `post_de_grupo_necessario`, `comentario_de_grupo_necessario` |
 | `feed_for_you` / `feed_connections` | conta ativa | vazio se inativa |
@@ -581,9 +599,10 @@ supabase functions deploy send-push media-backup media-gc --no-verify-jwt
 | `security_round2_test` | conta inativa, conexões sem insert direto, bloqueio em comentários/likes, denúncia (visibilidade/data), avatar/fotos, `verification-docs` |
 | `p0_trust_safety_test` | mutes no feed/comentários/descoberta, palavras silenciadas, `reply_policy`, apelação, exportação e dispositivo |
 | `p1_feed_test` | bookmark, repost, enquete/voto, edição, fixação, menção, agendamento publicado, notificações de interação e mídia do feed assinada |
-| `p2_chat_test` | grupo, reply cross-conversa, reação, edição, mute, pin/archive, digitando, mídia do chat assinada e push com remetente/contador |
+| `p2_chat_test` | grupo, reply cross-conversa, reação, edição, mute, pin/archive, digitando, mídia do chat assinada e push agregado por conversa |
 | `p3_discovery_test` | busca full-text, feed custom, não interessado removendo do feed/busca e analytics agregado |
 | `p4_groups_studies_test` | chat do grupo sincronizado e com nome do grupo, eventos, analytics, Q&A com aceite/voto, material salvo e avaliação |
+| `p6_group_governance_test` | Dono transferível, Administração múltipla em grupo institucional, remoção do antigo gestor e proteção do último administrador |
 | `p5_hardening_test` | termos de moderação, busca em comentário, views, comentário em avaliação, mídia agendada, anexo Q&A, vídeo bloqueado, membros do chat, RSVP e busca de Q&A |
 | `feedback_rls_test` | isolamento por dono, status/delete só admin, campos forjados (`reporter_id`/`status`/`number`), limite 20/24h, exportação admin sem autor e storage privado |
 | `media_r2_test` | upload próprio, PDF de estudo, `study-file-url`, fallback de foto antiga no Supabase, tipo/tamanho inválidos, assinatura de caminho visível/bloqueado, exclusão só do dono e limpeza de `media_objects` |
@@ -638,7 +657,10 @@ Regras de execução:
 - [ ] Não reverter ban/suspensão para `UPDATE profiles` direto.
 - [ ] Não remover `role_name_snapshot`/trigger de cargo.
 - [ ] Não permitir grupo post sem cargo ou cargo de outro grupo.
-- [ ] Não permitir auto-atribuição de cargo nem remover cargo do dono.
+- [ ] Não permitir auto-atribuição de cargo; cargo do sistema só pelas RPCs de
+  gestão; nunca deixar o grupo sem administrador.
+- [ ] Não criar mais de uma notificação não lida por conversa; use
+  `mark_conversation_read` ao abrir o chat.
 - [ ] Não alterar o limite de 3 níveis de resposta.
 - [ ] Não copiar conteúdo de citação para o banco.
 - [ ] Não alterar nomes/ordem de triggers de denúncia.

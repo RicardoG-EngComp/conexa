@@ -116,11 +116,7 @@ class GroupInvitesTab extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  const Icon(
-                    Icons.mail_outline,
-                    size: 18,
-                    color: AppColors.teal,
-                  ),
+                  Icon(Icons.mail_outline, size: 18, color: AppColors.teal),
                   const SizedBox(width: 6),
                   Text(
                     'Convite dentro do app',
@@ -272,7 +268,7 @@ class _ConnectionsPicker extends ConsumerWidget {
                       for (final entry in data.accepted)
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: const CircleAvatar(
+                          leading: CircleAvatar(
                             radius: 18,
                             backgroundColor: AppColors.border,
                             child: Icon(

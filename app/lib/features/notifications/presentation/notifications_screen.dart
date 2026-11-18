@@ -81,7 +81,11 @@ class _NotificationTile extends ConsumerWidget {
       tileColor: unread ? AppColors.surface : null,
       leading: CircleAvatar(
         backgroundColor: unread ? AppColors.teal : AppColors.border,
-        child: Icon(_iconFor(item.type), color: Colors.white, size: 20),
+        child: Icon(
+          _iconFor(item.type),
+          color: unread ? AppColors.onPrimary : AppColors.ink,
+          size: 20,
+        ),
       ),
       title: Text(
         item.title,

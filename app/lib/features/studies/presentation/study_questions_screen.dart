@@ -208,7 +208,7 @@ class _StudyQuestionsScreenState extends ConsumerState<StudyQuestionsScreen> {
                               '${timeAgo(question.createdAt)}',
                             ),
                             trailing: question.status == 'resolved'
-                                ? const Icon(
+                                ? Icon(
                                     Icons.check_circle,
                                     color: AppColors.teal,
                                   )

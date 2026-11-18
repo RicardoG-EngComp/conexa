@@ -4,6 +4,39 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
+## 1.0.19+23 — Gestão, notificações e skins
+
+- **Data:** 18 de novembro de 2026.
+- **Versão:** `1.0.19` (versionCode `23`).
+- **Pacote:** `com.ricardogengcomp.conexa`.
+- **Grupo:** `ufv-beta` — UFV Beta.
+- **Banco:** migrations `20261124130000_group_governance` e `20261124131000_notification_per_conversation`.
+- **Distribuição:** Firebase App Distribution.
+
+### O que entrou
+
+- Cargo de gestão transferível.
+- “Administração” com vários administradores em Centro Acadêmico, República e Diretório Acadêmico.
+- Criador recebe todos os privilégios; permissões agora vêm somente dos cargos.
+- Remoção do antigo gestor após a transferência.
+- Notificação única por conversa, com total de mensagens não lidas.
+- 41 skins com contraste validado e seleção em Ajustes → Aparência.
+
+### Notas usadas no App Distribution
+
+```text
+Grupos com gestão transferível e administradores múltiplos.
+Mensagens do mesmo chat agora aparecem em uma única notificação com contador.
+Novas skins para personalizar as cores do app em Ajustes > Aparência.
+```
+
+### Como reproduzir o build
+
+```powershell
+cd app
+flutter build apk --release --build-name=1.0.19 --build-number=23
+```
+
 ## 1.0.18+22 — Correções de chat e notificações
 
 - **Data:** 18 de novembro de 2026.

@@ -45,7 +45,7 @@ class SavedMaterialsScreen extends ConsumerWidget {
                         : material.kind == 'image'
                         ? Icons.image_outlined
                         : Icons.link,
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                   ),
                 ),
                 title: Text(material.title),

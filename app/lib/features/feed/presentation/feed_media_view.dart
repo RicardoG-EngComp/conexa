@@ -75,17 +75,17 @@ class _FeedImage extends ConsumerWidget {
     return AspectRatio(
       aspectRatio: _ratio(media.width, media.height),
       child: async.when(
-        loading: () => const ColoredBox(
+        loading: () => ColoredBox(
           color: AppColors.paper,
           child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
         ),
-        error: (_, _) => const ColoredBox(
+        error: (_, _) => ColoredBox(
           color: AppColors.paper,
           child: Center(child: Icon(Icons.broken_image_outlined)),
         ),
         data: (variants) {
           if (variants == null) {
-            return const ColoredBox(
+            return ColoredBox(
               color: AppColors.paper,
               child: Center(child: Icon(Icons.image_not_supported_outlined)),
             );
@@ -96,7 +96,7 @@ class _FeedImage extends ConsumerWidget {
             child: CachedNetworkImage(
               imageUrl: variants.full,
               fit: fit,
-              placeholder: (_, _) => const ColoredBox(
+              placeholder: (_, _) => ColoredBox(
                 color: AppColors.paper,
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),

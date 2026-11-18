@@ -209,7 +209,7 @@ class _PackBrowserState extends ConsumerState<_PackBrowser> {
                             imageUrl: repo.publicUrl(item.imagePath),
                             cacheKey: item.imagePath,
                             fit: BoxFit.contain,
-                            errorWidget: (_, _, _) => const Icon(
+                            errorWidget: (_, _, _) => Icon(
                               Icons.broken_image_outlined,
                               color: AppColors.muted,
                             ),
@@ -329,7 +329,7 @@ class _GiphyTabState extends ConsumerState<_GiphyTab> {
                   child: Image.network(
                     item.previewUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => const Icon(
+                    errorBuilder: (_, _, _) => Icon(
                       Icons.broken_image_outlined,
                       color: AppColors.muted,
                     ),

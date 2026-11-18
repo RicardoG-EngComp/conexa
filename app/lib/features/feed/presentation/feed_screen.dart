@@ -374,7 +374,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
         floatingActionButton: FloatingActionButton(
           onPressed: () => _openComposerMenu(groups),
           backgroundColor: AppColors.teal,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),

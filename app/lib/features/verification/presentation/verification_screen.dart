@@ -156,7 +156,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.verified_user, size: 48, color: AppColors.success),
+          Icon(Icons.verified_user, size: 48, color: AppColors.success),
           const SizedBox(height: AppSpacing.lg),
           Text('Identidade confirmada', style: theme.textTheme.headlineMedium),
           const SizedBox(height: AppSpacing.md),

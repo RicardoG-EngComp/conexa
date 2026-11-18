@@ -459,7 +459,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 AppSpacing.md,
                 AppSpacing.sm,
               ),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.paper,
                 border: Border(top: BorderSide(color: AppColors.border)),
               ),
@@ -515,7 +515,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     )
                   : Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.lock_outline,
                           size: 18,
                           color: AppColors.muted,
@@ -574,7 +574,7 @@ class _CommentNodeState extends State<_CommentNode> {
       children: [
         Row(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 13,
               backgroundColor: AppColors.border,
               child: Icon(Icons.person, size: 16, color: AppColors.muted),
@@ -662,7 +662,7 @@ class _CommentNodeState extends State<_CommentNode> {
     return Container(
       margin: const EdgeInsets.only(top: AppSpacing.sm),
       padding: const EdgeInsets.only(left: AppSpacing.md),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(left: BorderSide(color: AppColors.border, width: 2)),
       ),
       child: body,

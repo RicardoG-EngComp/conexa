@@ -448,11 +448,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
             if (canDeleteForEveryone)
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.delete_forever_outlined,
                   color: AppColors.danger,
                 ),
-                title: const Text(
+                title: Text(
                   'Apagar para todos',
                   style: TextStyle(color: AppColors.danger),
                 ),
@@ -1048,7 +1048,7 @@ class _Bubble extends StatelessWidget {
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: mine
-                        ? Colors.white.withValues(alpha: 0.12)
+                        ? AppColors.onPrimary.withValues(alpha: 0.12)
                         : AppColors.paper,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
@@ -1058,7 +1058,9 @@ class _Bubble extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: mine ? Colors.white70 : AppColors.muted,
+                      color: mine
+                          ? AppColors.onPrimary.withValues(alpha: 0.72)
+                          : AppColors.muted,
                     ),
                   ),
                 ),
@@ -1082,7 +1084,7 @@ class _Bubble extends StatelessWidget {
                       Text(
                         message.content,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: mine ? Colors.white : AppColors.ink,
+                          color: mine ? AppColors.onPrimary : AppColors.ink,
                         ),
                       ),
                     ],
@@ -1099,7 +1101,9 @@ class _Bubble extends StatelessWidget {
                       'editada',
                       style: theme.textTheme.labelSmall?.copyWith(
                         fontSize: 10,
-                        color: mine ? Colors.white70 : AppColors.muted,
+                        color: mine
+                            ? AppColors.onPrimary.withValues(alpha: 0.72)
+                            : AppColors.muted,
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -1108,7 +1112,9 @@ class _Bubble extends StatelessWidget {
                     _formatTime(message.createdAt),
                     style: theme.textTheme.labelSmall?.copyWith(
                       fontSize: 10,
-                      color: mine ? Colors.white70 : AppColors.muted,
+                      color: mine
+                          ? AppColors.onPrimary.withValues(alpha: 0.72)
+                          : AppColors.muted,
                     ),
                   ),
                   if (message.flagged && !deleted) ...[
@@ -1116,7 +1122,9 @@ class _Bubble extends StatelessWidget {
                     Icon(
                       Icons.warning_amber_rounded,
                       size: 12,
-                      color: mine ? Colors.white70 : AppColors.muted,
+                      color: mine
+                          ? AppColors.onPrimary.withValues(alpha: 0.72)
+                          : AppColors.muted,
                     ),
                   ],
                 ],
@@ -1171,7 +1179,7 @@ class _Bubble extends StatelessWidget {
         height: 140,
         fit: BoxFit.contain,
         errorWidget: (_, _, _) =>
-            const Icon(Icons.broken_image_outlined, color: AppColors.muted),
+            Icon(Icons.broken_image_outlined, color: AppColors.muted),
       );
     }
     if (message.kind == 'gif' && message.gifUrl != null) {
@@ -1182,14 +1190,14 @@ class _Bubble extends StatelessWidget {
           width: 200,
           fit: BoxFit.cover,
           errorBuilder: (_, _, _) =>
-              const Icon(Icons.broken_image_outlined, color: AppColors.muted),
+              Icon(Icons.broken_image_outlined, color: AppColors.muted),
         ),
       );
     }
     return Text(
       message.content,
       style: theme.textTheme.bodyLarge?.copyWith(
-        color: mine ? Colors.white : AppColors.ink,
+        color: mine ? AppColors.onPrimary : AppColors.ink,
       ),
     );
   }

@@ -121,7 +121,7 @@ class GroupInvitesReceivedScreen extends ConsumerWidget {
                                       ),
                                       if (invite.groupOfficial) ...[
                                         const SizedBox(width: 4),
-                                        const Icon(
+                                        Icon(
                                           Icons.verified,
                                           size: 15,
                                           color: AppColors.teal,

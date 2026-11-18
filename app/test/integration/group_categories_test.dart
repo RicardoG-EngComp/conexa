@@ -102,6 +102,21 @@ void main() {
           .single();
       expect(after['category'], 'República');
 
+      await client.rpc(
+        'update_group',
+        params: {
+          'p_group_id': groupId,
+          'p_name': 'ztest-cat diretorio $ts',
+          'p_category': 'Diretório Acadêmico',
+        },
+      );
+      final directory = await client
+          .from('groups')
+          .select('category')
+          .eq('id', groupId)
+          .single();
+      expect(directory['category'], 'Diretório Acadêmico');
+
       await cleanup(client);
       await client.auth.signOut();
     },

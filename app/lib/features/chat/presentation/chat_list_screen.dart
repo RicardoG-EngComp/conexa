@@ -283,7 +283,7 @@ class _AcceptedList extends ConsumerWidget {
                 backgroundColor: AppColors.teal,
                 child: Icon(
                   c.isGroup ? Icons.groups_outlined : Icons.person,
-                  color: Colors.white,
+                  color: AppColors.onPrimary,
                 ),
               ),
               title: Row(
@@ -301,7 +301,7 @@ class _AcceptedList extends ConsumerWidget {
                   ],
                   if (c.muted) ...[
                     const SizedBox(width: 4),
-                    const Icon(
+                    Icon(
                       Icons.notifications_off_outlined,
                       size: 14,
                       color: AppColors.muted,
@@ -333,7 +333,7 @@ class _AcceptedList extends ConsumerWidget {
                       child: Text(
                         '${c.unreadCount}',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white,
+                          color: AppColors.onPrimary,
                         ),
                       ),
                     ),
@@ -481,7 +481,7 @@ class _PendingList extends ConsumerWidget {
                               style: theme.textTheme.titleSmall,
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right,
                             size: 20,
                             color: AppColors.muted,

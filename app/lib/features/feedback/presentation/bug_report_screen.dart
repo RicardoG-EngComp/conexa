@@ -288,7 +288,7 @@ class _BugReportScreenState extends ConsumerState<BugReportScreen> {
             ),
             if (_error != null) ...[
               const SizedBox(height: AppSpacing.sm),
-              Text(_error!, style: const TextStyle(color: AppColors.danger)),
+              Text(_error!, style: TextStyle(color: AppColors.danger)),
             ],
             const SizedBox(height: AppSpacing.lg),
             FilledButton(

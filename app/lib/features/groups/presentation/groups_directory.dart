@@ -135,11 +135,7 @@ class _GroupSummaryCard extends StatelessWidget {
                       ),
                       if (group.isOfficial) ...[
                         const SizedBox(width: 4),
-                        const Icon(
-                          Icons.verified,
-                          size: 15,
-                          color: AppColors.teal,
-                        ),
+                        Icon(Icons.verified, size: 15, color: AppColors.teal),
                       ],
                     ],
                   ),
@@ -162,7 +158,7 @@ class _GroupSummaryCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 20, color: AppColors.muted),
+            Icon(Icons.chevron_right, size: 20, color: AppColors.muted),
           ],
         ),
       ),

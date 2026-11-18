@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/notifications/notification_service.dart';
 import 'core/router/app_router.dart';
+import 'core/theme/app_skin_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'core/update/firebase_update_service.dart';
 import 'features/security/data/security_repository.dart';
@@ -55,11 +57,16 @@ class _ConexaAppState extends State<ConexaApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Conexa',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      routerConfig: appRouter,
+    return Consumer(
+      builder: (context, ref, _) {
+        ref.watch(appSkinProvider);
+        return MaterialApp.router(
+          title: 'Conexa',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          routerConfig: appRouter,
+        );
+      },
     );
   }
 }

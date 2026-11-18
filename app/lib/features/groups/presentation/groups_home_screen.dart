@@ -71,7 +71,7 @@ class GroupsHomeScreen extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.mail_outline, color: AppColors.teal),
+                        Icon(Icons.mail_outline, color: AppColors.teal),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
@@ -83,7 +83,7 @@ class GroupsHomeScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.chevron_right,
                           size: 20,
                           color: AppColors.teal,
@@ -160,7 +160,7 @@ class GroupsHomeScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/groups/create'),
         backgroundColor: AppColors.teal,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.onPrimary,
         icon: const Icon(Icons.add),
         label: const Text('Criar grupo'),
       ),
@@ -206,11 +206,7 @@ class _GroupTile extends StatelessWidget {
                       ),
                       if (group.isOfficial) ...[
                         const SizedBox(width: 4),
-                        const Icon(
-                          Icons.verified,
-                          size: 15,
-                          color: AppColors.teal,
-                        ),
+                        Icon(Icons.verified, size: 15, color: AppColors.teal),
                       ],
                     ],
                   ),
@@ -226,7 +222,7 @@ class _GroupTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 20, color: AppColors.muted),
+            Icon(Icons.chevron_right, size: 20, color: AppColors.muted),
           ],
         ),
       ),

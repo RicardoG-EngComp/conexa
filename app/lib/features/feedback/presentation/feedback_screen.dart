@@ -158,7 +158,7 @@ class _FeedbackOption extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: AppColors.muted),
+              Icon(Icons.chevron_right, color: AppColors.muted),
             ],
           ),
         ),

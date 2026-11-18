@@ -338,7 +338,7 @@ class _StudyUploadScreenState extends ConsumerState<StudyUploadScreen> {
                         const SizedBox(height: AppSpacing.sm),
                         Text(
                           _error!,
-                          style: const TextStyle(color: AppColors.danger),
+                          style: TextStyle(color: AppColors.danger),
                         ),
                       ],
                       const SizedBox(height: AppSpacing.lg),

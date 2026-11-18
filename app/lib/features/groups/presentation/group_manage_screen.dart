@@ -293,7 +293,7 @@ class _GroupManageScreenState extends ConsumerState<GroupManageScreen> {
               onPressed: _deleting ? null : () => _confirmDelete(detail),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.danger,
-                side: const BorderSide(color: AppColors.danger),
+                side: BorderSide(color: AppColors.danger),
               ),
               icon: _deleting
                   ? const SizedBox(

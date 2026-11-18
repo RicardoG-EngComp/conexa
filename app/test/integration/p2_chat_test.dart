@@ -122,28 +122,39 @@ void main() {
           'content': 'segunda mensagem P2 $ts',
           'kind': 'text',
         });
+        for (var i = 3; i <= 5; i++) {
+          await client.from('messages').insert({
+            'conversation_id': conversationId,
+            'sender_id': userA,
+            'content': 'mensagem $i P2 $ts',
+            'kind': 'text',
+          });
+        }
 
         await signInB(client);
-        final senderProfile = await client
-            .from('profiles_public')
-            .select('display_name')
-            .eq('id', userA)
-            .single();
-        final messageNotification = await client
+        final messageNotifications = await client
             .from('notifications')
             .select('title, body, data')
             .eq('user_id', userB)
             .eq('type', 'message')
-            .contains('data', {'conversation_id': conversationId})
-            .order('created_at', ascending: false)
-            .limit(1)
-            .single();
-        expect(messageNotification['title'], senderProfile['display_name']);
-        expect(
-          messageNotification['body'],
-          contains('2 novas mensagens'),
+            .contains('data', {'conversation_id': conversationId});
+        expect((messageNotifications as List).length, 1);
+        final messageNotification = messageNotifications.first;
+        expect(messageNotification['title'], 'ztest P2 $ts');
+        expect(messageNotification['body'], '5 novas mensagens');
+        expect((messageNotification['data'] as Map)['unread_count'], 5);
+        await client.rpc(
+          'mark_conversation_read',
+          params: {'p_conversation_id': conversationId},
         );
-        expect((messageNotification['data'] as Map)['unread_count'], 2);
+        final readNotification = await client
+            .from('notifications')
+            .select('read_at')
+            .eq('user_id', userB)
+            .eq('type', 'message')
+            .contains('data', {'conversation_id': conversationId})
+            .single();
+        expect(readNotification['read_at'], isNotNull);
         final conversations = await client
             .from('conversations')
             .select('id, kind, title')

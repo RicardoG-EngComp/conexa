@@ -122,9 +122,9 @@ class _DisciplineCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: ListTile(
-        leading: const CircleAvatar(
+        leading: CircleAvatar(
           backgroundColor: AppColors.teal,
-          child: Icon(Icons.menu_book_outlined, color: Colors.white),
+          child: Icon(Icons.menu_book_outlined, color: AppColors.onPrimary),
         ),
         title: Text(discipline.name, style: theme.textTheme.titleSmall),
         subtitle: Text(

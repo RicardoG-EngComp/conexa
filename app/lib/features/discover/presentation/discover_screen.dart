@@ -309,7 +309,7 @@ class _DiscoverAvatar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const fallback = ColoredBox(
+    final fallback = ColoredBox(
       color: AppColors.border,
       child: Center(child: Icon(Icons.person, size: 48)),
     );

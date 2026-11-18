@@ -112,7 +112,7 @@ class _MaterialCard extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: AppColors.teal,
-          child: Icon(_icon, color: Colors.white),
+          child: Icon(_icon, color: AppColors.onPrimary),
         ),
         title: Text(material.title, style: theme.textTheme.titleSmall),
         subtitle: Text(

@@ -136,6 +136,26 @@ class GroupRepository {
         .maybeSingle();
     final isFollowing = followRow != null;
 
+    final systemRoleRows = await _client
+        .from('group_roles')
+        .select('id')
+        .eq('group_id', id)
+        .eq('is_system', true);
+    final systemRoleIds = (systemRoleRows as List)
+        .map((r) => r['id'] as String)
+        .toList();
+    var isLeader = false;
+    if (systemRoleIds.isNotEmpty) {
+      final leaderRow = await _client
+          .from('group_member_roles')
+          .select('role_id')
+          .eq('group_id', id)
+          .eq('user_id', user.id)
+          .inFilter('role_id', systemRoleIds)
+          .maybeSingle();
+      isLeader = leaderRow != null;
+    }
+
     return GroupDetail(
       id: row['id'] as String,
       name: row['name'] as String,
@@ -149,20 +169,17 @@ class GroupRepository {
       course: row['course'] as String?,
       isMember: isMember,
       isFollowing: isFollowing,
+      isLeader: isLeader,
       memberCount: memberCount,
       followerCount: followerCount,
-      permissions: await _fetchMyPermissions(id, row['owner_id'] as String),
+      permissions: await _fetchMyPermissions(id),
     );
   }
 
-  Future<List<String>> _fetchMyPermissions(
-    String groupId,
-    String ownerId,
-  ) async {
+  Future<List<String>> _fetchMyPermissions(String groupId) async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
     final perms = <String>{};
-    if (ownerId == user.id) perms.addAll(allPermissions);
 
     final mrRows = await _client
         .from('group_member_roles')
@@ -505,6 +522,27 @@ class GroupRepository {
   Future<void> removeMember(String groupId, String userId) async {
     await _client.rpc(
       'remove_group_member',
+      params: {'p_group_id': groupId, 'p_user_id': userId},
+    );
+  }
+
+  Future<void> transferLeadership(String groupId, String userId) async {
+    await _client.rpc(
+      'transfer_group_leadership',
+      params: {'p_group_id': groupId, 'p_user_id': userId},
+    );
+  }
+
+  Future<void> addAdministrator(String groupId, String userId) async {
+    await _client.rpc(
+      'add_group_administrator',
+      params: {'p_group_id': groupId, 'p_user_id': userId},
+    );
+  }
+
+  Future<void> removeAdministrator(String groupId, String userId) async {
+    await _client.rpc(
+      'remove_group_administrator',
       params: {'p_group_id': groupId, 'p_user_id': userId},
     );
   }

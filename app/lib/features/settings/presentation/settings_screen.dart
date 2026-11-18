@@ -65,6 +65,13 @@ class SettingsScreen extends ConsumerWidget {
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.palette_outlined),
+              title: const Text('Aparência'),
+              subtitle: const Text('Escolha uma skin e mude as cores do app.'),
+              onTap: () => context.push('/appearance'),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.shield_outlined),
               title: const Text('Seguranca e privacidade'),
               subtitle: const Text(
@@ -222,7 +229,7 @@ class SettingsScreen extends ConsumerWidget {
             const Divider(height: AppSpacing.xl),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.logout, color: AppColors.danger),
+              leading: Icon(Icons.logout, color: AppColors.danger),
               title: const Text('Sair da conta'),
               onTap: () async {
                 final confirm = await showDialog<bool>(

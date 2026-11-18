@@ -376,6 +376,21 @@ lacunas de moderação, mídia e colaboração.
 - Avaliação com comentário público moderado.
 - `flutter analyze` limpo e suíte de integração passando.
 
+## 1.0.19 — Gestão, notificações e skins
+
+- Cargo de gestão transferível; “Administração” com vários portadores em CA,
+  República e Diretório Acadêmico.
+- Criador recebe todos os privilégios via cargo; `owner_id` não concede mais
+  permissão automática.
+- Remoção/saída do gestor exige outro administrador.
+- Notificação de mensagens agregada por conversa, com total não lido.
+- 41 skins claras, aplicadas localmente, com contraste validado.
+
+### Limitações conhecidas
+
+- Skins são locais ao aparelho; não sincronizam entre dispositivos.
+- Modo escuro dedicado ainda não existe; algumas skins têm fundo escuro.
+
 ## Matriz de testes
 
 | Cenário | Resultado esperado |

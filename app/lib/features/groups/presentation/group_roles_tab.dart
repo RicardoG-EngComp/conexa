@@ -179,7 +179,11 @@ class GroupRolesTab extends ConsumerWidget {
                       child: Text(role.name, style: theme.textTheme.titleSmall),
                     ),
                     if (role.isSystem)
-                      const RoleTag(label: 'Cargo do dono')
+                      RoleTag(
+                        label: detail.isInstitutional
+                            ? 'Cargo de administração'
+                            : 'Cargo do dono',
+                      )
                     else if (detail.canManageRoles) ...[
                       IconButton(
                         onPressed: () => editRole(role: role),

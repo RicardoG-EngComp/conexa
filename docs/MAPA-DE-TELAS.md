@@ -751,6 +751,24 @@ Busca: [ buscar perguntas... ]
 Comentarios publicos (nome + nota + texto)
 ```
 
+### P6.1 Aparencia
+```
+Ajustes > Aparencia
+[ Ceruleo & Cereja ] [ Meia-noite & Coral ] ...
+Previa: 3 cores + nome
+Aplicar skin (persistida no aparelho)
+```
+
+### P6.2 Gestao do grupo
+```
+Membros > menu do membro
+[ Atribuir cargos ]
+[ Transferir gestao ] (Dono)
+[ Adicionar administrador ] (CA/DA/Republica)
+[ Remover administrador ]
+[ Remover membro ]
+```
+
 ---
 
 ## Ordem de construção das telas

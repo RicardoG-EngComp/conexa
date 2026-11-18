@@ -141,11 +141,7 @@ class ConnectionsList extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const Icon(
-                      Icons.chevron_right,
-                      size: 20,
-                      color: AppColors.muted,
-                    ),
+                    Icon(Icons.chevron_right, size: 20, color: AppColors.muted),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -199,9 +195,9 @@ class _ConnectionAvatar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const fallback = CircleAvatar(
+    final fallback = CircleAvatar(
       backgroundColor: AppColors.teal,
-      child: Icon(Icons.person, color: Colors.white),
+      child: Icon(Icons.person, color: AppColors.onPrimary),
     );
     if (path == null || path!.isEmpty) return fallback;
     return ClipOval(

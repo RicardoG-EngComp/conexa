@@ -198,7 +198,7 @@ class _FeedbackAdminTile extends StatelessWidget {
                 ),
               ),
               if (entry.screenshotPath != null)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(right: AppSpacing.xs),
                   child: Icon(
                     Icons.image_outlined,
@@ -206,7 +206,7 @@ class _FeedbackAdminTile extends StatelessWidget {
                     color: AppColors.muted,
                   ),
                 ),
-              const Icon(Icons.chevron_right, color: AppColors.muted),
+              Icon(Icons.chevron_right, color: AppColors.muted),
             ],
           ),
         ),
@@ -377,7 +377,7 @@ class _FeedbackDetailSheetState extends ConsumerState<_FeedbackDetailSheet> {
               ),
               if (_error != null) ...[
                 const SizedBox(height: AppSpacing.sm),
-                Text(_error!, style: const TextStyle(color: AppColors.danger)),
+                Text(_error!, style: TextStyle(color: AppColors.danger)),
               ],
               const SizedBox(height: AppSpacing.md),
               FilledButton(

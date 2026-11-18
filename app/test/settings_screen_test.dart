@@ -87,6 +87,7 @@ void main() {
     await tester.pumpWidget(wrapSettings());
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(find.text('Ajuda e FAQ'), 200);
     expect(find.text('Ajuda e FAQ'), findsOneWidget);
   });
 

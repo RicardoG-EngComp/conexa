@@ -117,7 +117,11 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                             color: AppColors.teal,
                             borderRadius: BorderRadius.circular(AppRadius.md),
                           ),
-                          child: Icon(page.icon, color: Colors.white, size: 36),
+                          child: Icon(
+                            page.icon,
+                            color: AppColors.onPrimary,
+                            size: 36,
+                          ),
                         ),
                         const SizedBox(height: AppSpacing.xl),
                         Text(page.title, style: theme.textTheme.displaySmall),

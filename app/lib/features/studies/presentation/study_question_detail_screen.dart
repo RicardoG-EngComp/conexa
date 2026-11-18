@@ -418,7 +418,7 @@ class _AnswerCard extends StatelessWidget {
                 ),
               ),
               if (answer.accepted)
-                const Icon(Icons.check_circle, size: 18, color: AppColors.teal),
+                Icon(Icons.check_circle, size: 18, color: AppColors.teal),
             ],
           ),
           Text(

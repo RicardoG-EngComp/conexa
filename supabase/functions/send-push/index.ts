@@ -260,31 +260,17 @@ async function sendFcm(
   data.type = row.type;
 
   const isMessage = row.type === "message";
-  const senderId = (data.sender_id ?? "").trim();
-  const senderName = (data.sender_name ?? "").trim();
-  const groupTitle = (data.group_title ?? "").trim();
+  const conversationId = (data.conversation_id ?? "").trim();
   const unread = Number.parseInt(data.unread_count ?? "1", 10);
   const count = Number.isFinite(unread) && unread > 0 ? unread : 1;
-
-  const title = isMessage && senderName ? senderName : row.title;
-  let body = row.body;
-  if (isMessage) {
-    if (count > 1) {
-      body = groupTitle
-        ? `${count} novas mensagens em ${groupTitle}`
-        : `${count} novas mensagens`;
-    } else if (groupTitle) {
-      body = `Nova mensagem em ${groupTitle}`;
-    }
-  }
 
   const androidNotification: Record<string, unknown> = {
     channel_id: "conexa_default",
     sound: "default",
     visibility: "PRIVATE",
   };
-  if (isMessage && senderId) {
-    androidNotification.tag = `chat_${senderId}`;
+  if (isMessage && conversationId) {
+    androidNotification.tag = `chat_${conversationId}`;
     androidNotification.notification_count = count;
   }
 
@@ -300,8 +286,8 @@ async function sendFcm(
         message: {
           token,
           notification: {
-            title,
-            body,
+            title: row.title,
+            body: row.body,
           },
           data,
           android: {

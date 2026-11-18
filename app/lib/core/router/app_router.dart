@@ -56,6 +56,7 @@ import '../../features/reports/presentation/my_reports_screen.dart';
 import '../../features/security/presentation/muted_users_screen.dart';
 import '../../features/security/presentation/muted_words_screen.dart';
 import '../../features/security/presentation/security_screen.dart';
+import '../../features/settings/presentation/appearance_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/studies/presentation/admin_studies_screen.dart';
 import '../../features/studies/presentation/saved_materials_screen.dart';
@@ -109,6 +110,7 @@ final GoRouter appRouter = GoRouter(
     return null;
   },
   routes: [
+    GoRoute(path: '/appearance', builder: (_, _) => const AppearanceScreen()),
     GoRoute(path: '/welcome', builder: (_, _) => const WelcomeScreen()),
     GoRoute(path: '/sign-up', builder: (_, _) => const SignUpScreen()),
     GoRoute(path: '/sign-in', builder: (_, _) => const SignInScreen()),

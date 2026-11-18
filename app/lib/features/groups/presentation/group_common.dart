@@ -9,6 +9,7 @@ const List<String> groupCategories = [
   'Atlética',
   'Grupo de Estudos',
   'República',
+  'Diretório Acadêmico',
   'Outros',
 ];
 
@@ -36,8 +37,15 @@ String normalizeGroupCategory(String? category) {
     'atletica' => 'Atlética',
     'grupo de estudos' => 'Grupo de Estudos',
     'republica' => 'República',
+    'diretorio academico' => 'Diretório Acadêmico',
     _ => defaultGroupCategory,
   };
+}
+
+bool isInstitutionalGroupCategory(String? category) {
+  return category == 'Centro Acadêmico' ||
+      category == 'República' ||
+      category == 'Diretório Acadêmico';
 }
 
 String permissionLabel(String key) {
@@ -74,7 +82,7 @@ class GroupAvatar extends StatelessWidget {
       child: Text(
         _initials,
         style: TextStyle(
-          color: Colors.white,
+          color: AppColors.onPrimary,
           fontSize: radius * 0.68,
           fontWeight: FontWeight.w600,
         ),
@@ -99,7 +107,7 @@ class GroupSealChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.verified_outlined, size: 14, color: AppColors.teal),
+          Icon(Icons.verified_outlined, size: 14, color: AppColors.teal),
           const SizedBox(width: 5),
           Text(
             'Grupo oficial',

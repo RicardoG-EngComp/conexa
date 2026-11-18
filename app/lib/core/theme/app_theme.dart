@@ -8,37 +8,55 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData light() {
-    const colorScheme = ColorScheme.light(
-      primary: AppColors.teal,
-      onPrimary: Colors.white,
-      secondary: AppColors.teal,
-      onSecondary: Colors.white,
-      surface: AppColors.paper,
-      onSurface: AppColors.ink,
-      error: AppColors.danger,
-      onError: Colors.white,
-      outline: AppColors.border,
-    );
+    final palette = AppColors.palette;
+    final colorScheme = (palette.isDark
+        ? ColorScheme.dark(
+            primary: palette.primary,
+            onPrimary: palette.onPrimary,
+            secondary: palette.accent,
+            onSecondary: palette.onAccent,
+            surface: palette.surface,
+            onSurface: palette.ink,
+            error: palette.danger,
+            onError: palette.danger.computeLuminance() > 0.45
+                ? Colors.black
+                : Colors.white,
+            outline: palette.border,
+          )
+        : ColorScheme.light(
+            primary: palette.primary,
+            onPrimary: palette.onPrimary,
+            secondary: palette.accent,
+            onSecondary: palette.onAccent,
+            surface: palette.surface,
+            onSurface: palette.ink,
+            error: palette.danger,
+            onError: palette.danger.computeLuminance() > 0.45
+                ? Colors.black
+                : Colors.white,
+            outline: palette.border,
+          ));
 
     final textTheme = AppTypography.textTheme;
 
     return ThemeData(
       useMaterial3: true,
+      brightness: palette.isDark ? Brightness.dark : Brightness.light,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.paper,
+      scaffoldBackgroundColor: palette.canvas,
       fontFamily: AppTypography.sans,
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.paper,
-        foregroundColor: AppColors.ink,
+        backgroundColor: palette.canvas,
+        foregroundColor: palette.ink,
         elevation: 0,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.teal,
-          foregroundColor: Colors.white,
+          backgroundColor: palette.primary,
+          foregroundColor: palette.onPrimary,
           minimumSize: const Size.fromHeight(52),
           textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(
@@ -48,9 +66,9 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.ink,
+          foregroundColor: palette.ink,
           minimumSize: const Size.fromHeight(52),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: palette.border),
           textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
@@ -59,26 +77,26 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: palette.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.md,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: palette.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: palette.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.teal, width: 1.5),
+          borderSide: BorderSide(color: palette.primary, width: 1.5),
         ),
       ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.border,
+      dividerTheme: DividerThemeData(
+        color: palette.border,
         thickness: 1,
         space: 1,
       ),

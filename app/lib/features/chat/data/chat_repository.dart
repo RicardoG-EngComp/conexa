@@ -307,11 +307,10 @@ class ChatRepository {
   Future<void> markAsRead(String conversationId) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
-    await _client
-        .from('conversation_participants')
-        .update({'last_read_at': DateTime.now().toUtc().toIso8601String()})
-        .eq('conversation_id', conversationId)
-        .eq('user_id', user.id);
+    await _client.rpc(
+      'mark_conversation_read',
+      params: {'p_conversation_id': conversationId},
+    );
   }
 
   Future<Map<String, dynamic>> sendMessageRequest({

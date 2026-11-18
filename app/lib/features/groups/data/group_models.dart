@@ -153,6 +153,7 @@ class GroupDetail {
     this.course,
     this.isMember = false,
     this.isFollowing = false,
+    this.isLeader = false,
     this.memberCount = 0,
     this.followerCount = 0,
     this.permissions = const [],
@@ -170,9 +171,15 @@ class GroupDetail {
   final String? course;
   final bool isMember;
   final bool isFollowing;
+  final bool isLeader;
   final int memberCount;
   final int followerCount;
   final List<String> permissions;
+
+  bool get isInstitutional =>
+      category == 'Centro Acadêmico' ||
+      category == 'República' ||
+      category == 'Diretório Acadêmico';
 
   bool get isPublicApproved =>
       visibility == 'public' && publicApproval == 'approved' && isOfficial;

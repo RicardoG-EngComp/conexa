@@ -28,9 +28,9 @@ class BlockedUsersScreen extends ConsumerWidget {
               final row = rows[index];
               return ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const CircleAvatar(
+                leading: CircleAvatar(
                   backgroundColor: AppColors.teal,
-                  child: Icon(Icons.person, color: Colors.white),
+                  child: Icon(Icons.person, color: AppColors.onPrimary),
                 ),
                 title: Text((row['display_name'] as String?) ?? 'UFV'),
                 trailing: TextButton(

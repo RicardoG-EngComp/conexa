@@ -60,7 +60,7 @@ class GroupMembersTab extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Ninguém atribui cargo a si mesmo. Só quem gerencia cargos.',
                   style: TextStyle(color: AppColors.muted),
                 ),
@@ -137,6 +137,88 @@ class GroupMembersTab extends ConsumerWidget {
       );
     }
 
+    Future<void> transferLeadership(GroupMember member) async {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Transferir gestão?'),
+          content: Text(
+            '${member.name} passa a ser o responsável principal pelo grupo. '
+            'Você continua como membro e pode sair depois.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Transferir'),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true || !context.mounted) return;
+      await run(
+        () => repo.transferLeadership(groupId, member.userId),
+        'Gestão transferida.',
+      );
+    }
+
+    Future<void> addAdministrator(GroupMember member) async {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Adicionar administrador?'),
+          content: Text(
+            '${member.name} passa a ter todos os privilégios de administração.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Adicionar'),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true || !context.mounted) return;
+      await run(
+        () => repo.addAdministrator(groupId, member.userId),
+        'Administrador adicionado.',
+      );
+    }
+
+    Future<void> removeAdministrator(GroupMember member) async {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Remover administrador?'),
+          content: Text(
+            '${member.name} deixa de ter os privilégios de administração.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Remover'),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true || !context.mounted) return;
+      await run(
+        () => repo.removeAdministrator(groupId, member.userId),
+        'Administrador removido.',
+      );
+    }
+
     if (members.isEmpty) {
       return Center(
         child: Text(
@@ -199,6 +281,12 @@ class GroupMembersTab extends ConsumerWidget {
                         assignRoles(member);
                       } else if (value == 'remove' && detail.canManageMembers) {
                         removeMember(member);
+                      } else if (value == 'transfer') {
+                        transferLeadership(member);
+                      } else if (value == 'add_admin') {
+                        addAdministrator(member);
+                      } else if (value == 'remove_admin') {
+                        removeAdministrator(member);
                       }
                     },
                     itemBuilder: (_) => [
@@ -206,6 +294,27 @@ class GroupMembersTab extends ConsumerWidget {
                         const PopupMenuItem<String>(
                           value: 'roles',
                           child: Text('Atribuir cargos'),
+                        ),
+                      if (detail.isLeader &&
+                          detail.isInstitutional &&
+                          !member.roles.any((r) => r.isSystem))
+                        const PopupMenuItem<String>(
+                          value: 'add_admin',
+                          child: Text('Adicionar administrador'),
+                        ),
+                      if (detail.isLeader &&
+                          detail.isInstitutional &&
+                          member.roles.any((r) => r.isSystem))
+                        const PopupMenuItem<String>(
+                          value: 'remove_admin',
+                          child: Text('Remover administrador'),
+                        ),
+                      if (detail.isLeader &&
+                          !detail.isInstitutional &&
+                          !member.roles.any((r) => r.isSystem))
+                        const PopupMenuItem<String>(
+                          value: 'transfer',
+                          child: Text('Transferir gestão'),
                         ),
                       if (detail.canManageMembers)
                         const PopupMenuItem<String>(

@@ -130,11 +130,7 @@ class FeedPostCard extends StatelessWidget {
                         ),
                         if (post.postedAsGroup && post.groupOfficial) ...[
                           const SizedBox(width: 4),
-                          const Icon(
-                            Icons.verified,
-                            size: 15,
-                            color: AppColors.teal,
-                          ),
+                          Icon(Icons.verified, size: 15, color: AppColors.teal),
                         ],
                       ],
                     ),
@@ -159,7 +155,7 @@ class FeedPostCard extends StatelessWidget {
               ),
               if (post.pinnedAt != null) ...[
                 const SizedBox(width: 4),
-                const Icon(Icons.push_pin, size: 14, color: AppColors.teal),
+                Icon(Icons.push_pin, size: 14, color: AppColors.teal),
               ],
               if (post.editedAt != null) ...[
                 const SizedBox(width: 4),
@@ -244,7 +240,7 @@ class FeedPostCard extends StatelessWidget {
                         child: Text('Ocultar publicação'),
                       ),
                     if (onDelete != null)
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'delete',
                         child: Text(
                           'Apagar publicação',
@@ -259,11 +255,7 @@ class FeedPostCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
-                const Icon(
-                  Icons.groups_outlined,
-                  size: 14,
-                  color: AppColors.muted,
-                ),
+                Icon(Icons.groups_outlined, size: 14, color: AppColors.muted),
                 const SizedBox(width: 5),
                 Flexible(
                   child: Text(
@@ -286,7 +278,7 @@ class FeedPostCard extends StatelessWidget {
           if (post.wasRepost) ...[
             Row(
               children: [
-                const Icon(Icons.repeat, size: 14, color: AppColors.muted),
+                Icon(Icons.repeat, size: 14, color: AppColors.muted),
                 const SizedBox(width: 5),
                 Text(
                   'Republicou',
@@ -353,7 +345,7 @@ class FeedPostCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.sell_outlined,
                           size: 14,
                           color: AppColors.teal,
@@ -405,7 +397,7 @@ class FeedPostCard extends StatelessWidget {
               ),
               TextButton.icon(
                 onPressed: onComment,
-                icon: const Icon(
+                icon: Icon(
                   Icons.chat_bubble_outline,
                   size: 18,
                   color: AppColors.muted,
@@ -418,11 +410,7 @@ class FeedPostCard extends StatelessWidget {
               ),
               TextButton.icon(
                 onPressed: onRepost,
-                icon: const Icon(
-                  Icons.repeat,
-                  size: 18,
-                  color: AppColors.muted,
-                ),
+                icon: Icon(Icons.repeat, size: 18, color: AppColors.muted),
                 label: const Text('Republicar'),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.muted,
@@ -466,7 +454,7 @@ class _AuthorAvatar extends ConsumerWidget {
         backgroundColor: AppColors.teal,
         child: Text(
           _initials,
-          style: const TextStyle(color: Colors.white, fontSize: 13),
+          style: TextStyle(color: AppColors.onPrimary, fontSize: 13),
         ),
       );
     }
@@ -543,11 +531,7 @@ class _QuotedCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(
-                      Icons.format_quote,
-                      size: 16,
-                      color: AppColors.teal,
-                    ),
+                    Icon(Icons.format_quote, size: 16, color: AppColors.teal),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -574,11 +558,7 @@ class _QuotedCard extends StatelessWidget {
           : Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.lock_outline,
-                  size: 18,
-                  color: AppColors.muted,
-                ),
+                Icon(Icons.lock_outline, size: 18, color: AppColors.muted),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(

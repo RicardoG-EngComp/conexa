@@ -1015,17 +1015,13 @@ class _GroupContextBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.groups_outlined,
-                size: 18,
-                color: AppColors.teal,
-              ),
+              Icon(Icons.groups_outlined, size: 18, color: AppColors.teal),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(group.name, style: theme.textTheme.titleSmall),
               ),
               if (group.isOfficial)
-                const Icon(Icons.verified, size: 16, color: AppColors.teal),
+                Icon(Icons.verified, size: 16, color: AppColors.teal),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),

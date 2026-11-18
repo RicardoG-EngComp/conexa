@@ -207,11 +207,9 @@ class NotificationService {
 
   String? _chatTag(RemoteMessage message) {
     if (message.data['type'] != 'message') return null;
-    final sender =
-        (message.data['sender_id'] ?? message.data['conversation_id'])
-            ?.toString();
-    if (sender == null || sender.isEmpty) return null;
-    return 'chat_$sender';
+    final conversation = message.data['conversation_id']?.toString();
+    if (conversation == null || conversation.isEmpty) return null;
+    return 'chat_$conversation';
   }
 
   void _onMessageOpened(RemoteMessage message) {
