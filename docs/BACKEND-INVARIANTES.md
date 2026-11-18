@@ -524,10 +524,15 @@ supabase db push --yes              # aplicar pendentes
 ### Edge Functions
 ```bash
 supabase functions deploy delete-account media-upload media-sign media-delete \
-  feed-media-sign chat-media-sign qa-media-sign media-gc media-health \
-  media-backup study-file-url send-push
+  feed-media-sign chat-media-sign qa-media-sign media-health study-file-url
+supabase functions deploy send-push media-backup media-gc --no-verify-jwt
 ```
-- `media-backup` precisa de `--no-verify-jwt` (protegida pelo segredo do header).
+- `send-push`, `media-backup` e `media-gc` são chamadas por cron/webhook sem
+  JWT; use `--no-verify-jwt` (já registrado em `supabase/config.toml`). Cada uma
+  valida seu segredo próprio (`x-webhook-secret`, `x-backup-secret`,
+  `x-gc-secret`).
+- Se o workflow receber `UNAUTHORIZED_NO_AUTH_HEADER`, a função foi publicada
+  com verificação de JWT e precisa ser redeployada com `--no-verify-jwt`.
 - Mudou lista de buckets? Atualize a função **e** este documento.
 - R2: use `--use-api` para não depender de Docker no deploy.
 
@@ -538,6 +543,8 @@ supabase functions deploy delete-account media-upload media-sign media-delete \
   `R2_BUCKET_BACKUP` e `MEDIA_BACKEND`.
 - Backup: `R2_BACKUP_ACCESS_KEY_ID`, `R2_BACKUP_SECRET_ACCESS_KEY` e
   `MEDIA_BACKUP_SECRET` (também no GitHub Actions).
+- GC: usa `MEDIA_GC_SECRET`; se ausente, cai para `MEDIA_BACKUP_SECRET`. O
+  workflow usa o segredo de backup.
 - Testes de integração usam `TEST_USER_A/B_*` e `TEST_ADMIN_*` no `app/.env`.
 - Rodar com `-j 1` (suíte compartilha contas; há rate limit de login).
 - O helper de login tem throttle de 2,2 s; não remova.

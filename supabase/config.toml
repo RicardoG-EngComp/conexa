@@ -1,3 +1,13 @@
 # Configuracao do projeto Conexa para o Supabase CLI.
 # Busca e detalhes de integração: docs/GRUPOS.md.
 project_id = "conexa"
+
+# Funcoes chamadas por cron/webhook externo autenticam com segredo proprio.
+[functions.send-push]
+verify_jwt = false
+
+[functions.media-backup]
+verify_jwt = false
+
+[functions.media-gc]
+verify_jwt = false
