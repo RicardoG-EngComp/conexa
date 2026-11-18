@@ -4,6 +4,37 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
+## 1.0.20+24 — Ajustes visuais das skins
+
+- **Data:** 18 de novembro de 2026.
+- **Versão:** `1.0.20` (versionCode `24`).
+- **Pacote:** `com.ricardogengcomp.conexa`.
+- **Grupo:** `ufv-beta` — UFV Beta.
+- **Distribuição:** Firebase App Distribution.
+
+### O que entrou
+
+- Meia-noite & Coral: fundo preto.
+- Café, Ocre & Champagne: fundo champagne.
+- Branco & Vinho: fundo branco.
+- Pêssego & Granito: fundo granito.
+- Removidas: Uva & Ouro, Turquesa & Rosa, Floresta & Brasa e Gelo & Rubi.
+- Catálogo final: 37 skins.
+
+### Notas usadas no App Distribution
+
+```text
+Ajustes visuais nas skins e remocao de quatro paletas.
+Agora sao 37 skins em Ajustes > Aparencia.
+```
+
+### Como reproduzir o build
+
+```powershell
+cd app
+flutter build apk --release --build-name=1.0.20 --build-number=24
+```
+
 ## 1.0.19+23 — Gestão, notificações e skins
 
 - **Data:** 18 de novembro de 2026.

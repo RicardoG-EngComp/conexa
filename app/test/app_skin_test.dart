@@ -4,9 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('todas as skins tem ids e nomes unicos', () {
-    expect(AppSkin.all.length, 41);
-    expect(AppSkin.all.map((skin) => skin.id).toSet().length, 41);
-    expect(AppSkin.all.map((skin) => skin.name).toSet().length, 41);
+    expect(AppSkin.all.length, 37);
+    expect(AppSkin.all.map((skin) => skin.id).toSet().length, 37);
+    expect(AppSkin.all.map((skin) => skin.name).toSet().length, 37);
   });
 
   test('todas as skins mantem contraste legivel', () {

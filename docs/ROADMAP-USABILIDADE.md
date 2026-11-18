@@ -384,7 +384,7 @@ lacunas de moderação, mídia e colaboração.
   permissão automática.
 - Remoção/saída do gestor exige outro administrador.
 - Notificação de mensagens agregada por conversa, com total não lido.
-- 41 skins claras, aplicadas localmente, com contraste validado.
+- 37 skins claras, aplicadas localmente, com contraste validado.
 
 ### Limitações conhecidas
 

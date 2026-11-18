@@ -70,8 +70,8 @@ class AppSkin {
     AppSkin(
       id: 'skin_02',
       name: 'Meia-noite & Coral',
-      primary: Color(0xFF02070A),
-      canvas: Color(0xFF0297DE),
+      primary: Color(0xFF0297DE),
+      canvas: Color(0xFF02070A),
       accent: Color(0xFFFC734D),
     ),
     AppSkin(
@@ -92,8 +92,8 @@ class AppSkin {
       id: 'skin_06',
       name: 'Café, Ocre & Champagne',
       primary: Color(0xFF584632),
-      canvas: Color(0xFFC8792C),
-      accent: Color(0xFFF4D9A0),
+      canvas: Color(0xFFF4D9A0),
+      accent: Color(0xFFC8792C),
     ),
     AppSkin(
       id: 'skin_07',
@@ -115,13 +115,6 @@ class AppSkin {
       primary: Color(0xFF0E359D),
       canvas: Color(0xFFFFFFFF),
       accent: Color(0xFFFF606A),
-    ),
-    AppSkin(
-      id: 'skin_10',
-      name: 'Uva & Ouro',
-      primary: Color(0xFF6410C9),
-      canvas: Color(0xFFFFFF00),
-      accent: Color(0xFFE9E9E9),
     ),
     AppSkin(
       id: 'skin_11',
@@ -159,13 +152,6 @@ class AppSkin {
       accent: Color(0xFF81F002),
     ),
     AppSkin(
-      id: 'skin_16',
-      name: 'Turquesa & Rosa',
-      primary: Color(0xFF40C3D6),
-      canvas: Color(0xFF36C7DD),
-      accent: Color(0xFFEC3F97),
-    ),
-    AppSkin(
       id: 'skin_18',
       name: 'Lima & Esmeralda',
       primary: Color(0xFFC9FA64),
@@ -201,13 +187,6 @@ class AppSkin {
       accent: Color(0xFF000000),
     ),
     AppSkin(
-      id: 'skin_23',
-      name: 'Floresta & Brasa',
-      primary: Color(0xFF033E02),
-      canvas: Color(0xFFFB0201),
-      accent: Color(0xFF000000),
-    ),
-    AppSkin(
       id: 'skin_24',
       name: 'Floresta & Tangerina',
       primary: Color(0xFF075930),
@@ -231,8 +210,8 @@ class AppSkin {
     AppSkin(
       id: 'skin_27',
       name: 'Branco & Vinho',
-      primary: Color(0xFFFFFFFF),
-      canvas: Color(0xFF780003),
+      primary: Color(0xFF780003),
+      canvas: Color(0xFFFFFFFF),
       accent: Color(0xFFECC679),
     ),
     AppSkin(
@@ -260,8 +239,8 @@ class AppSkin {
       id: 'skin_31',
       name: 'Pêssego & Granito',
       primary: Color(0xFFFCE2D6),
-      canvas: Color(0xFFF589A1),
-      accent: Color(0xFF5D6066),
+      canvas: Color(0xFF5D6066),
+      accent: Color(0xFFF589A1),
     ),
     AppSkin(
       id: 'skin_33',
@@ -318,13 +297,6 @@ class AppSkin {
       primary: Color(0xFF52312E),
       canvas: Color(0xFFE1C4A8),
       accent: Color(0xFF293345),
-    ),
-    AppSkin(
-      id: 'skin_43',
-      name: 'Gelo & Rubi',
-      primary: Color(0xFFDFE7ED),
-      canvas: Color(0xFFB20404),
-      accent: Color(0xFFFFFFFF),
     ),
     AppSkin(
       id: 'skin_44',
