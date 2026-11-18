@@ -4,6 +4,38 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
+## 1.0.18+22 — Correções de chat e notificações
+
+- **Data:** 18 de novembro de 2026.
+- **Versão:** `1.0.18` (versionCode `22`).
+- **Pacote:** `com.ricardogengcomp.conexa`.
+- **Grupo:** `ufv-beta` — UFV Beta.
+- **Banco:** migration `20261124120000_fix_group_chat_notifications`.
+- **Distribuição:** Firebase App Distribution.
+
+### O que entrou
+
+- Chat do grupo abre com o nome do grupo, não com o nome de um participante.
+- Textos “Público” e “Você” corrigidos.
+- Notificações de mensagens agrupadas por remetente, com contador
+  (“Carlos — 10 novas mensagens”) e nome do remetente.
+- Tela de material pendente ganhou voltar, inclusive ao abrir pela notificação.
+
+### Notas usadas no App Distribution
+
+```text
+Correções no chat do grupo, nos textos e nas notificações.
+Mensagens do mesmo remetente agora aparecem em um único bloco com contador.
+A tela de material pendente voltou a ter seta de voltar.
+```
+
+### Como reproduzir o build
+
+```powershell
+cd app
+flutter build apk --release --build-name=1.0.18 --build-number=22
+```
+
 ## 1.0.17+21 — Hardening P5
 
 - **Data:** 17 de novembro de 2026.

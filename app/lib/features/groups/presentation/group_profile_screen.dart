@@ -278,7 +278,7 @@ class _Header extends StatelessWidget {
                         _MiniTag(label: detail.campus),
                         _MiniTag(
                           label: detail.visibility == 'public'
-                              ? 'PÃºblico'
+                              ? 'Público'
                               : 'Privado',
                           icon: detail.visibility == 'public'
                               ? Icons.public
@@ -305,8 +305,7 @@ class _Header extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             const _InfoLine(
               icon: Icons.hourglass_top,
-              text:
-                  'Aguardando aprovaÃ§Ã£o da moderaÃ§Ã£o para receber o selo.',
+              text: 'Aguardando aprovação da moderação para receber o selo.',
             ),
           ],
           const SizedBox(height: AppSpacing.md),

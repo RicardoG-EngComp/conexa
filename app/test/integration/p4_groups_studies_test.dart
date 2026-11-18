@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:conexa/core/utils/uuid.dart';
+import 'package:conexa/features/chat/data/chat_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -94,6 +95,11 @@ void main() {
             .select('content')
             .eq('conversation_id', chatId);
         expect((bMessages as List).length, greaterThanOrEqualTo(1));
+
+        final summaries = await ChatRepository(client).fetchConversations();
+        final groupSummary = summaries.firstWhere((item) => item.id == chatId);
+        expect(groupSummary.isGroup, isTrue);
+        expect(groupSummary.displayName, 'ztest P4 $ts');
 
         await signInA(client);
         final start = DateTime.now().add(const Duration(days: 2));

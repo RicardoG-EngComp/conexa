@@ -76,8 +76,8 @@ class GroupsHomeScreen extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             invites.length == 1
-                                ? 'VocÃª tem 1 convite de grupo'
-                                : 'VocÃª tem ${invites.length} convites de grupo',
+                                ? 'Você tem 1 convite de grupo'
+                                : 'Você tem ${invites.length} convites de grupo',
                             style: theme.textTheme.titleSmall?.copyWith(
                               color: AppColors.teal,
                             ),
@@ -120,13 +120,13 @@ class GroupsHomeScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Text(
-                            'VocÃª ainda nÃ£o participa de grupos.',
+                            'Você ainda não participa de grupos.',
                             textAlign: TextAlign.center,
                             style: theme.textTheme.titleMedium,
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            'Crie um grupo ou entre com um convite para comeÃ§ar.',
+                            'Crie um grupo ou entre com um convite para começar.',
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: AppColors.muted,

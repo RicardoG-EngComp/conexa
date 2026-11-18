@@ -135,7 +135,8 @@ class ChatRepository {
           break;
         }
       }
-      final isGroup = (info?['kind'] as String?) == 'group';
+      final kind = info?['kind'] as String?;
+      final isGroup = kind == 'group' || kind == 'group_chat';
       final memberNames = isGroup
           ? participants
                 .map((p) => names[p['user_id'] as String] ?? 'Estudante UFV')

@@ -116,8 +116,34 @@ void main() {
           'content': 'mensagem P2 $ts',
           'kind': 'text',
         });
+        await client.from('messages').insert({
+          'conversation_id': conversationId,
+          'sender_id': userA,
+          'content': 'segunda mensagem P2 $ts',
+          'kind': 'text',
+        });
 
         await signInB(client);
+        final senderProfile = await client
+            .from('profiles_public')
+            .select('display_name')
+            .eq('id', userA)
+            .single();
+        final messageNotification = await client
+            .from('notifications')
+            .select('title, body, data')
+            .eq('user_id', userB)
+            .eq('type', 'message')
+            .contains('data', {'conversation_id': conversationId})
+            .order('created_at', ascending: false)
+            .limit(1)
+            .single();
+        expect(messageNotification['title'], senderProfile['display_name']);
+        expect(
+          messageNotification['body'],
+          contains('2 novas mensagens'),
+        );
+        expect((messageNotification['data'] as Map)['unread_count'], 2);
         final conversations = await client
             .from('conversations')
             .select('id, kind, title')

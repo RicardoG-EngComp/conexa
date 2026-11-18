@@ -52,8 +52,9 @@ Categorias:
 Regras:
 - não notificar bloqueados, recusados ou conversas não aceitas;
 - nunca notificar o remetente pela própria ação;
-- push de mensagem apenas com "Nova mensagem", sem remetente e sem conteúdo;
-- sem PII no payload: apenas IDs de rota;
+- push de mensagem usa o nome público do remetente e a contagem de não lidas
+  daquele remetente; o texto da mensagem nunca vai no push;
+- sem PII no payload além do nome público e IDs necessários para a rota;
 - preferências controlam push e central;
 - as abas funcionais continuam mostrando o evento.
 

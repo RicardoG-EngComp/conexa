@@ -143,6 +143,12 @@ com `supabase migration repair --status reverted`. Não recrie esses arquivos.
 | `20261122121000_p4_group_chat_owner` | Dono do grupo sem linha ativa em `group_members` | `get_or_create_group_chat` | Sempre insere o dono como participante |
 | `20261122122000_p4_cleanup_helpers` | Limpeza do próprio conteúdo | `remove_study_material_rating`, `delete_study_question` | Só autor/admin |
 
+### 1.0.18 — Correções pós-P5
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261124120000_fix_group_chat_notifications` | Corrigir campus padrão e push de mensagens | `create_group`, `notify_new_message` | Campus padrão `Viçosa`; push usa nome público do remetente, contagem por remetente e tag Android `chat_<sender_id>`; nunca incluir conteúdo da mensagem |
+
 ### 1.0.22 — Hardening P5
 
 | Migration | Por que foi criada | Objetos | Não altere sem revisar |
@@ -233,6 +239,8 @@ Para cada item: regra, motivo e consequência de quebrar.
 - Reação: uma por usuário/mensagem, via RPC; digitando: próprio usuário, filtrado
   por 10s no app.
 - Pin/mute/archive são por participante; mute não bloqueia, só suprime push.
+- `conversations.kind` pode ser `direct`, `group` ou `group_chat`; o app deve
+  tratar `group_chat` como grupo para usar o título do grupo e os participantes.
 - Mídia: `scope=chat`, tipos `chat_image/chat_video/chat_file`; leitura só por
   `chat-media-sign` + `filter_visible_chat_media`; PDF até 10 MB, imagem 5 MB,
   vídeo 25 MB.
@@ -300,7 +308,14 @@ Para cada item: regra, motivo e consequência de quebrar.
 - A Edge Function `send-push` lê `groups`, `security_alerts` e `interactions`;
   não remova essas colunas do select nem do mapeamento de preferência.
 - `send-push` chama `publish_due_scheduled_posts` antes de processar a fila.
-- Quebrar: spam/phishing de notificação ou erro de constraint em convites.
+- Mensagem de chat: `notify_new_message` usa o nome público do remetente como
+  título, uma contagem por remetente no corpo e `sender_id`/`sender_name`/
+  `unread_count` no `data`. O Android usa `tag=chat_<sender_id>` para substituir
+  notificações do mesmo remetente e `notification_count` para o badge.
+- **Nunca** inclua o conteúdo da mensagem no push; o nome público é permitido
+  apenas porque o destinatário já vê o remetente no chat.
+- Quebrar: spam/phishing de notificação, notificações duplicadas por mensagem ou
+  vazamento do texto da conversa na tela bloqueada.
 
 ### 4.10 Storage e mídia
 - **R2 privado**: `conexa-profile` e `conexa-study`; `conexa-test` só para
@@ -566,9 +581,9 @@ supabase functions deploy send-push media-backup media-gc --no-verify-jwt
 | `security_round2_test` | conta inativa, conexões sem insert direto, bloqueio em comentários/likes, denúncia (visibilidade/data), avatar/fotos, `verification-docs` |
 | `p0_trust_safety_test` | mutes no feed/comentários/descoberta, palavras silenciadas, `reply_policy`, apelação, exportação e dispositivo |
 | `p1_feed_test` | bookmark, repost, enquete/voto, edição, fixação, menção, agendamento publicado, notificações de interação e mídia do feed assinada |
-| `p2_chat_test` | grupo, reply cross-conversa, reação, edição, mute, pin/archive, digitando e mídia do chat assinada |
+| `p2_chat_test` | grupo, reply cross-conversa, reação, edição, mute, pin/archive, digitando, mídia do chat assinada e push com remetente/contador |
 | `p3_discovery_test` | busca full-text, feed custom, não interessado removendo do feed/busca e analytics agregado |
-| `p4_groups_studies_test` | chat do grupo sincronizado, eventos, analytics, Q&A com aceite/voto, material salvo e avaliação |
+| `p4_groups_studies_test` | chat do grupo sincronizado e com nome do grupo, eventos, analytics, Q&A com aceite/voto, material salvo e avaliação |
 | `p5_hardening_test` | termos de moderação, busca em comentário, views, comentário em avaliação, mídia agendada, anexo Q&A, vídeo bloqueado, membros do chat, RSVP e busca de Q&A |
 | `feedback_rls_test` | isolamento por dono, status/delete só admin, campos forjados (`reporter_id`/`status`/`number`), limite 20/24h, exportação admin sem autor e storage privado |
 | `media_r2_test` | upload próprio, PDF de estudo, `study-file-url`, fallback de foto antiga no Supabase, tipo/tamanho inválidos, assinatura de caminho visível/bloqueado, exclusão só do dono e limpeza de `media_objects` |

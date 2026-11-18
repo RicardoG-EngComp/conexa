@@ -178,13 +178,17 @@ class NotificationService {
     final title = notification.title ?? 'Conexa';
     final body = notification.body ?? 'Voce tem uma nova notificacao.';
     final route = message.data['route'];
+    final tag = _chatTag(message);
+    final unread = int.tryParse('${message.data['unread_count'] ?? ''}');
 
     unawaited(
       _local.show(
-        DateTime.now().millisecondsSinceEpoch.remainder(1 << 31),
+        tag == null
+            ? DateTime.now().millisecondsSinceEpoch.remainder(1 << 31)
+            : 0,
         title,
         body,
-        const NotificationDetails(
+        NotificationDetails(
           android: AndroidNotificationDetails(
             'conexa_default',
             'Conexa',
@@ -192,11 +196,22 @@ class NotificationService {
             importance: Importance.high,
             priority: Priority.high,
             visibility: NotificationVisibility.private,
+            tag: tag,
+            number: unread,
           ),
         ),
         payload: route,
       ),
     );
+  }
+
+  String? _chatTag(RemoteMessage message) {
+    if (message.data['type'] != 'message') return null;
+    final sender =
+        (message.data['sender_id'] ?? message.data['conversation_id'])
+            ?.toString();
+    if (sender == null || sender.isEmpty) return null;
+    return 'chat_$sender';
   }
 
   void _onMessageOpened(RemoteMessage message) {

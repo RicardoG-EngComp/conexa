@@ -23,7 +23,7 @@ class _ConexaAppState extends State<ConexaApp> {
   void initState() {
     super.initState();
     NotificationService.instance.setRouteOpener((route) {
-      appRouter.go(route);
+      appRouter.push(route);
     });
     _subscription = Supabase.instance.client.auth.onAuthStateChange.listen((
       state,

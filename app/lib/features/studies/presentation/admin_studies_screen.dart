@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -92,6 +93,13 @@ class AdminStudiesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Materiais pendentes'),
+        leading: Navigator.of(context).canPop()
+            ? null
+            : IconButton(
+                tooltip: 'Voltar',
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.go('/admin'),
+              ),
         actions: [
           IconButton(
             tooltip: 'Convidar uploader',
