@@ -19,6 +19,11 @@ class NotificationRepository {
         .order('created_at', ascending: false)
         .map(
           (rows) => rows
+              .where(
+                (row) =>
+                    row['type'] != 'message' &&
+                    row['type'] != 'message_request',
+              )
               .map((row) => AppNotification.fromMap(row))
               .toList(growable: false),
         );

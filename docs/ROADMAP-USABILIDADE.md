@@ -391,6 +391,23 @@ lacunas de moderação, mídia e colaboração.
 - Skins são locais ao aparelho; não sincronizam entre dispositivos.
 - Modo escuro dedicado ainda não existe; algumas skins têm fundo escuro.
 
+## 1.1.0 — Hub, busca, mapa e pessoas
+
+- Hub inferior: Feed, Buscar, Mapa, Notificações e Chat.
+- Busca acadêmica por disciplina, tema, material, pergunta e professor.
+- Letreiro de eventos com link externo; sem checkout/comissão nesta fase.
+- Mapa OSM com pontos colaborativos e aprovação de admin.
+- Tela de Pessoas com conexões, pedidos e sugestões.
+- Notificações sem mensagens; mensagens no badge do Chat.
+- Menu do avatar com perfil, assinatura, grupos e ajustes.
+- Ícones Ribbon Line próprios e novo conjunto de ações.
+
+### Limitações conhecidas
+
+- Mapa usa OSM no beta; mapa próprio/PMTiles fica para fase futura.
+- Sem venda de ingressos ou comissão de 5% nesta release.
+- Skins continuam locais ao aparelho.
+
 ## Matriz de testes
 
 | Cenário | Resultado esperado |

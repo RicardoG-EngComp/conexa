@@ -4,16 +4,28 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../notifications/presentation/notification_bell.dart';
 import '../application/group_providers.dart';
 import '../data/group_models.dart';
 import 'group_common.dart';
 
-class GroupsHomeScreen extends ConsumerWidget {
+class GroupsHomeScreen extends ConsumerStatefulWidget {
   const GroupsHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GroupsHomeScreen> createState() => _GroupsHomeScreenState();
+}
+
+class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
+  final _search = TextEditingController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final groupsAsync = ref.watch(myGroupsProvider);
     final invites =
@@ -21,6 +33,7 @@ class GroupsHomeScreen extends ConsumerWidget {
         const <GroupInvitation>[];
 
     return Scaffold(
+      appBar: AppBar(title: const Text('Grupos')),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -28,23 +41,23 @@ class GroupsHomeScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,
-                AppSpacing.lg,
+                AppSpacing.sm,
                 AppSpacing.lg,
                 AppSpacing.sm,
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text('Grupos', style: theme.textTheme.displayMedium),
-                  ),
-                  const NotificationBell(),
-                ],
+              child: TextField(
+                controller: _search,
+                onChanged: (_) => setState(() {}),
+                decoration: const InputDecoration(
+                  hintText: 'Buscar nos meus grupos',
+                  prefixIcon: Icon(Icons.search),
+                ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: OutlinedButton.icon(
-                onPressed: () => context.go('/discover'),
+                onPressed: () => context.push('/groups/discover'),
                 icon: const Icon(Icons.travel_explore, size: 18),
                 label: const Text('Descobrir grupos'),
               ),
@@ -106,7 +119,13 @@ class GroupsHomeScreen extends ConsumerWidget {
                   error: (_, _) => const Center(
                     child: Text('Erro ao carregar seus grupos.'),
                   ),
-                  data: (groups) {
+                  data: (allGroups) {
+                    final query = _search.text.trim().toLowerCase();
+                    final groups = query.isEmpty
+                        ? allGroups
+                        : allGroups.where((group) {
+                            return group.name.toLowerCase().contains(query);
+                          }).toList();
                     if (groups.isEmpty) {
                       return ListView(
                         physics: const AlwaysScrollableScrollPhysics(),

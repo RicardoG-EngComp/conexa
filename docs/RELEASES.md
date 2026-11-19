@@ -4,6 +4,41 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
+## 1.1.0+25 — Novo hub, busca, mapa e pessoas
+
+- **Data:** 19 de novembro de 2026.
+- **Versão:** `1.1.0` (versionCode `25`).
+- **Pacote:** `com.ricardogengcomp.conexa`.
+- **Grupo:** `ufv-beta` — UFV Beta.
+- **Banco:** migrations `20261124140000_p7_hub` e `20261124141000_p7_campus_delete`.
+- **Distribuição:** Firebase App Distribution.
+
+### O que entrou
+
+- Hub com Feed, Buscar, Mapa, Notificações e Chat.
+- Avatar no topo esquerdo com menu de perfil, conexões, assinatura, grupos e ajustes.
+- Pessoas no ícone de pessoa+ com busca, pedidos e sugestões.
+- Busca acadêmica por disciplina, tema, material, pergunta e professor.
+- Letreiro de eventos com link externo; sem comissão nesta fase.
+- Mapa OpenStreetMap com sugestões de locais e aprovação de admin.
+- Notificações sem mensagens e com abas Tudo/Menções.
+- Ícones Ribbon Line próprios.
+
+### Notas usadas no App Distribution
+
+```text
+Novo hub com Buscar, Mapa, Notificacoes e Chat.
+Busca academica, pessoas/conexoes, eventos e mapa colaborativo.
+Mensagens agora ficam no Chat; notificacoes sao de posts, mencoes e solicitacoes.
+```
+
+### Como reproduzir o build
+
+```powershell
+cd app
+flutter build apk --release --build-name=1.1.0 --build-number=25
+```
+
 ## 1.0.20+24 — Ajustes visuais das skins
 
 - **Data:** 18 de novembro de 2026.

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
+import '../../../core/widgets/conexa_top_bar.dart';
 import '../application/notification_providers.dart';
 import '../data/notification_models.dart';
 
@@ -13,55 +14,82 @@ class NotificationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final async = ref.watch(notificationsProvider);
     final unread = ref.watch(unreadNotificationCountProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notificacoes'),
-        actions: [
-          TextButton(
-            onPressed: unread == 0
-                ? null
-                : () => ref.read(notificationRepositoryProvider).markAllRead(),
-            child: const Text('Marcar todas'),
-          ),
-        ],
-      ),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => Center(
-          child: Text(
-            'Erro ao carregar notificacoes.',
-            style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.muted),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: ConexaTopBar(
+          title: 'Notificações',
+          actions: [
+            IconButton(
+              tooltip: 'Marcar todas como lidas',
+              onPressed: unread == 0
+                  ? null
+                  : () =>
+                        ref.read(notificationRepositoryProvider).markAllRead(),
+              icon: const Icon(Icons.done_all),
+            ),
+          ],
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Tudo'),
+              Tab(text: 'Menções'),
+            ],
           ),
         ),
-        data: (items) {
-          if (items.isEmpty) {
-            return Center(
-              child: Text(
-                'Nenhuma notificacao ainda.',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: AppColors.muted,
+        body: async.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) =>
+              const Center(child: Text('Erro ao carregar notificações.')),
+          data: (items) {
+            final mentions = items
+                .where((item) => item.type == 'mention')
+                .toList();
+            return TabBarView(
+              children: [
+                _NotificationList(
+                  items: items,
+                  emptyMessage: 'Nenhuma notificação ainda.',
                 ),
-              ),
+                _NotificationList(
+                  items: mentions,
+                  emptyMessage: 'Nenhuma menção ainda.',
+                ),
+              ],
             );
-          }
-          return RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(notificationsProvider);
-            },
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              itemCount: items.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                return _NotificationTile(item: items[index]);
-              },
-            ),
-          );
-        },
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _NotificationList extends ConsumerWidget {
+  const _NotificationList({required this.items, required this.emptyMessage});
+
+  final List<AppNotification> items;
+  final String emptyMessage;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (items.isEmpty) {
+      return Center(
+        child: Text(
+          emptyMessage,
+          style: Theme.of(context).textTheme.bodyLarge
+              ?.copyWith(color: AppColors.muted),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: () async => ref.invalidate(notificationsProvider),
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        itemCount: items.length,
+        separatorBuilder: (_, _) => const Divider(height: 1),
+        itemBuilder: (context, index) => _NotificationTile(item: items[index]),
       ),
     );
   }
@@ -118,10 +146,6 @@ class _NotificationTile extends ConsumerWidget {
 
 IconData _iconFor(String type) {
   switch (type) {
-    case 'message':
-      return Icons.chat_bubble_outline;
-    case 'message_request':
-      return Icons.mark_email_unread_outlined;
     case 'connection_request':
     case 'connection_accepted':
       return Icons.people_outline;

@@ -6,9 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/time_ago.dart';
+import '../../../core/widgets/conexa_top_bar.dart';
 import '../../connections/application/connection_providers.dart';
-import '../../connections/presentation/connections_list.dart';
-import '../../notifications/presentation/notification_bell.dart';
 import '../application/chat_providers.dart';
 import '../data/chat_models.dart';
 
@@ -122,60 +121,44 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final conversationsAsync = ref.watch(conversationsProvider);
     final myId = Supabase.instance.client.auth.currentUser?.id;
     final query = _search.text.trim().toLowerCase();
 
     return DefaultTabController(
-      length: 3,
-      initialIndex: widget.initialTab.clamp(0, 2),
+      length: 2,
+      initialIndex: widget.initialTab.clamp(0, 1),
       child: Scaffold(
+        appBar: ConexaTopBar(
+          title: 'Conversas',
+          actions: [
+            IconButton(
+              tooltip: _showArchived
+                  ? 'Mostrar conversas ativas'
+                  : 'Mostrar arquivadas',
+              onPressed: () => setState(() => _showArchived = !_showArchived),
+              icon: Icon(
+                _showArchived
+                    ? Icons.unarchive_outlined
+                    : Icons.archive_outlined,
+              ),
+            ),
+            IconButton(
+              tooltip: 'Novo grupo',
+              onPressed: _creatingGroup ? null : _createGroup,
+              icon: _creatingGroup
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.group_add_outlined),
+            ),
+          ],
+        ),
         body: SafeArea(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  0,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Conversas',
-                        style: theme.textTheme.displayMedium,
-                      ),
-                    ),
-                    const NotificationBell(),
-                    IconButton(
-                      tooltip: _showArchived
-                          ? 'Mostrar conversas ativas'
-                          : 'Mostrar arquivadas',
-                      onPressed: () =>
-                          setState(() => _showArchived = !_showArchived),
-                      icon: Icon(
-                        _showArchived
-                            ? Icons.unarchive_outlined
-                            : Icons.archive_outlined,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Novo grupo',
-                      onPressed: _creatingGroup ? null : _createGroup,
-                      icon: _creatingGroup
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.group_add_outlined),
-                    ),
-                  ],
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.lg,
@@ -196,7 +179,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 tabs: [
                   Tab(text: 'Mensagens'),
                   Tab(text: 'Pedidos'),
-                  Tab(text: 'Conexões'),
                 ],
               ),
               Expanded(
@@ -232,7 +214,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                               : 'Nenhuma conversa encontrada.',
                         ),
                         _PendingList(conversations: pending, myId: myId),
-                        const ConnectionsList(),
                       ],
                     );
                   },

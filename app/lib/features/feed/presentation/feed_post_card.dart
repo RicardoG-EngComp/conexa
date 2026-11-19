@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/media/media_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/ribbon_icon.dart';
 import '../../../core/utils/time_ago.dart';
 import '../data/feed_models.dart';
 import 'feed_media_view.dart';
@@ -96,11 +97,15 @@ class FeedPostCard extends StatelessWidget {
         : post.authorName;
 
     final card = Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.sm,
+      ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.border),
+        color: AppColors.paper,
+        border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,43 +384,39 @@ class FeedPostCard extends StatelessWidget {
             ),
           ],
           const SizedBox(height: AppSpacing.sm),
-          const Divider(),
           Row(
             children: [
-              TextButton.icon(
-                onPressed: onLike,
-                icon: Icon(
-                  post.likedByMe ? Icons.favorite : Icons.favorite_border,
-                  size: 18,
+              Expanded(
+                child: _PostAction(
+                  icon: 'reply',
+                  label: '${post.commentCount}',
+                  onTap: onComment,
+                ),
+              ),
+              Expanded(
+                child: _PostAction(
+                  icon: 'repost',
+                  label: 'Republicar',
+                  onTap: onRepost,
+                ),
+              ),
+              Expanded(
+                child: _PostAction(
+                  icon: 'heart',
+                  label: '${post.likeCount}',
                   color: post.likedByMe ? AppColors.teal : AppColors.muted,
-                ),
-                label: Text('${post.likeCount}'),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.muted,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  onTap: onLike,
                 ),
               ),
-              TextButton.icon(
-                onPressed: onComment,
-                icon: Icon(
-                  Icons.chat_bubble_outline,
-                  size: 18,
-                  color: AppColors.muted,
-                ),
-                label: Text('${post.commentCount}'),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.muted,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+              Expanded(
+                child: _PostAction(
+                  icon: 'bookmark',
+                  color: post.bookmarked ? AppColors.teal : AppColors.muted,
+                  onTap: onBookmark,
                 ),
               ),
-              TextButton.icon(
-                onPressed: onRepost,
-                icon: Icon(Icons.repeat, size: 18, color: AppColors.muted),
-                label: const Text('Republicar'),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.muted,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                ),
+              Expanded(
+                child: _PostAction(icon: 'share', onTap: onCopyLink),
               ),
             ],
           ),
@@ -424,11 +425,7 @@ class FeedPostCard extends StatelessWidget {
     );
 
     if (detail) return card;
-    return InkWell(
-      onTap: onComment,
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      child: card,
-    );
+    return InkWell(onTap: onComment, child: card);
   }
 }
 
@@ -674,6 +671,46 @@ class _RelevanceChip extends StatelessWidget {
       child: Text(
         label,
         style: theme.textTheme.labelSmall?.copyWith(color: AppColors.teal),
+      ),
+    );
+  }
+}
+
+class _PostAction extends StatelessWidget {
+  const _PostAction({required this.icon, this.label, this.color, this.onTap});
+
+  final String icon;
+  final String? label;
+  final Color? color;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tint = color ?? AppColors.muted;
+    final child = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        RibbonIcon(icon, size: 19, color: tint),
+        if (label != null && label!.isNotEmpty) ...[
+          const SizedBox(width: 5),
+          Flexible(
+            child: Text(
+              label!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall
+                  ?.copyWith(color: tint),
+            ),
+          ),
+        ],
+      ],
+    );
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: child,
       ),
     );
   }

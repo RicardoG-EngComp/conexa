@@ -20,40 +20,38 @@ class AdminScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Administracao'),
         actions: [
-          IconButton(
-            tooltip: 'Apelacoes',
-            icon: const Icon(Icons.gavel_outlined),
-            onPressed: () => context.push('/admin/appeals'),
-          ),
-          IconButton(
-            tooltip: 'Termos de moderacao',
-            icon: const Icon(Icons.text_fields_outlined),
-            onPressed: () => context.push('/admin/moderation-terms'),
-          ),
-          IconButton(
-            tooltip: 'Materiais pendentes',
-            icon: const Icon(Icons.menu_book_outlined),
-            onPressed: () => context.push('/admin/studies'),
-          ),
-          IconButton(
-            tooltip: 'Aprovar grupos',
-            icon: const Icon(Icons.groups_outlined),
-            onPressed: () => context.push('/admin/groups'),
-          ),
-          IconButton(
-            tooltip: 'Insignias',
-            icon: const Icon(Icons.military_tech_outlined),
-            onPressed: () => context.push('/admin/badges'),
-          ),
-          IconButton(
-            tooltip: 'Diagnostico de notificacoes',
-            icon: const Icon(Icons.notifications_active_outlined),
-            onPressed: () => context.push('/admin/notifications'),
-          ),
-          IconButton(
-            tooltip: 'Feedback',
-            icon: const Icon(Icons.feedback_outlined),
-            onPressed: () => context.push('/admin/feedback'),
+          PopupMenuButton<String>(
+            tooltip: 'Ferramentas administrativas',
+            onSelected: (value) {
+              final route = switch (value) {
+                'appeals' => '/admin/appeals',
+                'terms' => '/admin/moderation-terms',
+                'studies' => '/admin/studies',
+                'groups' => '/admin/groups',
+                'badges' => '/admin/badges',
+                'notifications' => '/admin/notifications',
+                'campus' => '/admin/campus',
+                'feedback' => '/admin/feedback',
+                _ => null,
+              };
+              if (route != null) context.push(route);
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'appeals', child: Text('Apelações')),
+              PopupMenuItem(value: 'terms', child: Text('Termos de moderação')),
+              PopupMenuItem(
+                value: 'studies',
+                child: Text('Materiais pendentes'),
+              ),
+              PopupMenuItem(value: 'groups', child: Text('Aprovar grupos')),
+              PopupMenuItem(value: 'badges', child: Text('Insígnias')),
+              PopupMenuItem(
+                value: 'notifications',
+                child: Text('Notificações'),
+              ),
+              PopupMenuItem(value: 'campus', child: Text('Locais e eventos')),
+              PopupMenuItem(value: 'feedback', child: Text('Feedback')),
+            ],
           ),
         ],
       ),

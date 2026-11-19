@@ -36,12 +36,12 @@ class SettingsScreen extends ConsumerWidget {
     final isPrivate = profileAsync.asData?.value?['profile_private'] == true;
 
     return Scaffold(
+      appBar: AppBar(title: const Text('Ajustes')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
-            Text('Ajustes', style: theme.textTheme.displayMedium),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.sm),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.person_outline),

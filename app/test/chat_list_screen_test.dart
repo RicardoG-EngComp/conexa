@@ -46,13 +46,12 @@ void main() {
     );
   }
 
-  testWidgets('exibe abas Mensagens, Pedidos, Conexões', (tester) async {
+  testWidgets('exibe abas Mensagens e Pedidos', (tester) async {
     await tester.pumpWidget(wrapChatList());
     await tester.pumpAndSettle();
 
     expect(find.text('Mensagens'), findsOneWidget);
     expect(find.text('Pedidos'), findsOneWidget);
-    expect(find.text('Conexões'), findsOneWidget);
   });
 
   testWidgets('exibe título Conversas', (tester) async {

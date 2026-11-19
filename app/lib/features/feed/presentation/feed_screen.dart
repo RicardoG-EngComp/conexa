@@ -6,9 +6,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/conexa_top_bar.dart';
+import '../../../core/widgets/ribbon_icon.dart';
 import '../../groups/application/group_providers.dart';
 import '../../groups/data/group_models.dart';
-import '../../notifications/presentation/notification_bell.dart';
 import '../../profile/presentation/incomplete_profile_banner.dart';
 import '../../reports/presentation/report_dialog.dart';
 import '../application/feed_providers.dart';
@@ -342,7 +343,6 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final forYou = ref.watch(feedForYouProvider);
     final connections = ref.watch(feedConnectionsProvider);
     final groups =
@@ -351,15 +351,14 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text('Feed UFV', style: theme.textTheme.titleLarge),
+        appBar: ConexaTopBar(
+          showLogo: true,
           actions: [
             IconButton(
               tooltip: 'Buscar publicacoes',
               onPressed: () => context.push('/feed/search'),
-              icon: const Icon(Icons.search),
+              icon: const RibbonIcon('search', size: 22),
             ),
-            const NotificationBell(),
           ],
           bottom: TabBar(
             indicatorColor: AppColors.teal,
@@ -460,35 +459,40 @@ class _FeedTab extends ConsumerWidget {
 
           return ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              100,
-            ),
+            padding: const EdgeInsets.only(bottom: 100),
             itemCount: headerCount + emptyCount + posts.length,
             itemBuilder: (context, index) {
               if (forYou && index == 0) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const IncompleteProfileBanner(),
-                    const SizedBox(height: AppSpacing.md),
-                    Text(
-                      'Ordenado pelo seu curso, campus, interesses e recência.',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.muted,
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.md,
+                    AppSpacing.lg,
+                    AppSpacing.md,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const IncompleteProfileBanner(),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        'Ordenado pelo seu curso, campus, interesses e recência.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.muted,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                  ],
+                    ],
+                  ),
                 );
               }
 
               final cursor = index - headerCount;
               if (posts.isEmpty) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.xl,
+                    horizontal: AppSpacing.lg,
+                  ),
                   child: Text(
                     forYou
                         ? 'Nada por aqui ainda. Publique algo ou siga grupos.'
@@ -501,26 +505,21 @@ class _FeedTab extends ConsumerWidget {
               }
 
               final post = posts[cursor];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                child: FeedPostCard(
-                  post: post,
-                  showSource: !forYou,
-                  showRelevance: forYou,
-                  onLike: () => onLike(post),
-                  onComment: () => onComment(post),
-                  onRepost: () => onRepost(post),
-                  onReport: () => onReport(post),
-                  onBookmark: () => onBookmark(post),
-                  onEdit: post.userId == currentUserId && !post.wasRepost
-                      ? () => onEdit(post)
-                      : null,
-                  onPin: post.userId == currentUserId
-                      ? () => onPin(post)
-                      : null,
-                  onNotInterested: () => onNotInterested(post),
-                  onCopyLink: () => onCopyLink(post),
-                ),
+              return FeedPostCard(
+                post: post,
+                showSource: !forYou,
+                showRelevance: forYou,
+                onLike: () => onLike(post),
+                onComment: () => onComment(post),
+                onRepost: () => onRepost(post),
+                onReport: () => onReport(post),
+                onBookmark: () => onBookmark(post),
+                onEdit: post.userId == currentUserId && !post.wasRepost
+                    ? () => onEdit(post)
+                    : null,
+                onPin: post.userId == currentUserId ? () => onPin(post) : null,
+                onNotInterested: () => onNotInterested(post),
+                onCopyLink: () => onCopyLink(post),
               );
             },
           );

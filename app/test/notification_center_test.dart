@@ -42,10 +42,10 @@ void main() {
   List<AppNotification> testItems() => [
     AppNotification(
       id: '1',
-      type: 'message',
-      title: 'Nova mensagem',
-      body: 'Nova mensagem',
-      data: {'route': '/chats/abc'},
+      type: 'like',
+      title: 'Nova curtida',
+      body: 'Alguém curtiu sua publicação.',
+      data: {'route': '/feed/abc'},
       createdAt: now,
     ),
     AppNotification(
@@ -53,7 +53,7 @@ void main() {
       type: 'connection_request',
       title: 'Nova solicitacao',
       body: 'Voce recebeu uma solicitacao.',
-      data: {'route': '/chats?tab=connections'},
+      data: {'route': '/people'},
       createdAt: now,
       readAt: now.add(const Duration(minutes: 5)),
     ),
@@ -96,16 +96,16 @@ void main() {
     await tester.pumpWidget(wrapScreen(items: testItems()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Nova mensagem'), findsWidgets);
+    expect(find.text('Nova curtida'), findsWidgets);
     expect(find.text('Nova solicitacao'), findsOneWidget);
-    expect(find.text('Marcar todas'), findsOneWidget);
+    expect(find.byIcon(Icons.done_all), findsOneWidget);
   });
 
   testWidgets('exibe estado vazio quando não há notificações', (tester) async {
     await tester.pumpWidget(wrapScreen(items: []));
     await tester.pumpAndSettle();
 
-    expect(find.text('Nenhuma notificacao ainda.'), findsOneWidget);
+    expect(find.text('Nenhuma notificação ainda.'), findsOneWidget);
   });
 
   testWidgets('botão Marcar todas desabilitado sem não lidas', (tester) async {
@@ -126,11 +126,8 @@ void main() {
     await tester.pumpWidget(wrapScreen(items: items));
     await tester.pumpAndSettle();
 
-    final button = tester.widget<TextButton>(
-      find.ancestor(
-        of: find.text('Marcar todas'),
-        matching: find.byType(TextButton),
-      ),
+    final button = tester.widget<IconButton>(
+      find.widgetWithIcon(IconButton, Icons.done_all),
     );
     expect(button.onPressed, isNull);
   });
@@ -147,7 +144,7 @@ void main() {
     await tester.pumpWidget(wrapScreen(items: testItems()));
     await tester.pumpAndSettle();
 
-    expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
+    expect(find.byIcon(Icons.favorite_border), findsOneWidget);
     expect(find.byIcon(Icons.people_outline), findsOneWidget);
   });
 }

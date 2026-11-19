@@ -143,6 +143,13 @@ com `supabase migration repair --status reverted`. Não recrie esses arquivos.
 | `20261122121000_p4_group_chat_owner` | Dono do grupo sem linha ativa em `group_members` | `get_or_create_group_chat` | Sempre insere o dono como participante |
 | `20261122122000_p4_cleanup_helpers` | Limpeza do próprio conteúdo | `remove_study_material_rating`, `delete_study_question` | Só autor/admin |
 
+### 1.1.0 — Hub, busca, mapa e pessoas
+
+| Migration | Por que foi criada | Objetos | Não altere sem revisar |
+|---|---|---|---|
+| `20261124140000_p7_hub` | Busca acadêmica, eventos e mapa colaborativo | `search_study_catalog`, `campus_events`, `campus_places`, RLS de sugestão/aprovação | Busca exige conta ativa e respeita bloqueio; evento/local só aparece aprovado; sugestão nasce `pending`; link de ingresso só http(s) |
+| `20261124141000_p7_campus_delete` | Limpeza de sugestões e conteúdo de campus | policies de DELETE | Dono apaga só sugestão `pending`; admin apaga qualquer registro |
+
 ### 1.0.19 — Gestão de grupos, notificações e skins
 
 | Migration | Por que foi criada | Objetos | Não altere sem revisar |
@@ -446,6 +453,20 @@ Para cada item: regra, motivo e consequência de quebrar.
 
 ---
 
+### 4.16 Hub, busca e mapa
+
+- `search_study_catalog` exige conta ativa, esconde conteúdo bloqueado e só
+  retorna materiais aprovados/visíveis. Professores vêm de
+  `disciplines.professor_name`, sem criar identidade falsa.
+- `campus_events` e `campus_places` são sugestões: usuário insere `pending`;
+  só `approved` aparece na busca/mapa; admin aprova/rejeita.
+- Links de evento aceitam apenas `http(s)`; a fase atual é divulgação, sem
+  checkout nem comissão.
+- Mapa usa OSM com atribuição e sem localização do usuário. Não adicionar
+  rastreamento de pessoas.
+- Notificações do sino excluem `message` e `message_request`; mensagens ficam no
+  Chat.
+
 ## 5. Catálogo de RPCs e erros esperados
 
 Assinaturas e códigos são contrato com o app. Renomear/alterar assinatura
@@ -465,6 +486,7 @@ requer atualizar `app/lib/...` e os testes.
 | `accept_group_invite` / `decline_group_invite` | destinatário, validade, revogação, usos, grupo não arquivado | `convite invalido`, `convite revogado`, `convite expirado`, `convite esgotado`, `convite de outro usuario`, `grupo_indisponivel` |
 | `remove_group_member` / `remove_group_follower` | `manage_members`; não remove o último gestor | `forbidden`, `transferencia_necessaria` |
 | `delete_group` | dono/admin | `forbidden` |
+| `search_study_catalog` | conta ativa; visibilidade de materiais/Q&A | `conta_inativa` |
 | `group_moderate_post/comment` | `moderate_content` no grupo | `forbidden`, `post_de_grupo_necessario`, `comentario_de_grupo_necessario` |
 | `feed_for_you` / `feed_connections` | conta ativa | vazio se inativa |
 | `send_connection_request` / `respond_connection_request` | ativo, alvo ativo, bloqueio, perfil | `blocked`, `destinatario_inativo`, `conta_inativa` |
@@ -603,6 +625,7 @@ supabase functions deploy send-push media-backup media-gc --no-verify-jwt
 | `p3_discovery_test` | busca full-text, feed custom, não interessado removendo do feed/busca e analytics agregado |
 | `p4_groups_studies_test` | chat do grupo sincronizado e com nome do grupo, eventos, analytics, Q&A com aceite/voto, material salvo e avaliação |
 | `p6_group_governance_test` | Dono transferível, Administração múltipla em grupo institucional, remoção do antigo gestor e proteção do último administrador |
+| `p7_hub_test` | busca acadêmica e visibilidade de eventos/locais aprovados |
 | `p5_hardening_test` | termos de moderação, busca em comentário, views, comentário em avaliação, mídia agendada, anexo Q&A, vídeo bloqueado, membros do chat, RSVP e busca de Q&A |
 | `feedback_rls_test` | isolamento por dono, status/delete só admin, campos forjados (`reporter_id`/`status`/`number`), limite 20/24h, exportação admin sem autor e storage privado |
 | `media_r2_test` | upload próprio, PDF de estudo, `study-file-url`, fallback de foto antiga no Supabase, tipo/tamanho inválidos, assinatura de caminho visível/bloqueado, exclusão só do dono e limpeza de `media_objects` |

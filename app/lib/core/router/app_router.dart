@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/admin/presentation/admin_feedback_screen.dart';
 import '../../features/admin/presentation/admin_appeals_screen.dart';
+import '../../features/admin/presentation/admin_campus_screen.dart';
 import '../../features/admin/presentation/admin_groups_screen.dart';
 import '../../features/admin/presentation/admin_moderation_terms_screen.dart';
 import '../../features/admin/presentation/admin_notifications_screen.dart';
@@ -19,8 +20,9 @@ import '../../features/chat/data/chat_models.dart';
 import '../../features/chat/presentation/chat_list_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
 import '../../features/coach/presentation/coach_screen.dart';
+import '../../features/campus/presentation/campus_map_screen.dart';
+import '../../features/connections/presentation/people_screen.dart';
 import '../../features/connections/presentation/sent_connections_screen.dart';
-import '../../features/discover/presentation/discover_screen.dart';
 import '../../features/feed/data/feed_models.dart';
 import '../../features/feed/presentation/compose_post_screen.dart';
 import '../../features/feed/presentation/custom_feed_screen.dart';
@@ -37,6 +39,7 @@ import '../../features/groups/presentation/group_manage_screen.dart';
 import '../../features/groups/presentation/group_profile_screen.dart';
 import '../../features/groups/presentation/group_insights_screen.dart';
 import '../../features/groups/presentation/group_invites_received_screen.dart';
+import '../../features/groups/presentation/groups_discover_screen.dart';
 import '../../features/groups/presentation/groups_home_screen.dart';
 import '../../features/feedback/presentation/bug_report_screen.dart';
 import '../../features/feedback/presentation/feedback_screen.dart';
@@ -53,6 +56,7 @@ import '../../features/profile/presentation/profile_checklist_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/reports/presentation/my_reports_screen.dart';
+import '../../features/search/presentation/study_search_screen.dart';
 import '../../features/security/presentation/muted_users_screen.dart';
 import '../../features/security/presentation/muted_words_screen.dart';
 import '../../features/security/presentation/security_screen.dart';
@@ -146,24 +150,36 @@ final GoRouter appRouter = GoRouter(
       builder: (_, _, child) => MainShell(child: child),
       routes: [
         GoRoute(path: '/feed', builder: (_, _) => const FeedScreen()),
-        GoRoute(path: '/discover', builder: (_, _) => const DiscoverScreen()),
-        GoRoute(path: '/groups', builder: (_, _) => const GroupsHomeScreen()),
+        GoRoute(
+          path: '/discover',
+          builder: (_, _) => const StudySearchScreen(),
+        ),
+        GoRoute(path: '/map', builder: (_, _) => const CampusMapScreen()),
+        GoRoute(
+          path: '/notifications',
+          builder: (_, _) => const NotificationsScreen(),
+        ),
         GoRoute(path: '/curtidas', builder: (_, _) => const CurtidasScreen()),
         GoRoute(
           path: '/chats',
           builder: (_, state) {
             final tab = switch (state.uri.queryParameters['tab']) {
               'requests' => 1,
-              'connections' => 2,
               _ => 0,
             };
             return ChatListScreen(initialTab: tab);
           },
         ),
         GoRoute(path: '/coach', builder: (_, _) => const CoachScreen()),
-        GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       ],
     ),
+    GoRoute(path: '/people', builder: (_, _) => const PeopleScreen()),
+    GoRoute(path: '/groups', builder: (_, _) => const GroupsHomeScreen()),
+    GoRoute(
+      path: '/groups/discover',
+      builder: (_, _) => const GroupsDiscoverScreen(),
+    ),
+    GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
     GoRoute(
       path: '/feed/compose',
       builder: (_, state) => ComposePostScreen(
@@ -244,6 +260,10 @@ final GoRouter appRouter = GoRouter(
       builder: (_, _) => const AdminGroupsScreen(),
     ),
     GoRoute(
+      path: '/admin/campus',
+      builder: (_, _) => const AdminCampusScreen(),
+    ),
+    GoRoute(
       path: '/admin/appeals',
       builder: (_, _) => const AdminAppealsScreen(),
     ),
@@ -308,10 +328,6 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/muted-users', builder: (_, _) => const MutedUsersScreen()),
     GoRoute(path: '/muted-words', builder: (_, _) => const MutedWordsScreen()),
     GoRoute(path: '/my-reports', builder: (_, _) => const MyReportsScreen()),
-    GoRoute(
-      path: '/notifications',
-      builder: (_, _) => const NotificationsScreen(),
-    ),
     GoRoute(
       path: '/notification-preferences',
       builder: (_, _) => const NotificationPreferencesScreen(),

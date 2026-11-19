@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/chat/application/chat_providers.dart';
+import '../../features/chat/data/chat_models.dart';
+import '../../features/notifications/application/notification_providers.dart';
 import '../../features/onboarding/application/tutorial_providers.dart';
 import '../../features/verification/application/verification_providers.dart';
+import '../theme/app_colors.dart';
+import '../widgets/ribbon_icon.dart';
 
 class MainShell extends ConsumerWidget {
   const MainShell({super.key, required this.child});
@@ -13,9 +18,9 @@ class MainShell extends ConsumerWidget {
   static const _paths = [
     '/feed',
     '/discover',
-    '/groups',
+    '/map',
+    '/notifications',
     '/chats',
-    '/settings',
   ];
 
   @override
@@ -84,39 +89,98 @@ class MainShell extends ConsumerWidget {
         final location = GoRouterState.of(context).uri.path;
         final index = _paths.indexWhere((p) => location.startsWith(p));
         final selected = index < 0 ? 0 : index;
+        final notificationCount = ref.watch(unreadNotificationCountProvider);
+        final conversations =
+            ref.watch(conversationsProvider).asData?.value ??
+            const <ConversationSummary>[];
+        final chatCount = conversations.fold<int>(
+          0,
+          (sum, conversation) => sum + conversation.unreadCount,
+        );
 
         return Scaffold(
           body: child,
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: selected,
-            onDestinationSelected: (i) => context.go(_paths[i]),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home),
-                label: 'Feed',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.explore_outlined),
-                selectedIcon: Icon(Icons.explore),
-                label: 'Descobrir',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.groups_outlined),
-                selectedIcon: Icon(Icons.groups),
-                label: 'Grupos',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.chat_bubble_outline),
-                selectedIcon: Icon(Icons.chat_bubble),
-                label: 'Conversas',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.settings_outlined),
-                selectedIcon: Icon(Icons.settings),
-                label: 'Ajustes',
-              ),
-            ],
+          bottomNavigationBar: NavigationBarTheme(
+            data: NavigationBarThemeData(
+              backgroundColor: AppColors.surface,
+              indicatorColor: Colors.transparent,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+              iconTheme: WidgetStateProperty.resolveWith((states) {
+                final active = states.contains(WidgetState.selected);
+                return IconThemeData(
+                  color: active ? AppColors.primary : AppColors.ink,
+                  size: 26,
+                );
+              }),
+            ),
+            child: NavigationBar(
+              height: 64,
+              selectedIndex: selected,
+              onDestinationSelected: (i) => context.go(_paths[i]),
+              destinations: [
+                NavigationDestination(
+                  icon: const RibbonIcon('feed', size: 26),
+                  selectedIcon: RibbonIcon(
+                    'feed',
+                    size: 26,
+                    color: AppColors.primary,
+                  ),
+                  label: 'Feed',
+                ),
+                NavigationDestination(
+                  icon: const RibbonIcon('search', size: 26),
+                  selectedIcon: RibbonIcon(
+                    'search',
+                    size: 26,
+                    color: AppColors.primary,
+                  ),
+                  label: 'Buscar',
+                ),
+                NavigationDestination(
+                  icon: const RibbonIcon('map', size: 26),
+                  selectedIcon: RibbonIcon(
+                    'map',
+                    size: 26,
+                    color: AppColors.primary,
+                  ),
+                  label: 'Mapa',
+                ),
+                NavigationDestination(
+                  icon: Badge.count(
+                    count: notificationCount,
+                    isLabelVisible: notificationCount > 0,
+                    child: RibbonIcon('bell', size: 26),
+                  ),
+                  selectedIcon: Badge.count(
+                    count: notificationCount,
+                    isLabelVisible: notificationCount > 0,
+                    child: RibbonIcon(
+                      'bell',
+                      size: 26,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  label: 'Notificações',
+                ),
+                NavigationDestination(
+                  icon: Badge.count(
+                    count: chatCount,
+                    isLabelVisible: chatCount > 0,
+                    child: RibbonIcon('chat', size: 26),
+                  ),
+                  selectedIcon: Badge.count(
+                    count: chatCount,
+                    isLabelVisible: chatCount > 0,
+                    child: RibbonIcon(
+                      'chat',
+                      size: 26,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  label: 'Chat',
+                ),
+              ],
+            ),
           ),
         );
       },

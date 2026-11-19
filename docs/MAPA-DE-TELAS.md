@@ -769,6 +769,47 @@ Membros > menu do membro
 [ Remover membro ]
 ```
 
+### P7.1 Hub
+```
+[avatar]            Conexa            [pessoa+]
+Feed | Buscar | Mapa | Notificacoes | Chat
+```
+
+### P7.2 Pessoas
+```
+Pessoas
+[ buscar pessoas... ]
+Solicitacoes recebidas [Aceitar] [Recusar]
+Solicitacoes enviadas [Cancelar]
+Suas conexoes [Perfil]
+Sugestoes [Conectar]
+```
+
+### P7.3 Buscar
+```
+[ buscar disciplina, tema, professor... ]
+[letreiro de eventos]
+[Tudo] [Materiais] [Disciplinas] [Professores] [Q&A]
+```
+
+### P7.4 Mapa
+```
+[avatar] Mapa [pessoa+]
+[ Todos ] [ Pavilhao ] [ Comida ] [ Farmacia ] ...
+mapa OSM + pinos aprovados
+[ Sugerir local ] -> toque no mapa -> formulario pending
+```
+
+### P7.5 Menu do avatar
+```
+[avatar] -> menu lateral
+Nome, UFV, conexoes
+Perfil
+Assinatura
+Meus grupos
+Ajustes
+```
+
 ---
 
 ## Ordem de construção das telas
