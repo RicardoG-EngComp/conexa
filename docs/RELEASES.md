@@ -9,8 +9,12 @@ o histórico completo fica no Console do Firebase.
 - **Data:** 19 de novembro de 2026.
 - **Versão:** `1.1.3` (versionCode `28`).
 - **Pacote:** `com.ricardogengcomp.conexa`.
+- **APK:** universal, 76.004.517 bytes.
+- **SHA-256:** `935C77FFC73BF79647754AB5FB5E75B7D60B96037E64E9BE812B51FA06B38D5C`.
 - **Grupo:** `ufv-beta` — UFV Beta.
 - **Distribuição:** Firebase App Distribution.
+- **Console:** https://console.firebase.google.com/project/conexa-20a9b/appdistribution/app/android:com.ricardogengcomp.conexa/releases/3ef3k9g1e0mq8
+- **Testadores:** https://appdistribution.firebase.google.com/testerapps/1:4747139353:android:fdd0d000d5a7803aafcd88/releases/3ef3k9g1e0mq8
 
 ### O que entrou
 
