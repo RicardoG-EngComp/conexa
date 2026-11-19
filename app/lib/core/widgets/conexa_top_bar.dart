@@ -6,6 +6,7 @@ import '../../features/verification/application/verification_providers.dart';
 import '../media/media_image.dart';
 import '../theme/app_colors.dart';
 import '../widgets/avatar_menu.dart';
+import '../widgets/conexa_logo.dart';
 import '../widgets/ribbon_icon.dart';
 
 class ConexaTopBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -15,12 +16,14 @@ class ConexaTopBar extends ConsumerWidget implements PreferredSizeWidget {
     this.showLogo = false,
     this.bottom,
     this.actions = const [],
+    this.center,
   });
 
   final String? title;
   final bool showLogo;
   final PreferredSizeWidget? bottom;
   final List<Widget> actions;
+  final Widget? center;
 
   @override
   Size get preferredSize =>
@@ -65,13 +68,14 @@ class ConexaTopBar extends ConsumerWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
-      title: showLogo
-          ? Text(
-              'Conexa',
-              style: Theme.of(context).textTheme.headlineMedium
-                  ?.copyWith(color: AppColors.ink),
-            )
-          : Text(title ?? '', style: Theme.of(context).textTheme.titleLarge),
+      title:
+          center ??
+          (showLogo
+              ? const ConexaLogo(height: 32)
+              : Text(
+                  title ?? '',
+                  style: Theme.of(context).textTheme.titleLarge,
+                )),
       actions: [
         ...actions,
         IconButton(

@@ -82,7 +82,19 @@ class _StudySearchScreenState extends ConsumerState<StudySearchScreen> {
     );
 
     return Scaffold(
-      appBar: const ConexaTopBar(showLogo: true),
+      appBar: ConexaTopBar(
+        center: TextField(
+          controller: _query,
+          onChanged: _onQueryChanged,
+          textInputAction: TextInputAction.search,
+          onSubmitted: _search,
+          decoration: const InputDecoration(
+            hintText: 'Buscar',
+            prefixIcon: Icon(Icons.search),
+            isDense: true,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => _search(_query.text),
@@ -94,17 +106,6 @@ class _StudySearchScreenState extends ConsumerState<StudySearchScreen> {
               AppSpacing.xl,
             ),
             children: [
-              TextField(
-                controller: _query,
-                onChanged: _onQueryChanged,
-                textInputAction: TextInputAction.search,
-                onSubmitted: _search,
-                decoration: const InputDecoration(
-                  hintText: 'Busque disciplina, tema, professor ou material',
-                  prefixIcon: Icon(Icons.search),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
               if (events.isNotEmpty) ...[
                 _EventBillboard(events: events),
                 const SizedBox(height: AppSpacing.md),

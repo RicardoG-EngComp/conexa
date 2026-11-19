@@ -505,21 +505,25 @@ class _FeedTab extends ConsumerWidget {
               }
 
               final post = posts[cursor];
-              return FeedPostCard(
-                post: post,
-                showSource: !forYou,
-                showRelevance: forYou,
-                onLike: () => onLike(post),
-                onComment: () => onComment(post),
-                onRepost: () => onRepost(post),
-                onReport: () => onReport(post),
-                onBookmark: () => onBookmark(post),
-                onEdit: post.userId == currentUserId && !post.wasRepost
-                    ? () => onEdit(post)
-                    : null,
-                onPin: post.userId == currentUserId ? () => onPin(post) : null,
-                onNotInterested: () => onNotInterested(post),
-                onCopyLink: () => onCopyLink(post),
+              return RepaintBoundary(
+                child: FeedPostCard(
+                  post: post,
+                  showSource: !forYou,
+                  showRelevance: forYou,
+                  onLike: () => onLike(post),
+                  onComment: () => onComment(post),
+                  onRepost: () => onRepost(post),
+                  onReport: () => onReport(post),
+                  onBookmark: () => onBookmark(post),
+                  onEdit: post.userId == currentUserId && !post.wasRepost
+                      ? () => onEdit(post)
+                      : null,
+                  onPin: post.userId == currentUserId
+                      ? () => onPin(post)
+                      : null,
+                  onNotInterested: () => onNotInterested(post),
+                  onCopyLink: () => onCopyLink(post),
+                ),
               );
             },
           );

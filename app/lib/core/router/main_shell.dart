@@ -89,101 +89,101 @@ class MainShell extends ConsumerWidget {
         final location = GoRouterState.of(context).uri.path;
         final index = _paths.indexWhere((p) => location.startsWith(p));
         final selected = index < 0 ? 0 : index;
-        final notificationCount = ref.watch(unreadNotificationCountProvider);
-        final conversations =
-            ref.watch(conversationsProvider).asData?.value ??
-            const <ConversationSummary>[];
-        final chatCount = conversations.fold<int>(
-          0,
-          (sum, conversation) => sum + conversation.unreadCount,
-        );
 
         return Scaffold(
           body: child,
-          bottomNavigationBar: NavigationBarTheme(
-            data: NavigationBarThemeData(
-              backgroundColor: AppColors.surface,
-              indicatorColor: Colors.transparent,
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-              iconTheme: WidgetStateProperty.resolveWith((states) {
-                final active = states.contains(WidgetState.selected);
-                return IconThemeData(
-                  color: active ? AppColors.primary : AppColors.ink,
-                  size: 26,
-                );
-              }),
-            ),
-            child: NavigationBar(
-              height: 64,
-              selectedIndex: selected,
-              onDestinationSelected: (i) => context.go(_paths[i]),
-              destinations: [
-                NavigationDestination(
-                  icon: const RibbonIcon('feed', size: 26),
-                  selectedIcon: RibbonIcon(
-                    'feed',
-                    size: 26,
-                    color: AppColors.primary,
-                  ),
-                  label: 'Feed',
-                ),
-                NavigationDestination(
-                  icon: const RibbonIcon('search', size: 26),
-                  selectedIcon: RibbonIcon(
-                    'search',
-                    size: 26,
-                    color: AppColors.primary,
-                  ),
-                  label: 'Buscar',
-                ),
-                NavigationDestination(
-                  icon: const RibbonIcon('map', size: 26),
-                  selectedIcon: RibbonIcon(
-                    'map',
-                    size: 26,
-                    color: AppColors.primary,
-                  ),
-                  label: 'Mapa',
-                ),
-                NavigationDestination(
-                  icon: Badge.count(
-                    count: notificationCount,
-                    isLabelVisible: notificationCount > 0,
-                    child: RibbonIcon('bell', size: 26),
-                  ),
-                  selectedIcon: Badge.count(
-                    count: notificationCount,
-                    isLabelVisible: notificationCount > 0,
-                    child: RibbonIcon(
-                      'bell',
-                      size: 26,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  label: 'Notificações',
-                ),
-                NavigationDestination(
-                  icon: Badge.count(
-                    count: chatCount,
-                    isLabelVisible: chatCount > 0,
-                    child: RibbonIcon('chat', size: 26),
-                  ),
-                  selectedIcon: Badge.count(
-                    count: chatCount,
-                    isLabelVisible: chatCount > 0,
-                    child: RibbonIcon(
-                      'chat',
-                      size: 26,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  label: 'Chat',
-                ),
-              ],
-            ),
-          ),
+          bottomNavigationBar: _HubNavigationBar(selected: selected),
         );
       },
+    );
+  }
+}
+
+class _HubNavigationBar extends ConsumerWidget {
+  const _HubNavigationBar({required this.selected});
+
+  final int selected;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notificationCount = ref.watch(unreadNotificationCountProvider);
+    final conversations =
+        ref.watch(conversationsProvider).asData?.value ??
+        const <ConversationSummary>[];
+    final chatCount = conversations.fold<int>(
+      0,
+      (sum, conversation) => sum + conversation.unreadCount,
+    );
+
+    return NavigationBarTheme(
+      data: NavigationBarThemeData(
+        backgroundColor: AppColors.surface,
+        indicatorColor: Colors.transparent,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final active = states.contains(WidgetState.selected);
+          return IconThemeData(
+            color: active ? AppColors.primary : AppColors.ink,
+            size: 26,
+          );
+        }),
+      ),
+      child: NavigationBar(
+        height: 64,
+        selectedIndex: selected,
+        onDestinationSelected: (i) => context.go(MainShell._paths[i]),
+        destinations: [
+          NavigationDestination(
+            icon: const RibbonIcon('feed', size: 26),
+            selectedIcon: RibbonIcon(
+              'feed',
+              size: 26,
+              color: AppColors.primary,
+            ),
+            label: 'Feed',
+          ),
+          NavigationDestination(
+            icon: const RibbonIcon('search', size: 26),
+            selectedIcon: RibbonIcon(
+              'search',
+              size: 26,
+              color: AppColors.primary,
+            ),
+            label: 'Buscar',
+          ),
+          NavigationDestination(
+            icon: const RibbonIcon('map', size: 26),
+            selectedIcon: RibbonIcon('map', size: 26, color: AppColors.primary),
+            label: 'Mapa',
+          ),
+          NavigationDestination(
+            icon: Badge.count(
+              count: notificationCount,
+              isLabelVisible: notificationCount > 0,
+              child: const RibbonIcon('bell', size: 26),
+            ),
+            selectedIcon: Badge.count(
+              count: notificationCount,
+              isLabelVisible: notificationCount > 0,
+              child: RibbonIcon('bell', size: 26, color: AppColors.primary),
+            ),
+            label: 'Notificações',
+          ),
+          NavigationDestination(
+            icon: Badge.count(
+              count: chatCount,
+              isLabelVisible: chatCount > 0,
+              child: const RibbonIcon('chat', size: 26),
+            ),
+            selectedIcon: Badge.count(
+              count: chatCount,
+              isLabelVisible: chatCount > 0,
+              child: RibbonIcon('chat', size: 26, color: AppColors.primary),
+            ),
+            label: 'Chat',
+          ),
+        ],
+      ),
     );
   }
 }
