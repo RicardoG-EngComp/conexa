@@ -4,6 +4,32 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
+## 1.1.1+26 — Eventos por interesse
+
+- **Data:** 19 de novembro de 2026.
+- **Versão:** `1.1.1` (versionCode `26`).
+- **Pacote:** `com.ricardogengcomp.conexa`.
+- **Grupo:** `ufv-beta` — UFV Beta.
+- **Distribuição:** Firebase App Distribution.
+
+### O que entrou
+
+- Letreiro de eventos prioriza o curso, o campus e as tags de interesse do usuário.
+- Demais eventos continuam disponíveis, ordenados por data.
+
+### Notas usadas no App Distribution
+
+```text
+Eventos do letreiro agora aparecem priorizando seu curso, campus e interesses.
+```
+
+### Como reproduzir o build
+
+```powershell
+cd app
+flutter build apk --release --build-name=1.1.1 --build-number=26
+```
+
 ## 1.1.0+25 — Novo hub, busca, mapa e pessoas
 
 - **Data:** 19 de novembro de 2026.

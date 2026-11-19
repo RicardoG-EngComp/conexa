@@ -35,7 +35,7 @@ universidades federais.
 - Descoberta P3 (1.0.20): ✅ busca global, feeds personalizados, não interessado, insights e copiar link.
 - Grupos e estudos P4 (1.0.21): ✅ chat do grupo, eventos, analytics, Q&A, materiais salvos e avaliações.
 - Hardening P5 (1.0.22): ✅ 2FA e vídeo removidos, exportação em arquivo, termos administráveis, mídia agendada, membros de chat, RSVP, busca em comentários, views e anexos de Q&A.
-- Beta atual (1.1.0+25): ✅ novo hub, busca acadêmica, mapa, pessoas e menu do avatar.
+- Beta atual (1.1.1+26): ✅ eventos do letreiro ordenados por curso, campus e interesses.
 - Próximo: P5 experimental opcional (áudio/live, fediverso, IA e monetização), com orçamento e revisão jurídica.
 
 ## Documentos

@@ -10,6 +10,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/conexa_top_bar.dart';
 import '../../campus/data/campus_models.dart';
 import '../../campus/data/campus_repository.dart';
+import '../../verification/application/verification_providers.dart';
 import '../data/search_models.dart';
 import '../data/search_repository.dart';
 
@@ -74,7 +75,11 @@ class _StudySearchScreenState extends ConsumerState<StudySearchScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final events = ref.watch(campusEventsProvider).asData?.value ?? const [];
+    final profile = ref.watch(profileProvider).asData?.value;
+    final events = _personalizedEvents(
+      ref.watch(campusEventsProvider).asData?.value ?? const [],
+      profile,
+    );
 
     return Scaffold(
       appBar: const ConexaTopBar(showLogo: true),
@@ -180,6 +185,37 @@ class _StudySearchScreenState extends ConsumerState<StudySearchScreen> {
       ),
     );
   }
+}
+
+List<CampusEvent> _personalizedEvents(
+  List<CampusEvent> events,
+  Map<String, dynamic>? profile,
+) {
+  final course = (profile?['course'] as String?)?.toLowerCase().trim() ?? '';
+  final campus = (profile?['campus'] as String?)?.toLowerCase().trim() ?? '';
+
+  int score(CampusEvent event) {
+    var value = 0;
+    if (campus.isNotEmpty && event.campus?.toLowerCase() == campus) value += 3;
+    if (course.isNotEmpty && event.course?.toLowerCase() == course) value += 3;
+    if (course.isNotEmpty &&
+        event.tags.any((tag) => tag.toLowerCase() == course)) {
+      value += 2;
+    }
+    if (campus.isNotEmpty &&
+        event.tags.any((tag) => tag.toLowerCase() == campus)) {
+      value += 2;
+    }
+    return value;
+  }
+
+  final sorted = [...events];
+  sorted.sort((a, b) {
+    final byScore = score(b).compareTo(score(a));
+    if (byScore != 0) return byScore;
+    return a.startsAt.compareTo(b.startsAt);
+  });
+  return sorted;
 }
 
 class _EventBillboard extends StatelessWidget {
