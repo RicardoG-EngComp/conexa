@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,13 +26,10 @@ class FeedScreen extends ConsumerStatefulWidget {
 
 class _FeedScreenState extends ConsumerState<FeedScreen> {
   Future<void> _toggleLike(bool forYou, FeedPost post) async {
-    try {
-      await ref
-          .read(feedRepositoryProvider)
-          .toggleLike(post.id, post.likedByMe);
-      ref.invalidate(forYou ? feedForYouProvider : feedConnectionsProvider);
-    } catch (_) {
-      // silencioso no MVP
+    if (forYou) {
+      await ref.read(feedForYouProvider.notifier).toggleLike(post.id);
+    } else {
+      await ref.read(feedConnectionsProvider.notifier).toggleLike(post.id);
     }
   }
 
@@ -96,12 +94,12 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     );
   }
 
-  Future<void> _toggleBookmark(FeedPost post) async {
-    try {
-      await ref.read(feedRepositoryProvider).toggleBookmark(post.id);
-      ref.invalidate(feedForYouProvider);
-      ref.invalidate(feedConnectionsProvider);
-    } catch (_) {}
+  Future<void> _toggleBookmark(bool forYou, FeedPost post) async {
+    if (forYou) {
+      await ref.read(feedForYouProvider.notifier).toggleBookmark(post.id);
+    } else {
+      await ref.read(feedConnectionsProvider.notifier).toggleBookmark(post.id);
+    }
   }
 
   Future<void> _edit(FeedPost post) async {
@@ -388,7 +386,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               onComment: _openPost,
               onRepost: _repost,
               onReport: _report,
-              onBookmark: _toggleBookmark,
+              onBookmark: (post) => _toggleBookmark(true, post),
               onEdit: _edit,
               onPin: _pin,
               onNotInterested: _notInterested,
@@ -401,7 +399,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               onComment: _openPost,
               onRepost: _repost,
               onReport: _report,
-              onBookmark: _toggleBookmark,
+              onBookmark: (post) => _toggleBookmark(false, post),
               onEdit: _edit,
               onPin: _pin,
               onNotInterested: _notInterested,
@@ -458,7 +456,9 @@ class _FeedTab extends ConsumerWidget {
           final emptyCount = posts.isEmpty ? 1 : 0;
 
           return ListView.builder(
+            key: PageStorageKey(forYou ? 'feed-for-you' : 'feed-connections'),
             physics: const AlwaysScrollableScrollPhysics(),
+            scrollCacheExtent: const ScrollCacheExtent.pixels(900),
             padding: const EdgeInsets.only(bottom: 100),
             itemCount: headerCount + emptyCount + posts.length,
             itemBuilder: (context, index) {

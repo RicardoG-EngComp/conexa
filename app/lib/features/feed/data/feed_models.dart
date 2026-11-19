@@ -258,6 +258,46 @@ class FeedPost {
   final bool courseMatch;
   final bool campusMatch;
   final bool interestMatch;
+
+  FeedPost copyWith({int? likeCount, bool? likedByMe, bool? bookmarked}) {
+    return FeedPost(
+      id: id,
+      userId: userId,
+      content: content,
+      createdAt: createdAt,
+      authorName: authorName,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount,
+      likedByMe: likedByMe ?? this.likedByMe,
+      visibility: visibility,
+      replyPolicy: replyPolicy,
+      avatarPath: avatarPath,
+      groupId: groupId,
+      groupName: groupName,
+      groupOfficial: groupOfficial,
+      postedAsGroup: postedAsGroup,
+      roleId: roleId,
+      roleNameSnapshot: roleNameSnapshot,
+      roleCurrent: roleCurrent,
+      quotedPostId: quotedPostId,
+      wasQuote: wasQuote,
+      quoted: quoted,
+      repostOfId: repostOfId,
+      wasRepost: wasRepost,
+      repostOf: repostOf,
+      topics: topics,
+      media: media,
+      poll: poll,
+      mentions: mentions,
+      bookmarked: bookmarked ?? this.bookmarked,
+      editedAt: editedAt,
+      pinnedAt: pinnedAt,
+      source: source,
+      courseMatch: courseMatch,
+      campusMatch: campusMatch,
+      interestMatch: interestMatch,
+    );
+  }
 }
 
 class FeedComment {

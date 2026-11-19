@@ -28,7 +28,7 @@ O teste interno nao conta para producao. O beta pode ter centenas de pessoas;
 - Gratuito; sem anuncios.
 - Publico-alvo 18+; **Restrict Minor Access** ativado.
 - Assinatura: Play App Signing.
-- `versionCode`: 27 (`1.1.2+27`) na build beta atual.
+- `versionCode`: 28 (`1.1.3+28`) na build beta atual.
   O upload na Play ainda não foi feito; a distribuição do beta é pelo App
   Distribution (ver `docs/RELEASES.md`).
 
@@ -67,7 +67,7 @@ Beta fechado para estudantes da UFV.
 
 > Ativar GitHub Pages em Settings > Pages, pasta `/docs`, antes de submeter.
 
-> **Build Play:** a build beta atual (1.1.2+27) inclui o SDK do Firebase App
+> **Build Play:** a build beta atual (1.1.3+28) inclui o SDK do Firebase App
 > Distribution, que é exclusivo do beta. Antes de publicar na Play, remover o
 > plugin `firebase_app_distribution`, o `google-services.json` e o serviço de
 > update do beta; a Play usa In-App Updates. O SDK não adicionou permissões
@@ -125,7 +125,7 @@ depois. Nunca commite as senhas.
 ## AAB
 
 ```powershell
-flutter build appbundle --release --build-name=1.1.2 --build-number=27
+flutter build appbundle --release --build-name=1.1.3 --build-number=28
 ```
 
 Saida: `app/build/app/outputs/bundle/release/app-release.aab`.

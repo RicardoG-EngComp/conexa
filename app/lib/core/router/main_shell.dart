@@ -11,17 +11,9 @@ import '../theme/app_colors.dart';
 import '../widgets/ribbon_icon.dart';
 
 class MainShell extends ConsumerWidget {
-  const MainShell({super.key, required this.child});
+  const MainShell({super.key, required this.navigationShell});
 
-  final Widget child;
-
-  static const _paths = [
-    '/feed',
-    '/discover',
-    '/map',
-    '/notifications',
-    '/chats',
-  ];
+  final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,13 +78,11 @@ class MainShell extends ConsumerWidget {
           );
         }
 
-        final location = GoRouterState.of(context).uri.path;
-        final index = _paths.indexWhere((p) => location.startsWith(p));
-        final selected = index < 0 ? 0 : index;
-
         return Scaffold(
-          body: child,
-          bottomNavigationBar: _HubNavigationBar(selected: selected),
+          body: navigationShell,
+          bottomNavigationBar: _HubNavigationBar(
+            navigationShell: navigationShell,
+          ),
         );
       },
     );
@@ -100,9 +90,9 @@ class MainShell extends ConsumerWidget {
 }
 
 class _HubNavigationBar extends ConsumerWidget {
-  const _HubNavigationBar({required this.selected});
+  const _HubNavigationBar({required this.navigationShell});
 
-  final int selected;
+  final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -130,8 +120,11 @@ class _HubNavigationBar extends ConsumerWidget {
       ),
       child: NavigationBar(
         height: 64,
-        selectedIndex: selected,
-        onDestinationSelected: (i) => context.go(MainShell._paths[i]),
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: (i) {
+          if (i == navigationShell.currentIndex) return;
+          navigationShell.goBranch(i);
+        },
         destinations: [
           NavigationDestination(
             icon: const RibbonIcon('feed', size: 26),

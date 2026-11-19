@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class ConexaLogo extends StatelessWidget {
-  const ConexaLogo({super.key, this.height = 30});
+  const ConexaLogo({super.key, this.height = 32});
 
   final double height;
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(
-      'assets/branding/logo.svg',
+    return Image.asset(
+      'assets/branding/logo.png',
       height: height,
       width: height,
-      semanticsLabel: 'Conexa',
+      semanticLabel: 'Conexa',
+      filterQuality: FilterQuality.medium,
     );
   }
 }

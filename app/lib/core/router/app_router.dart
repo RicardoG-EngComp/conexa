@@ -146,33 +146,54 @@ final GoRouter appRouter = GoRouter(
       builder: (_, state) => ProfileScreen(userId: state.pathParameters['id']),
     ),
     GoRoute(path: '/preferences', builder: (_, _) => const PreferencesScreen()),
-    ShellRoute(
-      builder: (_, _, child) => MainShell(child: child),
-      routes: [
-        GoRoute(path: '/feed', builder: (_, _) => const FeedScreen()),
-        GoRoute(
-          path: '/discover',
-          builder: (_, _) => const StudySearchScreen(),
+    StatefulShellRoute.indexedStack(
+      builder: (_, _, navigationShell) =>
+          MainShell(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(path: '/feed', builder: (_, _) => const FeedScreen()),
+          ],
         ),
-        GoRoute(path: '/map', builder: (_, _) => const CampusMapScreen()),
-        GoRoute(
-          path: '/notifications',
-          builder: (_, _) => const NotificationsScreen(),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/discover',
+              builder: (_, _) => const StudySearchScreen(),
+            ),
+          ],
         ),
-        GoRoute(path: '/curtidas', builder: (_, _) => const CurtidasScreen()),
-        GoRoute(
-          path: '/chats',
-          builder: (_, state) {
-            final tab = switch (state.uri.queryParameters['tab']) {
-              'requests' => 1,
-              _ => 0,
-            };
-            return ChatListScreen(initialTab: tab);
-          },
+        StatefulShellBranch(
+          routes: [
+            GoRoute(path: '/map', builder: (_, _) => const CampusMapScreen()),
+          ],
         ),
-        GoRoute(path: '/coach', builder: (_, _) => const CoachScreen()),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/notifications',
+              builder: (_, _) => const NotificationsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/chats',
+              builder: (_, state) {
+                final tab = switch (state.uri.queryParameters['tab']) {
+                  'requests' => 1,
+                  _ => 0,
+                };
+                return ChatListScreen(initialTab: tab);
+              },
+            ),
+          ],
+        ),
       ],
     ),
+    GoRoute(path: '/curtidas', builder: (_, _) => const CurtidasScreen()),
+    GoRoute(path: '/coach', builder: (_, _) => const CoachScreen()),
     GoRoute(path: '/people', builder: (_, _) => const PeopleScreen()),
     GoRoute(path: '/groups', builder: (_, _) => const GroupsHomeScreen()),
     GoRoute(

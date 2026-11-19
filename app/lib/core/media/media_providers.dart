@@ -30,7 +30,7 @@ final mediaServiceProvider = Provider<MediaService>((ref) {
 final mediaVariantsProvider = FutureProvider.autoDispose
     .family<MediaVariants?, String>((ref, path) {
       final link = ref.keepAlive();
-      final timer = Timer(const Duration(minutes: 5), link.close);
+      final timer = Timer(const Duration(minutes: 30), link.close);
       ref.onDispose(timer.cancel);
       return ref.read(mediaServiceProvider).signedVariants(path);
     });

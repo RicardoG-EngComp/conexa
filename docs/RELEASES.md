@@ -4,35 +4,36 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
-## 1.1.2+27 — Logo, casa e fluidez
+## 1.1.3+28 — Ícone oficial e navegação fluida
 
 - **Data:** 19 de novembro de 2026.
-- **Versão:** `1.1.2` (versionCode `27`).
+- **Versão:** `1.1.3` (versionCode `28`).
 - **Pacote:** `com.ricardogengcomp.conexa`.
 - **Grupo:** `ufv-beta` — UFV Beta.
 - **Distribuição:** Firebase App Distribution.
 
 ### O que entrou
 
+- Ícone do app gerado a partir da arte 3D enviada, com versões adaptativa e legada.
 - Ícone de Feed em formato de casa.
-- Logo Conexa no centro do feed.
-- Barra de busca no topo da tela de Buscar.
-- Cache de URLs de mídia por 5 minutos para reduzir re-assinatura ao rolar.
-- Barra inferior de badges isolada para reduzir rebuilds.
-- Cada publicação do feed em RepaintBoundary.
+- Logo Conexa no centro do feed; a barra de busca fica no topo da tela Buscar.
+- As cinco abas do hub preservam estado, rolagem e dados ao alternar.
+- Curtidas e salvamentos são aplicados na hora, sem recarregar o feed.
+- Cache de mídia por 30 minutos e pré-carregamento de posts na rolagem.
+- Cada publicação em RepaintBoundary e barra de badges isolada.
 
 ### Notas usadas no App Distribution
 
 ```text
-Logo no feed, icone de casa no Feed e busca no topo.
-Melhorias de cache e rebuild para o feed ficar mais fluido.
+Icone oficial do Conexa, casa no Feed e logo no centro.
+Busca no topo, abas sem recarregar e curtidas instantaneas.
 ```
 
 ### Como reproduzir o build
 
 ```powershell
 cd app
-flutter build apk --release --build-name=1.1.2 --build-number=27
+flutter build apk --release --build-name=1.1.3 --build-number=28
 ```
 
 ## 1.1.1+26 — Eventos por interesse
