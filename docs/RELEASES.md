@@ -4,6 +4,40 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
+## 1.1.5+30 — Feed mais claro e compacto
+
+- **Data:** 19 de novembro de 2026.
+- **Versão:** `1.1.5` (versionCode `30`).
+- **Pacote:** `com.ricardogengcomp.conexa`.
+- **Grupo:** `ufv-beta` — UFV Beta.
+- **Distribuição:** Firebase App Distribution.
+
+### O que entrou
+
+- Ícone de responder virou um balão de comentário próprio.
+- Republicar ficou só com o ícone, sem o texto "Repub..." truncado.
+- Tooltips em responder, republicar, curtir, salvar, compartilhar e mais opções.
+- Horário ao lado do nome; três pontos no canto direito.
+- Nome duplicado no subtítulo foi escondido.
+- Botão de criar publicação agora é circular, mantendo a cor da Conexa.
+- Aba ativa da barra inferior ganhou um ponto indicador.
+- Feed mais compacto; a explicação da ordenação virou tooltip na aba "Para você".
+- Teste de widget para o card do feed.
+
+### Notas usadas no App Distribution
+
+```text
+Icones do feed mais claros, horario ao lado do nome e post mais compacto.
+Botao de criar circular, aba ativa destacada e tooltips nas acoes.
+```
+
+### Como reproduzir o build
+
+```powershell
+cd app
+flutter build apk --release --build-name=1.1.5 --build-number=30
+```
+
 ## 1.1.4+29 — Ajustes de Pessoas e avatar
 
 - **Data:** 19 de novembro de 2026.

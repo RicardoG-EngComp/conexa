@@ -94,14 +94,14 @@ class FeedPostCard extends StatelessWidget {
         : post.authorName;
     final subtitle = post.postedAsGroup
         ? 'Em nome do grupo · por ${post.authorName}'
-        : post.authorName;
+        : (post.authorName == displayName ? null : post.authorName);
 
     final card = Container(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
         AppSpacing.md,
         AppSpacing.md,
-        AppSpacing.sm,
+        AppSpacing.xs,
       ),
       decoration: BoxDecoration(
         color: AppColors.paper,
@@ -137,40 +137,49 @@ class FeedPostCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Icon(Icons.verified, size: 15, color: AppColors.teal),
                         ],
+                        const SizedBox(width: 5),
+                        Text(
+                          '·',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: AppColors.muted,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          timeAgo(post.createdAt),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: AppColors.muted,
+                          ),
+                        ),
+                        if (post.pinnedAt != null) ...[
+                          const SizedBox(width: 4),
+                          Icon(Icons.push_pin, size: 14, color: AppColors.teal),
+                        ],
+                        if (post.editedAt != null) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            'editado',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppColors.muted,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.muted,
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.muted,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                timeAgo(post.createdAt),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColors.muted,
-                ),
-              ),
-              if (post.pinnedAt != null) ...[
-                const SizedBox(width: 4),
-                Icon(Icons.push_pin, size: 14, color: AppColors.teal),
-              ],
-              if (post.editedAt != null) ...[
-                const SizedBox(width: 4),
-                Text(
-                  'editado',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: AppColors.muted,
-                  ),
-                ),
-              ],
               if (onReport != null ||
                   onHide != null ||
                   onDelete != null ||
@@ -180,6 +189,7 @@ class FeedPostCard extends StatelessWidget {
                   onNotInterested != null ||
                   onCopyLink != null)
                 PopupMenuButton<String>(
+                  tooltip: 'Mais opções',
                   padding: EdgeInsets.zero,
                   icon: const Icon(Icons.more_horiz, size: 20),
                   onSelected: (value) {
@@ -388,15 +398,16 @@ class FeedPostCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _PostAction(
-                  icon: 'reply',
+                  icon: 'comment',
                   label: '${post.commentCount}',
+                  tooltip: 'Responder',
                   onTap: onComment,
                 ),
               ),
               Expanded(
                 child: _PostAction(
                   icon: 'repost',
-                  label: 'Republicar',
+                  tooltip: 'Republicar',
                   onTap: onRepost,
                 ),
               ),
@@ -405,6 +416,7 @@ class FeedPostCard extends StatelessWidget {
                   icon: 'heart',
                   label: '${post.likeCount}',
                   color: post.likedByMe ? AppColors.teal : AppColors.muted,
+                  tooltip: post.likedByMe ? 'Descurtir' : 'Curtir',
                   onTap: onLike,
                 ),
               ),
@@ -412,11 +424,16 @@ class FeedPostCard extends StatelessWidget {
                 child: _PostAction(
                   icon: 'bookmark',
                   color: post.bookmarked ? AppColors.teal : AppColors.muted,
+                  tooltip: post.bookmarked ? 'Remover dos salvos' : 'Salvar',
                   onTap: onBookmark,
                 ),
               ),
               Expanded(
-                child: _PostAction(icon: 'share', onTap: onCopyLink),
+                child: _PostAction(
+                  icon: 'share',
+                  tooltip: 'Compartilhar',
+                  onTap: onCopyLink,
+                ),
               ),
             ],
           ),
@@ -677,11 +694,18 @@ class _RelevanceChip extends StatelessWidget {
 }
 
 class _PostAction extends StatelessWidget {
-  const _PostAction({required this.icon, this.label, this.color, this.onTap});
+  const _PostAction({
+    required this.icon,
+    this.label,
+    this.color,
+    this.tooltip,
+    this.onTap,
+  });
 
   final String icon;
   final String? label;
   final Color? color;
+  final String? tooltip;
   final VoidCallback? onTap;
 
   @override
@@ -705,13 +729,15 @@ class _PostAction extends StatelessWidget {
         ],
       ],
     );
-    return InkWell(
+    final action = InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         child: child,
       ),
     );
+    if (tooltip == null) return action;
+    return Tooltip(message: tooltip!, child: action);
   }
 }

@@ -127,38 +127,30 @@ class _HubNavigationBar extends ConsumerWidget {
         },
         destinations: [
           NavigationDestination(
-            icon: const RibbonIcon('feed', size: 26),
-            selectedIcon: RibbonIcon(
-              'feed',
-              size: 26,
-              color: AppColors.primary,
-            ),
+            icon: const _NavIcon('feed'),
+            selectedIcon: const _NavIcon('feed', selected: true),
             label: 'Feed',
           ),
           NavigationDestination(
-            icon: const RibbonIcon('search', size: 26),
-            selectedIcon: RibbonIcon(
-              'search',
-              size: 26,
-              color: AppColors.primary,
-            ),
+            icon: const _NavIcon('search'),
+            selectedIcon: const _NavIcon('search', selected: true),
             label: 'Buscar',
           ),
           NavigationDestination(
-            icon: const RibbonIcon('map', size: 26),
-            selectedIcon: RibbonIcon('map', size: 26, color: AppColors.primary),
+            icon: const _NavIcon('map'),
+            selectedIcon: const _NavIcon('map', selected: true),
             label: 'Mapa',
           ),
           NavigationDestination(
             icon: Badge.count(
               count: notificationCount,
               isLabelVisible: notificationCount > 0,
-              child: const RibbonIcon('bell', size: 26),
+              child: const _NavIcon('bell'),
             ),
             selectedIcon: Badge.count(
               count: notificationCount,
               isLabelVisible: notificationCount > 0,
-              child: RibbonIcon('bell', size: 26, color: AppColors.primary),
+              child: const _NavIcon('bell', selected: true),
             ),
             label: 'Notificações',
           ),
@@ -166,17 +158,49 @@ class _HubNavigationBar extends ConsumerWidget {
             icon: Badge.count(
               count: chatCount,
               isLabelVisible: chatCount > 0,
-              child: const RibbonIcon('chat', size: 26),
+              child: const _NavIcon('chat'),
             ),
             selectedIcon: Badge.count(
               count: chatCount,
               isLabelVisible: chatCount > 0,
-              child: RibbonIcon('chat', size: 26, color: AppColors.primary),
+              child: const _NavIcon('chat', selected: true),
             ),
             label: 'Chat',
           ),
         ],
       ),
+    );
+  }
+}
+
+class _NavIcon extends StatelessWidget {
+  const _NavIcon(this.name, {this.selected = false});
+
+  final String name;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = RibbonIcon(
+      name,
+      size: 26,
+      color: selected ? AppColors.primary : AppColors.ink,
+    );
+    if (!selected) return icon;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        icon,
+        const SizedBox(height: 2),
+        Container(
+          width: 3,
+          height: 3,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -362,19 +362,22 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             indicatorColor: AppColors.teal,
             labelColor: AppColors.ink,
             unselectedLabelColor: AppColors.muted,
-            tabs: const [
-              Tab(text: 'Para você'),
-              Tab(text: 'Conexão'),
+            tabs: [
+              Tooltip(
+                message:
+                    'Ordenado pelo seu curso, campus, interesses e recência.',
+                child: const Tab(text: 'Para você'),
+              ),
+              const Tab(text: 'Conexão'),
             ],
           ),
         ),
         floatingActionButton: FloatingActionButton(
+          tooltip: 'Criar publicação',
           onPressed: () => _openComposerMenu(groups),
           backgroundColor: AppColors.teal,
           foregroundColor: AppColors.onPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
+          shape: const CircleBorder(),
           child: const Icon(Icons.add),
         ),
         body: TabBarView(
@@ -463,26 +466,9 @@ class _FeedTab extends ConsumerWidget {
             itemCount: headerCount + emptyCount + posts.length,
             itemBuilder: (context, index) {
               if (forYou && index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.md,
-                    AppSpacing.lg,
-                    AppSpacing.md,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const IncompleteProfileBanner(),
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        'Ordenado pelo seu curso, campus, interesses e recência.',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.muted,
-                        ),
-                      ),
-                    ],
-                  ),
+                return const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: IncompleteProfileBanner(),
                 );
               }
 
