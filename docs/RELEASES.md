@@ -4,6 +4,36 @@ Registro das versões enviadas ao **Firebase App Distribution** (testadores usam
 o App Tester). Versões anteriores à 1.0.15 não tinham registro neste arquivo;
 o histórico completo fica no Console do Firebase.
 
+## 1.1.4+29 — Ajustes de Pessoas e avatar
+
+- **Data:** 19 de novembro de 2026.
+- **Versão:** `1.1.4` (versionCode `29`).
+- **Pacote:** `com.ricardogengcomp.conexa`.
+- **Grupo:** `ufv-beta` — UFV Beta.
+- **Distribuição:** Firebase App Distribution.
+
+### O que entrou
+
+- Sugestões para conectar não quebram mais o nome em uma letra por linha.
+- Botões "Conectar", "Aceitar", "Recusar", "Cancelar" e "Perfil" compactos nas linhas de Pessoas.
+- Foto de perfil do menu lateral em círculo perfeito.
+- Avatar do topo do feed protegido contra esticamento.
+- Menu lateral sem o título "Conexa"; cabeçalho apenas com o avatar circular e o botão fechar.
+
+### Notas usadas no App Distribution
+
+```text
+Sugestoes para conectar com layout corrigido.
+Avatares em circulo perfeito e menu lateral sem o titulo Conexa.
+```
+
+### Como reproduzir o build
+
+```powershell
+cd app
+flutter build apk --release --build-name=1.1.4 --build-number=29
+```
+
 ## 1.1.3+28 — Ícone oficial e navegação fluida
 
 - **Data:** 19 de novembro de 2026.

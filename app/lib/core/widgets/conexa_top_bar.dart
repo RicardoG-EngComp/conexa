@@ -40,28 +40,30 @@ class ConexaTopBar extends ConsumerWidget implements PreferredSizeWidget {
       leadingWidth: 62,
       leading: Padding(
         padding: const EdgeInsets.only(left: 12),
-        child: Tooltip(
-          message: 'Abrir menu do perfil',
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: () => showAvatarMenu(context),
-            child: ClipOval(
-              child: SizedBox(
-                width: 36,
-                height: 36,
-                child: avatar == null || avatar.isEmpty
-                    ? CircleAvatar(
-                        backgroundColor: AppColors.teal,
-                        child: Text(
-                          _initials(name),
-                          style: TextStyle(
-                            color: AppColors.onPrimary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+        child: Center(
+          child: Tooltip(
+            message: 'Abrir menu do perfil',
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () => showAvatarMenu(context),
+              child: ClipOval(
+                child: SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: avatar == null || avatar.isEmpty
+                      ? CircleAvatar(
+                          backgroundColor: AppColors.teal,
+                          child: Text(
+                            _initials(name),
+                            style: TextStyle(
+                              color: AppColors.onPrimary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                      )
-                    : MediaImage(path: avatar, width: 36, height: 36),
+                        )
+                      : MediaImage(path: avatar, width: 36, height: 36),
+                ),
               ),
             ),
           ),

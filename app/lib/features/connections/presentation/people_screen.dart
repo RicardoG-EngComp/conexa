@@ -10,6 +10,20 @@ import '../../connections/data/connection_models.dart';
 import '../../discover/application/discover_controller.dart';
 import '../../discover/data/discover_models.dart';
 
+final ButtonStyle _compactTextButtonStyle = TextButton.styleFrom(
+  minimumSize: const Size(0, 36),
+  padding: const EdgeInsets.symmetric(horizontal: 12),
+  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  visualDensity: VisualDensity.compact,
+);
+
+final ButtonStyle _compactFilledButtonStyle = FilledButton.styleFrom(
+  minimumSize: const Size(0, 36),
+  padding: const EdgeInsets.symmetric(horizontal: 14),
+  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  visualDensity: VisualDensity.compact,
+);
+
 class PeopleScreen extends ConsumerStatefulWidget {
   const PeopleScreen({super.key});
 
@@ -117,10 +131,12 @@ class _PeopleScreenState extends ConsumerState<PeopleScreen> {
                       entry: item,
                       actions: [
                         TextButton(
+                          style: _compactTextButtonStyle,
                           onPressed: () => _respond(item.userId, false),
                           child: const Text('Recusar'),
                         ),
                         FilledButton(
+                          style: _compactFilledButtonStyle,
                           onPressed: () => _respond(item.userId, true),
                           child: const Text('Aceitar'),
                         ),
@@ -139,6 +155,7 @@ class _PeopleScreenState extends ConsumerState<PeopleScreen> {
                       entry: item,
                       actions: [
                         TextButton(
+                          style: _compactTextButtonStyle,
                           onPressed: () => _cancel(item.userId),
                           child: const Text('Cancelar'),
                         ),
@@ -157,6 +174,7 @@ class _PeopleScreenState extends ConsumerState<PeopleScreen> {
                       entry: item,
                       actions: [
                         TextButton(
+                          style: _compactTextButtonStyle,
                           onPressed: () =>
                               context.push('/profile/${item.userId}'),
                           child: const Text('Perfil'),
@@ -240,7 +258,11 @@ class _PersonRow extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: _Avatar(name: entry.displayName, path: entry.avatarPath),
-      title: Text(entry.displayName),
+      title: Text(
+        entry.displayName,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: actions),
       onTap: () => context.push('/profile/${entry.userId}'),
     );
@@ -258,13 +280,23 @@ class _SuggestionRow extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: _Avatar(name: profile.displayName, path: profile.avatarPath),
-      title: Text(profile.displayName),
+      title: Text(
+        profile.displayName,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
       subtitle: Text(
         [profile.course, profile.campus].where((e) => e.isNotEmpty).join(' · '),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
-      trailing: FilledButton(
-        onPressed: onConnect,
-        child: const Text('Conectar'),
+      trailing: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 128),
+        child: FilledButton(
+          style: _compactFilledButtonStyle,
+          onPressed: onConnect,
+          child: const Text('Conectar'),
+        ),
       ),
       onTap: () => context.push('/profile/${profile.id}'),
     );

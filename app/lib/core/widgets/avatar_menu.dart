@@ -65,9 +65,26 @@ class _AvatarMenuPanel extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Expanded(
-                  child: Text('Conexa', style: theme.textTheme.headlineMedium),
+                ClipOval(
+                  child: SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: avatar == null || avatar.isEmpty
+                        ? CircleAvatar(
+                            backgroundColor: AppColors.teal,
+                            child: Text(
+                              _initials(name),
+                              style: TextStyle(
+                                color: AppColors.onPrimary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          )
+                        : MediaImage(path: avatar, width: 56, height: 56),
+                  ),
                 ),
+                const Spacer(),
                 IconButton(
                   tooltip: 'Fechar',
                   onPressed: () => Navigator.pop(context),
@@ -76,26 +93,6 @@ class _AvatarMenuPanel extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.md),
-            ClipOval(
-              child: SizedBox(
-                width: 72,
-                height: 72,
-                child: avatar == null || avatar.isEmpty
-                    ? CircleAvatar(
-                        backgroundColor: AppColors.teal,
-                        child: Text(
-                          _initials(name),
-                          style: TextStyle(
-                            color: AppColors.onPrimary,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      )
-                    : MediaImage(path: avatar, width: 72, height: 72),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
             Text(name, style: theme.textTheme.headlineMedium),
             const SizedBox(height: 2),
             Text(
